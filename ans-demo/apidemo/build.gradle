@@ -1,0 +1,67 @@
+rootProject.ext.gradle_base_demo this, 'com.android.application'
+
+android {
+    defaultConfig {
+
+        // 个推相关配置
+        manifestPlaceholders = [
+                GETUI_APP_ID    : "gI8n3bRHKt8RF1Ovovep57",
+                GETUI_APP_KEY   : "KLTj3f2BfE72zs3ggKhvb1",
+                GETUI_APP_SECRET: "fh978N75mK6SbqkWE4AB28",
+                JPUSH_PKGNAME   : "com.analysys.demo",
+                JPUSH_APPKEY    : "fb807356b9492193f5546006", //更新appkey
+                JPUSH_CHANNEL   : "developer-default" //暂时填写默认值即可.
+        ]
+
+        applicationId "com.analysys.apidemo"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        preDexLibraries false
+        maxProcessCount 8
+        javaMaxHeapSize "4g"
+    }
+
+    aaptOptions {
+        cruncherEnabled = false
+        useNewCruncher = false
+    }
+    
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        warningsAsErrors false
+        disable "UnusedResources"
+        textOutput "stdout"
+        textReport false
+        disable 'RestrictedApi'
+    }
+
+}
+
+dependencies {
+    if ("api" == Build_Type.toString()) {
+        implementation project(':ans-sdk:analysys_visual')
+        implementation project(':ans-sdk:analysys_encryption')
+        implementation project(':ans-sdk:analysys_paas')
+        implementation project(':ans-sdk:analysys_push')
+    } else {
+        implementation project(':ans-demo:visualDemo')
+    }
+
+}
+
+// 忽略文档编译错误. 设置编码
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}

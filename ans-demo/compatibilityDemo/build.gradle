@@ -1,0 +1,34 @@
+rootProject.ext.gradle_base_demo this
+
+android {
+
+    defaultConfig {
+
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86_64", "x86", "arm64-v8a", "mips", "mips64"
+        }
+        multiDexEnabled true
+        minSdkVersion 15
+        targetSdkVersion 28
+    }
+}
+
+
+dependencies {
+    //个推
+    implementation 'com.getui:sdk:2.13.0.0'
+    //极光
+    implementation 'cn.jiguang.sdk:jpush:3.1.8'
+    // 此处以JPush 3.1.1 版本为例。
+    implementation 'cn.jiguang.sdk:jcore:1.2.6'
+    // 此处以JCore 1.1.9 版本为例。
+    implementation 'com.android.support:multidex:1.0.3'
+//    implementation files('libs/tbs_sdk_thirdapp_v3.6.0.1371_43624_sharewithdownload_withoutGame_obfs_20181106_121046.jar')
+//    implementation files('libs/MiPush_SDK_Client_3_6_12.jar')
+//    implementation files('libs/pushservice-6.5.0.75.jar')
+
+    api project(':ans-sdk:analysys_visual')
+    api project(':ans-sdk:analysys_encryption')
+    api project(':ans-sdk:analysys_paas')
+    api project(':ans-sdk:analysys_push')
+}

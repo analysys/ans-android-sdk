@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frameLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:clickable="true"
+    android:foreground="@drawable/icon"
+    android:foregroundGravity="right|bottom"
+    android:onClick="onClick">
+
+    <TextView
+        android:id="@+id/tvFrame1"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:background="#FF6143"
+        android:clickable="true" />
+
+    <TextView
+        android:id="@+id/tvFrame2"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="#7BFE00"
+        android:clickable="true" />
+
+    <TextView
+        android:id="@+id/tvFrame3"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:background="#FFFF00"
+        android:clickable="true" />
+
+    <Button
+        android:id="@+id/btnFragmeClick"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:clickable="true"
+        android:text="按钮测试" />
+
+</FrameLayout>

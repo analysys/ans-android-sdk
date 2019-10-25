@@ -1,0 +1,37 @@
+captures
+.externalNativeBuild
+import-summary.txt
+
+#java files
+*.class
+*.dex
+
+#for idea temp file
+*.iws
+*.ipr
+*.iml
+
+#mac temp file
+*.idea/
+__MACOSX
+*.DS_Store
+
+#test android studio module
+*androidTest/
+out
+*.gradle/
+release
+build
+*bin/
+*gen/
+*.classpath
+
+#for eclipse
+.settings/
+local.properties
+*.project
+
+#temp file
+*.bak
+
+*.pmd

@@ -1,0 +1,58 @@
+// sdk相关公共配置
+apply from: './gradleBuildExt/baseBuild.gradle'
+
+ext {
+
+    sdkVer = '4.3.6.5'
+
+    gradle_base_sdk = { projectImp, version = sdkVer ->
+
+        rootProject.ext.gradle_base(projectImp, 'com.android.library')
+
+        projectImp.android {
+
+            defaultConfig {
+                testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+            }
+
+            buildTypes {
+                release {
+                    minifyEnabled true
+                    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                }
+
+                debug {
+                    testCoverageEnabled = false
+                }
+            }
+
+            lintOptions {
+                checkReleaseBuilds false
+                abortOnError false
+            }
+
+            testOptions {
+                unitTests.returnDefaultValues = true
+            }
+
+        }
+
+        projectImp.dependencies {
+            // 三方依赖
+            implementation 'androidx.appcompat:appcompat:1.0.2'
+
+            if (projectImp.name != 'analysys_paas') {
+                implementation project(':ans-sdk:analysys_paas')
+            }
+
+            // 测试依赖
+            testImplementation 'junit:junit:4.12'
+            androidTestImplementation 'androidx.test:runner:1.2.0'
+            androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+        }
+
+
+    }
+}
+
+

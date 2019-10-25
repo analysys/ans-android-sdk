@@ -1,0 +1,30 @@
+{
+  "Upload": {
+    "start": "com.analysys.aesencrypt.EncryptAgent.getHeadInfo",
+    "finished": ""
+  },
+  "Encrypt": {
+    "start": "com.analysys.aesencrypt.EncryptAgent.dataEncrypt",
+    "finished": ""
+  },
+  "VisualBase": {
+    "start": "com.analysys.visual.VisualAgent.setVisualBaseURL",
+    "finished": ""
+  },
+  "Visual": {
+    "start": "com.analysys.visual.VisualAgent.setVisitorDebugURL",
+    "finished": ""
+  },
+  "VisualConfig": {
+    "start": "com.analysys.visual.VisualAgent.setVisitorConfigURL",
+    "finished": ""
+  },
+  "PushParse": {
+    "start": "com.analysys.push.PushAgent.enablePush",
+    "finished": ""
+  },
+  "PushClick": {
+    "start": "com.analysys.push.PushAgent.trackCampaign",
+    "finished": ""
+  }
+}

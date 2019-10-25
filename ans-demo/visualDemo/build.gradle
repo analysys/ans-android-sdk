@@ -1,0 +1,13 @@
+rootProject.ext.gradle_base_demo this
+
+dependencies {
+
+    if ("visual" == Build_Type.toString()) {
+        api project(':ans-sdk:analysys_visual')
+        api project(':ans-sdk:analysys_encryption')
+        api project(':ans-sdk:analysys_paas')
+        api project(':ans-sdk:analysys_push')
+    } else if ("compatibility" == Build_Type.toString()){
+        api project(':ans-demo:compatibilityDemo')
+    }
+}

@@ -1,0 +1,4 @@
+//demo
+include 'ans-demo:apidemo', 'ans-demo:visualDemo', 'ans-demo:compatibilityDemo'
+//sdk
+include 'ans-sdk:analysys_paas', 'ans-sdk:analysys_encryption', 'ans-sdk:analysys_push', 'ans-sdk:analysys_visual'

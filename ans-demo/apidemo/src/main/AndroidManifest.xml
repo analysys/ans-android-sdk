@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.analysys.apidemo">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application
+        android:name="com.analysys.apidemo.AnsApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
+
+        <activity android:name="com.analysys.apidemo.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.analysys.apidemo.WebViewActivity"
+            android:process=":WebView" />
+        <activity android:name="com.analysys.apidemo.UserSettingActivity" />
+        <activity android:name="com.analysys.apidemo.EventActivity" />
+        <activity android:name="com.analysys.apidemo.PropertyActivity" />
+        <activity android:name="com.analysys.apidemo.ProfileActivity" />
+        <meta-data
+            android:name="ANALYSYS_AUTO_COLLECTION_MAC"
+            android:value="false"/>
+        <meta-data
+            android:name="ANALYSYS_AUTO_COLLECTION_IMEI"
+            android:value="false"/>
+    </application>
+
+</manifest>

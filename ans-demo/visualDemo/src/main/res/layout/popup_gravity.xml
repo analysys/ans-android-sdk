@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/popup_layout_bg"
+    android:orientation="vertical"
+    android:paddingStart="5dp"
+    android:paddingLeft="5dp"
+    android:paddingTop="5dp"
+    android:paddingEnd="5dp"
+    android:paddingRight="5dp">
+
+    <TextView
+        android:id="@+id/hori_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/popup_item_bg"
+        android:gravity="center_horizontal"
+        android:text="AL"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/vert_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/popup_item_bg"
+        android:gravity="center_horizontal"
+        android:text="TB"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp" />
+</LinearLayout>
