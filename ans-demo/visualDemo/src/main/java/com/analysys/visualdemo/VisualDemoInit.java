@@ -1,4 +1,4 @@
-package com.analysys.visualdemo.init;
+package com.analysys.visualdemo;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,7 +8,7 @@ import com.alibaba.android.arouter.facade.template.IProvider;
 import com.analysys.AnalysysAgent;
 
 @Route(path = "/visualDemo/api")
-public class VisualDemoProvider implements IProvider {
+public class VisualDemoInit implements IProvider {
 
     private static final String SOCKET_URL = "wss://192.168.8.76:4091";
     private static final String CONFIG_URL = "https://192.168.8.76:4089";

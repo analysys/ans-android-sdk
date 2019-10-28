@@ -3,6 +3,8 @@ rootProject.ext.gradle_base_demo this, 'com.android.application'
 android {
     defaultConfig {
 
+        buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
+
         // 个推相关配置
         manifestPlaceholders = [
                 GETUI_APP_ID    : "gI8n3bRHKt8RF1Ovovep57",
