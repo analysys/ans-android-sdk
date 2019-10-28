@@ -1,4 +1,4 @@
-package com.analysys.apidemo;
+package com.analysys.demo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.analysys.ANSAutoPageTracker;
 import com.analysys.AnalysysAgent;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**

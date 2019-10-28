@@ -1,4 +1,4 @@
-package com.analysys.apidemo;
+package com.analysys.demo;
 
 import android.content.Context;
 import android.os.Bundle;

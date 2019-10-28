@@ -3,7 +3,7 @@ apply from: './gradleBuildExt/baseBuild.gradle'
 
 ext {
 
-    sdkVer = '4.3.6.5'
+    sdkVer = '4.3.7'
 
     gradle_base_sdk = { projectImp, version = sdkVer ->
 
@@ -50,9 +50,10 @@ ext {
             androidTestImplementation 'androidx.test:runner:1.2.0'
             androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
         }
-
-
     }
+
+    /** 获取东八区时间 */
+    time= new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC +8"))
 }
 
 

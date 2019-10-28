@@ -1,6 +1,7 @@
 package com.analysys.utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -105,11 +106,11 @@ public class CommonUtils {
     /**
      * 获取当前时间,格式 yyyy-MM-dd hh:mm:ss.SSS
      */
-    public static String getTime() {
+    public static String getTime(Context context) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        Date date = new Date(System.currentTimeMillis());
+        Date date = new Date(getCalibrationTimeMillis(context));
         return simpleDateFormat.format(date);
     }
 
@@ -256,14 +257,23 @@ public class CommonUtils {
         return false;
     }
 
+    public static String timeConversion(long timeStamp) {
+        if (timeStamp == 0) {
+            return "";
+        }
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:sss");
+        return sdf.format(new Date(timeStamp));
+    }
+
     /**
      * 获取首次启动时间
      */
     public static String getFirstStartTime(Context context) {
-        String firstTime = SharedUtil.getString(context, Constants.SP_FIRST_START_TIME,
-                Constants.EMPTY);
+        String firstTime = SharedUtil.getString(context,
+                Constants.SP_FIRST_START_TIME, Constants.EMPTY);
         if (isEmpty(firstTime)) {
-            firstTime = getTime();
+            firstTime = getTime(context);
             SharedUtil.setString(context, Constants.SP_FIRST_START_TIME, firstTime);
         }
         return firstTime;
@@ -272,7 +282,7 @@ public class CommonUtils {
     /**
      * 获取当前日期,格式 yyyy/MM/dd
      */
-    public static String getDay() {
+    public static String getDay(Context context) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
@@ -330,8 +340,10 @@ public class CommonUtils {
         }
         ActivityManager activityManager =
                 (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningApps =
-                activityManager.getRunningAppProcesses();
+        List<ActivityManager.RunningAppProcessInfo> runningApps = null;
+        if (activityManager != null) {
+            runningApps = activityManager.getRunningAppProcesses();
+        }
         if (runningApps == null) {
             return false;
         }
@@ -357,7 +369,11 @@ public class CommonUtils {
         }
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context
                 .CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = null;
+        if (connMgr != null) {
+            networkInfo = connMgr.getActiveNetworkInfo();
+        }
+
         if (networkInfo == null) {
             return netType;
         }
@@ -552,15 +568,6 @@ public class CommonUtils {
             return url;
         }
         return null;
-    }
-
-    /**
-     * 获取服务器时间计算与设备时间差
-     */
-    public static void timeCalibration(long time) {
-        if (time != 0) {
-            Constants.TIME_DIFFERENCE = time - System.currentTimeMillis();
-        }
     }
 
     /**
@@ -923,7 +930,7 @@ public class CommonUtils {
      * 是否首日访问
      */
     public static Object isFirstDay(Context context) {
-        String nowTime = getDay();
+        String nowTime = getDay(context);
         String firstDay = SharedUtil.getString(context, Constants.DEV_IS_FIRST_DAY, null);
         if (isEmpty(firstDay)) {
             SharedUtil.setString(context, Constants.DEV_IS_FIRST_DAY, nowTime);
@@ -931,20 +938,6 @@ public class CommonUtils {
         } else {
             return firstDay.equals(nowTime);
         }
-    }
-
-    /**
-     * 获取当前时间
-     */
-    public static Object getCurrentTime(Context context) {
-        return System.currentTimeMillis() + Constants.TIME_DIFFERENCE;
-    }
-
-    /**
-     * 数据是否被校准
-     */
-    public static Object isCalibrated(Context context) {
-        return Constants.TIME_DIFFERENCE != 0;
     }
 
     /**
@@ -1262,5 +1255,21 @@ public class CommonUtils {
         } catch (Throwable throwable) {
         }
         return null;
+    }
+
+    /**
+     * 获取时间校准后的时间
+     */
+    public static long getCalibrationTimeMillis(Context context) {
+        if (Constants.isTimeCheck) {
+            if (!CommonUtils.isMainProcess(context)) {
+                String diff = CommonUtils.getIdFile(context, Constants.SP_DIFF_TIME);
+                if (diff != null) {
+                    Constants.diffTime = Long.valueOf(diff);
+                }
+            }
+            return System.currentTimeMillis() + Constants.diffTime;
+        }
+        return System.currentTimeMillis();
     }
 }

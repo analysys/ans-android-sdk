@@ -17,10 +17,9 @@ __MACOSX
 *.DS_Store
 
 #test android studio module
-*androidTest/
-out
 *.gradle/
 release
+out
 build
 *bin/
 *gen/

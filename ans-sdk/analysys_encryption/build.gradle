@@ -1,1 +1,34 @@
 rootProject.ext.gradle_base_sdk this
+
+def jarName = "analysys_encryption_sdk.jar"
+def release = "${project.rootDir}" + '/release/'
+def proguardJar = 'analysys_encrypt_' + "${rootProject.ext.sdkVer}_${rootProject.ext.time}" + '.jar'
+
+/**
+ * 生成未混淆的
+ */
+task buildEncrypt(type: Jar, dependsOn: ['build']) {
+    archiveFileName = jarName
+    from('build/intermediates/javac/release/classes')
+    from fileTree(dir: 'src/main', includes: ['assets/**'])
+    destinationDirectory = file(release)
+    exclude('**/R.class')
+    exclude('**/R\$*.class')
+}
+
+
+/**
+ * 生成混淆的jar
+ */
+def androidSDKDir = project.android.sdkDirectory.absolutePath
+def androidJarDir = androidSDKDir.toString() + '/platforms/' + "${android.compileSdkVersion}" + '/android.jar'
+task makeEncrypt(type: proguard.gradle.ProGuardTask, dependsOn: ['buildEncrypt']) {
+    injars(release + jarName)
+    outjars(release + proguardJar)
+    configuration 'proguard-rules.pro'
+    libraryjars(androidJarDir)
+    dontshrink
+    doLast {
+        delete release + jarName
+    }
+}

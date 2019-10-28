@@ -77,13 +77,24 @@ public class AgentProcess {
                         saveKey(context, config.getAppKey());
                         saveChannel(context, config.getChannel());
                         if (CommonUtils.isMainProcess(context)) {
+                            // 同时设置 UploadUrl/WebSocketUrl/ConfigUrl
                             setBaseUrl(context, config.getBaseUrl());
-                            SharedUtil.setBoolean(
-                                    context, Constants.SP_AUTO_PROFILE, config.isAutoProfile());
+                            // 设置首次启动是否发送
+                            Constants.isAutoProfile = config.isAutoProfile();
+                            // 设置加密类型
                             Constants.encryptType = config.getEncryptType().getType();
+                            // 设置渠道归因是否开启
                             Constants.autoInstallation = config.isAutoInstallation();
+                            // 重置PV计数器值
                             CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
+                            long MaxDiffTimeInterval = config.getMaxDiffTimeInterval();
+                            if (0 <= MaxDiffTimeInterval) {
+                                // 用户忽略最大时间差值
+                                Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
+                            }
                         }
+                        // 设置时间校准是否开启
+                        Constants.isTimeCheck = config.isTimeCheck();
                         if (Constants.autoHeatMap) {
                             SystemIds.getInstance(context).parserId();
                         }
@@ -137,15 +148,12 @@ public class AgentProcess {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                     Constants.API_APP_START, Constants.STARTUP, null, startUpMap);
             eventData.put(Constants.X_WHEN, startTime);
-
             trackEvent(context, Constants.API_APP_START, Constants.STARTUP, eventData);
-
             if (CommonUtils.isFirstStart(context)) {
                 sendProfileSetOnce(context, 0);
                 if (Constants.autoInstallation) {
                     sendFirstInstall(context);
                 }
-
             }
         } catch (Throwable throwable) {
         }
@@ -159,7 +167,6 @@ public class AgentProcess {
             long time = NumberFormat.convertToLong(eventTime);
             if (time > 0) {
                 Context context = ContextManager.getContext();
-                time += SharedUtil.getLong(context, Constants.CALIBRATION_TIME, 0);
                 if (context != null && realTimeField != null) {
                     JSONObject endData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_APP_END, Constants.END, null, null);
@@ -202,7 +209,6 @@ public class AgentProcess {
                     if (!pageInfo.containsKey(Constants.PAGE_TITLE)) {
                         autoCollectPageInfo.put(Constants.PAGE_TITLE, mTitle);
                     }
-
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW,
                             pageInfo, autoCollectPageInfo);
@@ -233,7 +239,6 @@ public class AgentProcess {
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_PAGE_VIEW,
                             Constants.PAGE_VIEW, pageInfo, null);
-
                     trackEvent(context,
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
                 } catch (Throwable throwable) {
@@ -246,13 +251,10 @@ public class AgentProcess {
      * 页面信息处理
      */
     public void autoCollectPageView(final Map<String, Object> pageInfo) throws Exception {
-
         Context context = ContextManager.getContext();
         if (context != null) {
-
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                     Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, pageInfo, null);
-
             trackEvent(context, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
         }
     }
@@ -267,7 +269,6 @@ public class AgentProcess {
             if (context != null) {
                 JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                         Constants.API_APP_CLICK, Constants.APP_CLICK, null, screenInfo);
-
                 trackEvent(context, Constants.API_APP_CLICK, Constants.APP_CLICK, eventData);
             }
         } catch (Throwable throwable) {
@@ -290,6 +291,7 @@ public class AgentProcess {
                     }
                     JSONObject eventData;
                     if (isPushTrack(eventName)) {
+                        updateLastOperateTime(context);
                         eventData = DataAssemble.getInstance(context).getEventData(
                                 Constants.API_TRACK, Constants.TRACK,
                                 null, eventInfo, eventName);
@@ -303,6 +305,14 @@ public class AgentProcess {
                 }
             }
         });
+    }
+
+    private void updateLastOperateTime(Context context) {
+        // 判断 session 是否需要重置
+        SessionManage.getInstance(context).resetSession(false);
+        // 更新最后一次用户操作时间
+        CommonUtils.setIdFile(context, Constants.SP_LAST_PAGE_CHANGE,
+                String.valueOf(System.currentTimeMillis()));
     }
 
     /**
@@ -854,9 +864,7 @@ public class AgentProcess {
                             return;
                         }
                         if (!CommonUtils.isEmpty(getUrl)) {
-                            String completeUrl = getUrl + "/up";
-                            changeUrlResetUser(context, completeUrl);
-                            SharedUtil.setString(context, Constants.SP_USER_URL, completeUrl);
+                            saveUploadUrl(context, getUrl + "/up");
                         } else {
                             LogPrompt.showErrLog(LogPrompt.URL_ERR);
                         }
@@ -1176,14 +1184,25 @@ public class AgentProcess {
     }
 
     /**
+     * 存储 upload url
+     */
+    private void saveUploadUrl(Context context, String uploadUrl) throws MalformedURLException {
+        // 判断是否进行时间校准且为主进程
+        if (Constants.isTimeCheck && CommonUtils.isMainProcess(context)) {
+            UploadManager.getInstance(context).sendGetTimeMessage();
+        }
+        changeUrlResetUser(context, uploadUrl);
+        SharedUtil.setString(context, Constants.SP_USER_URL, uploadUrl);
+    }
+
+    /**
      * https 上传地址 设置
      */
     private void setBaseUrl(Context context, String baseUrl) throws Exception {
         if (!CommonUtils.isEmpty(baseUrl)) {
             setVisitorBaseURL(Constants.HTTPS + baseUrl + Constants.HTTPS_PORT);
-            String completeUrl = Constants.HTTPS + baseUrl + Constants.HTTPS_PORT + "/up";
-            changeUrlResetUser(context, completeUrl);
-            SharedUtil.setString(context, Constants.SP_USER_URL, completeUrl);
+            saveUploadUrl(context,
+                    Constants.HTTPS + baseUrl + Constants.HTTPS_PORT + "/up");
         }
     }
 
@@ -1296,7 +1315,7 @@ public class AgentProcess {
      * 首次安装后是否发送profile_set_once
      */
     private void sendProfileSetOnce(Context context, int type) throws Exception {
-        if (SharedUtil.getBoolean(context, Constants.SP_AUTO_PROFILE, true)) {
+        if (Constants.isAutoProfile) {
             Map<String, Object> profileInfo = new HashMap<>();
             if (type == 0) {
                 profileInfo.put(Constants.DEV_FIRST_VISIT_TIME,
@@ -1304,7 +1323,8 @@ public class AgentProcess {
                 profileInfo.put(Constants.DEV_FIRST_VISIT_LANGUAGE,
                         Locale.getDefault().getLanguage());
             } else if (type == 1) {
-                profileInfo.put(Constants.DEV_RESET_TIME, CommonUtils.getTime());
+                profileInfo.put(Constants.DEV_RESET_TIME,
+                        CommonUtils.getTime(context));
             } else {
                 return;
             }
