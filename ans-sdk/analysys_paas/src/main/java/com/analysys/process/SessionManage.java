@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
+import com.analysys.utils.ANSLog;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.NumberFormat;
@@ -40,7 +41,7 @@ public class SessionManage {
             return;
         }
         // 判断此次启动是否为deepLink启动
-        if (!deepLink) {
+        if (deepLink) {
             setSessionId();
             return;
         }

@@ -1,9 +1,8 @@
-package com.analysys.apidemo;
+package com.analysys.demo;
 
 import android.app.Application;
 import android.os.StrictMode;
 
-import com.alibaba.android.arouter.facade.template.IProvider;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
@@ -17,8 +16,9 @@ import com.analysys.EncryptEnum;
  * @Author: Wang-X-C
  */
 public class AnsApplication extends Application {
-
-    public static final String UPLOAD_URL = "https://192.168.8.76:4089";
+    public static final int DEBUG_MODE = 2;
+    public static final String APP_KEY = "heatmaptest0916";
+    public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
     private boolean isDebug = true;
 
     @Override
@@ -42,20 +42,17 @@ public class AnsApplication extends Application {
                 ARouter.getInstance().build("/visualDemo/api").navigation();
                 break;
         }
-
-
     }
-
 
     /**
      * 初始化方舟SDK相关API
      */
     private void initAnalsysy() {
-        AnalysysAgent.setDebugMode(this, 2);
+        AnalysysAgent.setDebugMode(this, DEBUG_MODE);
         //  设置 debug 模式，值：0、1、2
         AnalysysConfig config = new AnalysysConfig();
         // 设置key(目前使用电商demo的key)
-        config.setAppKey("ecommercedemo");
+        config.setAppKey(APP_KEY);
         // 设置渠道
         config.setChannel("AnalsysyDemo");
         // 设置追踪新用户的首次属性
