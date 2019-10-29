@@ -37,25 +37,21 @@ public class SessionManage {
     public void resetSession(boolean deepLink) {
         // 是否跨天
         if (isSpanDay()) {
-            ANSLog.e("跨天重置");
             setSessionId();
             return;
         }
         // 判断此次启动是否为deepLink启动
         if (deepLink) {
-            ANSLog.e("DeepLink重置");
             setSessionId();
             return;
         }
         // 判断session是否为空
         if (isEmptySession()) {
-            ANSLog.e("为空重置");
             setSessionId();
             return;
         }
         // 判断是否超时 重置Session
         if (isSessionTimeOut(mContext)) {
-            ANSLog.e("超时重置");
             setSessionId();
         }
     }
