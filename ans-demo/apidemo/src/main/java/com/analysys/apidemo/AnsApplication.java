@@ -32,6 +32,18 @@ public class AnsApplication extends Application {
         // 初始化方舟SDK
         initAnalsysy();
 
+        // 尝试初始化对应模块
+        switch (BuildConfig.Build_Type) {
+            case "compatibility":
+                // 尝试初始化三方兼容模块
+                ARouter.getInstance().build("/compatibilityDemo/api").navigation();
+            case "visual":
+                // 尝试初始化可视化模块
+                ARouter.getInstance().build("/visualDemo/api").navigation();
+                break;
+        }
+
+
     }
 
 
@@ -55,9 +67,6 @@ public class AnsApplication extends Application {
         AnalysysAgent.setAutoHeatMap(false);
         // 设置数据上传/更新地址
         AnalysysAgent.setUploadURL(this, UPLOAD_URL);
-
-        // 尝试初始化可视化模块
-        ARouter.getInstance().build("/visualDemo/api").navigation();
     }
 
     /**
