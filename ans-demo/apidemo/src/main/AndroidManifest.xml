@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.analysys.apidemo">
+    package="com.analysys.demo">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
-        android:name="com.analysys.apidemo.AnsApplication"
+        android:name=".AnsApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -19,7 +19,7 @@
         android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
 
-        <activity android:name="com.analysys.apidemo.MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,12 +27,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.analysys.apidemo.WebViewActivity"
+            android:name=".WebViewActivity"
             android:process=":WebView" />
-        <activity android:name="com.analysys.apidemo.UserSettingActivity" />
-        <activity android:name="com.analysys.apidemo.EventActivity" />
-        <activity android:name="com.analysys.apidemo.PropertyActivity" />
-        <activity android:name="com.analysys.apidemo.ProfileActivity" />
+        <activity android:name=".UserSettingActivity" />
+        <activity android:name=".EventActivity" />
+        <activity android:name=".PropertyActivity" />
+        <activity android:name=".ProfileActivity" />
         <meta-data
             android:name="ANALYSYS_AUTO_COLLECTION_MAC"
             android:value="false"/>

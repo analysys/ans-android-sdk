@@ -9,9 +9,9 @@ android {
         manifestPlaceholders = [
                 GETUI_APP_ID    : "gI8n3bRHKt8RF1Ovovep57",
                 GETUI_APP_KEY   : "KLTj3f2BfE72zs3ggKhvb1",
-                GETUI_APP_SECRET: "fh978N75mK6SbqkWE4AB28",
+                GETUI_APP_SECRET: "1gYnp4UubFAt59SoOCL2yA",
                 JPUSH_PKGNAME   : "com.analysys.demo",
-                JPUSH_APPKEY    : "fb807356b9492193f5546006", //更新appkey
+                JPUSH_APPKEY    : "74abc6f71d9cd90db9ddfa40", //更新appkey
                 JPUSH_CHANNEL   : "developer-default" //暂时填写默认值即可.
         ]
 
