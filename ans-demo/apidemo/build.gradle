@@ -15,7 +15,7 @@ android {
                 JPUSH_CHANNEL   : "developer-default" //暂时填写默认值即可.
         ]
 
-        applicationId "com.analysys.apidemo"
+        applicationId "com.analysys.demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
