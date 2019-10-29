@@ -290,6 +290,7 @@ public class AgentProcess {
                     }
                     JSONObject eventData;
                     if (isPushTrack(eventName)) {
+                        updateLastOperateTime(context);
                         eventData = DataAssemble.getInstance(context).getEventData(
                                 Constants.API_TRACK, Constants.TRACK,
                                 null, eventInfo, eventName);
@@ -303,6 +304,14 @@ public class AgentProcess {
                 }
             }
         });
+    }
+
+    private void updateLastOperateTime(Context context) {
+        // 判断 session 是否需要重置
+        SessionManage.getInstance(context).resetSession(false);
+        // 更新最后一次用户操作时间
+        CommonUtils.setIdFile(context, Constants.LAST_OP_TIME,
+                System.currentTimeMillis() + "");
     }
 
     /**

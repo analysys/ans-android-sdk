@@ -268,7 +268,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     private void sessionManage(Context context, Intent intent) {
         Constants.utm = DeepLink.getUtmValue(intent);
         SessionManage.getInstance(context).resetSession(
-                CommonUtils.isEmpty(Constants.utm));
+                !CommonUtils.isEmpty(Constants.utm));
     }
 
 
