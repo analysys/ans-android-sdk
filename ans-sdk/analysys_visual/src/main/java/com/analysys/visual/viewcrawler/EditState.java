@@ -6,6 +6,8 @@ import android.os.Looper;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import com.analysys.utils.ActivityLifecycleUtils;
+
 import com.analysys.visual.utils.UIHelper;
 
 import java.lang.ref.WeakReference;
@@ -20,9 +22,9 @@ import java.util.Set;
  * can replace all of the edits in an app with {@link EditState#setEdits(Map)}.
  * <p>
  * Some client is responsible for informing the EditState about the presence or absence
- * of Activities, by calling {@link EditState#add(Activity)} and {@link EditState#remove(Activity)}
+ * of Activities, by calling {@link EditState#onActivityResumed()}
  */
-class EditState extends UIThreadSet<Activity> {
+class EditState {
 
     private final Handler mUiThreadHandler;
     private final Map<String, List<BaseViewVisitor>> mIntendedEdits;
@@ -30,26 +32,15 @@ class EditState extends UIThreadSet<Activity> {
 
     public EditState() {
         mUiThreadHandler = new Handler(Looper.getMainLooper());
-        mIntendedEdits = new HashMap<String, List<BaseViewVisitor>>();
-        mCurrentEdits = new HashSet<EditBinding>();
+        mIntendedEdits = new HashMap<>();
+        mCurrentEdits = new HashSet<>();
     }
 
     /**
      * Should be called whenever a new Activity appears in the application.
      */
-    @Override
-    public void add(Activity newOne) {
-        super.add(newOne);
+    public void onActivityResumed() {
         applyEditsOnUiThread();
-    }
-
-    /**
-     * Should be called whenever an activity leaves the application, or is otherwise no longer
-     * relevant to our edits.
-     */
-    @Override
-    public void remove(Activity oldOne) {
-        super.remove(oldOne);
     }
 
     /**
@@ -99,7 +90,8 @@ class EditState extends UIThreadSet<Activity> {
 
     // Must be called on UI Thread
     private void applyIntendedEdits() {
-        for (final Activity activity : getAll()) {
+        Activity activity = ActivityLifecycleUtils.getCurrentActivity();
+        if (activity != null) {
             final String activityName = activity.getClass().getCanonicalName();
             Map<String, View> rootViews = new HashMap<>();
 
@@ -156,7 +148,7 @@ class EditState extends UIThreadSet<Activity> {
 
         public EditBinding(View viewRoot, BaseViewVisitor edit, Handler uiThreadHandler) {
             mEdit = edit;
-            mViewRoot = new WeakReference<View>(viewRoot);
+            mViewRoot = new WeakReference<>(viewRoot);
             mHandler = uiThreadHandler;
             mAlive = true;
             mDying = false;

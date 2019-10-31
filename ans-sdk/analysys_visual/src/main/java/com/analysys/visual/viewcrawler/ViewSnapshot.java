@@ -26,6 +26,7 @@ import android.widget.AbsoluteLayout;
 import android.widget.RelativeLayout;
 
 import com.analysys.utils.InternalAgent;
+import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.visual.utils.UIHelper;
 
 import org.json.JSONObject;
@@ -72,13 +73,12 @@ public class ViewSnapshot {
      * elements for every activity to be snapshotted. Given stream out will be
      * written on the calling thread.
      */
-    public void snapshots(UIThreadSet<Activity> liveActivities, OutputStream out) throws IOException {
-        mRootViewFinder.findInActivities(liveActivities);
+    public void snapshots(OutputStream out) throws IOException {
         final FutureTask<List<RootViewInfo>> infoFuture =
-                new FutureTask<List<RootViewInfo>>(mRootViewFinder);
+                new FutureTask<>(mRootViewFinder);
         mMainThreadHandler.post(infoFuture);
         final OutputStreamWriter writer = new OutputStreamWriter(out);
-        List<RootViewInfo> infoList = Collections.<RootViewInfo>emptyList();
+        List<RootViewInfo> infoList = Collections.emptyList();
         writer.write("[");
         try {
             infoList = infoFuture.get(1, TimeUnit.SECONDS);
@@ -347,25 +347,19 @@ public class ViewSnapshot {
         private final DisplayMetrics mDisplayMetrics;
         private final Map<String, CachedBitmap> mCachedBitmap;
         private final int mClientDensity = DisplayMetrics.DENSITY_DEFAULT;
-        private UIThreadSet<Activity> mLiveActivities;
-
         public RootViewFinder() {
             mDisplayMetrics = new DisplayMetrics();
-            mRootViews = new ArrayList<RootViewInfo>();
+            mRootViews = new ArrayList<>();
             mCachedBitmap = new HashMap<>();
         }
 
-        public void findInActivities(UIThreadSet<Activity> liveActivities) {
-            mLiveActivities = liveActivities;
-        }
-
         @Override
-        public List<RootViewInfo> call() throws Exception {
+        public List<RootViewInfo> call() {
             mRootViews.clear();
 
-            final Set<Activity> liveActivities = mLiveActivities.getAll();
+            Activity activity = ActivityLifecycleUtils.getCurrentActivity();
 
-            for (final Activity activity : liveActivities) {
+            if (activity != null) {
                 final String activityName = activity.getClass().getCanonicalName();
                 activity.getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
 

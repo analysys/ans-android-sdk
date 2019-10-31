@@ -15,6 +15,7 @@ import com.analysys.network.UploadManager;
 import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -66,6 +67,7 @@ public class AgentProcess {
      */
     public void init(final AnalysysConfig config) {
         final Context context = ContextManager.getContext();
+        ActivityLifecycleUtils.initLifecycle();
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
             @Override
