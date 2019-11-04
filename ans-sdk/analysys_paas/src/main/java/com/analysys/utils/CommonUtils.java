@@ -1,6 +1,7 @@
 package com.analysys.utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -256,6 +257,15 @@ public class CommonUtils {
         return false;
     }
 
+    public static String timeConversion(long timeStamp) {
+        if (timeStamp == 0) {
+            return "";
+        }
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:sss");
+        return sdf.format(new Date(timeStamp));
+    }
+
     /**
      * 获取首次启动时间
      */
@@ -330,8 +340,10 @@ public class CommonUtils {
         }
         ActivityManager activityManager =
                 (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningApps =
-                activityManager.getRunningAppProcesses();
+        List<ActivityManager.RunningAppProcessInfo> runningApps = null;
+        if (activityManager != null) {
+            runningApps = activityManager.getRunningAppProcesses();
+        }
         if (runningApps == null) {
             return false;
         }
@@ -357,7 +369,11 @@ public class CommonUtils {
         }
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context
                 .CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = null;
+        if (connMgr != null) {
+            networkInfo = connMgr.getActiveNetworkInfo();
+        }
+
         if (networkInfo == null) {
             return netType;
         }
@@ -552,15 +568,6 @@ public class CommonUtils {
             return url;
         }
         return null;
-    }
-
-    /**
-     * 获取服务器时间计算与设备时间差
-     */
-    public static void timeCalibration(long time) {
-        if (time != 0) {
-            Constants.TIME_DIFFERENCE = time - System.currentTimeMillis();
-        }
     }
 
     /**
@@ -934,17 +941,10 @@ public class CommonUtils {
     }
 
     /**
-     * 获取当前时间
-     */
-    public static Object getCurrentTime(Context context) {
-        return System.currentTimeMillis() + Constants.TIME_DIFFERENCE;
-    }
-
-    /**
      * 数据是否被校准
      */
     public static Object isCalibrated(Context context) {
-        return Constants.TIME_DIFFERENCE != 0;
+        return Constants.isCalibration;
     }
 
     /**

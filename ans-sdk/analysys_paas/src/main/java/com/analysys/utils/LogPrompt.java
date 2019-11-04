@@ -25,18 +25,18 @@ public class LogPrompt {
     private static final String NOT_EMPTY = FAILED + " Can not be empty!";
 
     private static final String ID_EMPTY = FAILED + " Id can not be empty!";
-    public static final String KEY_EMPTY = " Key can not be empty!";
-    public static final String VALUE_EMPTY = " Value can not be empty!";
-    public static final String ARRAY_SIZE_ERROR = " The length of the property value array needs " +
+    static final String KEY_EMPTY = " Key can not be empty!";
+    static final String VALUE_EMPTY = " Value can not be empty!";
+    static final String ARRAY_SIZE_ERROR = " The length of the property value array needs " +
             "to be 1-100!";
-    public static final String MAP_SIZE_ERROR = " The length of the property key-value pair needs" +
+    static final String MAP_SIZE_ERROR = " The length of the property key-value pair needs" +
             " to be 1-100!";
-    public static final String ID_LENGTH_ERROR = " The length of the id needs to be 1-255!";
-    public static final String TYPE_ERROR = "Property value invalid, support type: " +
+    static final String ID_LENGTH_ERROR = " The length of the id needs to be 1-255!";
+    static final String TYPE_ERROR = "Property value invalid, support type: " +
             "String/Number/boolean/String collection/String array!";
-    public final static String FRONT = "[ ";
-    public final static String NAMING_ERR = "] does not conform to naming rules!";
-    public final static String RESERVED_ERR = " ] is a reserved field!";
+    final static String FRONT = "[ ";
+    final static String NAMING_ERR = "] does not conform to naming rules!";
+    final static String RESERVED_ERR = " ] is a reserved field!";
     private static final String INIT_SUCCESS = "Init Android Analysys Java sdk success, version: ";
     private static final String INIT_FAILED = "Please init Analysys Android SDK .";
     private static final String ENCRYPT_SUCCESS = "Encrypt success.";
@@ -48,16 +48,31 @@ public class LogPrompt {
     private static final String NOT_NETWORK = "No network, Please check the network.";
     private static final String UPLOAD_SUCCESS = "Data uploaded successfully.";
     private static final String UPLOAD_FAILED = "Data uploaded failed.";
-    public static final String ERR_HEAD_VALUE = "The length of the property value string [";
-    public static final String ERR_HEAD_KEY = "The length of the property key string [";
-    public static final String WHAT_LENGTH_ERR = "] needs to be 1-99!";
-    public static final String KEY_LENGTH_ERR = "] needs to be 1-99!";
-    public static final String VALUE_LENGTH_ERR = "] needs to be 1-255!";
-    public static final String ARRAY_SIZE_ERR = " The length of the property value array needs to" +
+    static final String ERR_HEAD_VALUE = "The length of the property value string [";
+    static final String ERR_HEAD_KEY = "The length of the property key string [";
+    static final String WHAT_LENGTH_ERR = "] needs to be 1-99!";
+    static final String KEY_LENGTH_ERR = "] needs to be 1-99!";
+    static final String VALUE_LENGTH_ERR = "] needs to be 1-255!";
+    static final String ARRAY_SIZE_ERR = " The length of the property value array needs to" +
             " be 1-100!";
     public static final String TEMPLATE_ERR = "SDK template loading exception.";
     public static final String URL_ERR = " Please check the upload URL.";
 
+
+    public static void showCheckTimeLog(long netTime, long nowTime, long absDiff) {
+        ANSLog.d("收到服务器的时间：" + CommonUtils.timeConversion(netTime));
+        ANSLog.d("本地时间：" + CommonUtils.timeConversion(nowTime));
+        ANSLog.d("时间相差：" + (absDiff / 1000) + " 秒");
+        if (absDiff > Constants.ignoreDiffTime) {
+            ANSLog.d("差值大于："
+                    + Constants.ignoreDiffTime / 1000
+                    + " 秒，数据将会进行时间校准。");
+        } else {
+            ANSLog.d("差值小于："
+                    + Constants.ignoreDiffTime / 1000
+                    + " 秒，数据将不会进行时间校准。");
+        }
+    }
 
     /**
      * 打印log日志
@@ -134,7 +149,6 @@ public class LogPrompt {
 
     /**
      * 异常日志打印
-     * @param log
      */
     public static void showErrLog(String log) {
         ANSLog.w(log);
