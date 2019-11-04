@@ -25,7 +25,6 @@ public class AnalysysConfig {
 
     /**
      * 设置 App key
-     * @param appKey
      */
     public void setAppKey(String appKey) {
         this.appKey = appKey;
@@ -33,7 +32,6 @@ public class AnalysysConfig {
 
     /**
      * 获取 APP 渠道
-     * @return
      */
     public String getChannel() {
         return channel;
@@ -41,7 +39,6 @@ public class AnalysysConfig {
 
     /**
      * 设置 APP 渠道
-     * @param channel
      */
     public void setChannel(String channel) {
         this.channel = channel;
@@ -49,7 +46,6 @@ public class AnalysysConfig {
 
     /**
      * 获取 上传、可视化、获取可视化配置的公用地址
-     * @return
      */
     public String getBaseUrl() {
         return baseUrl;
@@ -57,8 +53,8 @@ public class AnalysysConfig {
 
     /**
      * 设置公用地址
-     * @param baseUrl
      */
+    @Deprecated
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
     }
@@ -66,7 +62,6 @@ public class AnalysysConfig {
     /**
      * 获取追踪新用户的首次属性
      * 默认为 true 追踪
-     * @return
      */
     public boolean isAutoProfile() {
         return autoProfile;
@@ -75,7 +70,6 @@ public class AnalysysConfig {
     /**
      * 设置追踪新用户的首次属性
      * 默认为 true 追踪
-     * @param autoProfile
      */
     public void setAutoProfile(boolean autoProfile) {
         this.autoProfile = autoProfile;
@@ -83,7 +77,6 @@ public class AnalysysConfig {
 
     /**
      * 获取加密方式
-     * @return
      */
     public EncryptEnum getEncryptType() {
         return encryptType;
@@ -91,7 +84,6 @@ public class AnalysysConfig {
 
     /**
      * 设置加密方式
-     * @param encryptType
      */
     public void setEncryptType(EncryptEnum encryptType) {
         this.encryptType = encryptType;
@@ -99,7 +91,6 @@ public class AnalysysConfig {
 
     /**
      * 获取渠道归因设置
-     * @return
      */
     public boolean isAutoInstallation() {
         return autoInstallation;
@@ -108,7 +99,6 @@ public class AnalysysConfig {
     /**
      * 设置渠道归因是否开启
      * 默认 false 关闭
-     * @param autoInstallation
      */
     public void setAutoInstallation(boolean autoInstallation) {
         this.autoInstallation = autoInstallation;

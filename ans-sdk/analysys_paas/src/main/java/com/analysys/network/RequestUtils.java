@@ -24,22 +24,20 @@ import javax.net.ssl.HttpsURLConnection;
  * @Create: 2018/2/3 17:31
  * @Author: Wang-X-C
  */
-public class RequestUtils {
+class RequestUtils {
     /**
      * HTTP
      */
-    public static String postRequest(String url, String value, String spv,
-                                     Map<String, String> headInfo) {
+    static String postRequest(String url, String value, String spv,
+                              Map<String, String> headInfo) {
         String response = null;
         InputStream is = null;
         ByteArrayOutputStream bos = null;
-        PrintWriter pw = null;
+        PrintWriter pw;
         try {
             response = "";
             URL urlP;
             HttpURLConnection connection;
-            is = null;
-            bos = null;
             byte[] buffer = new byte[1024];
             urlP = new URL(url);
             connection = (HttpURLConnection) urlP.openConnection();
@@ -96,7 +94,7 @@ public class RequestUtils {
     /**
      * HTTPS
      */
-    public static String postRequestHttps
+    static String postRequestHttps
     (Context context, String path, String requestData,
      String spv, Map<String, String> headInfo) {
         HttpsURLConnection connection = null;
