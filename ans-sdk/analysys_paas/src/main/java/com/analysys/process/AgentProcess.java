@@ -78,11 +78,13 @@ public class AgentProcess {
                         saveChannel(context, config.getChannel());
                         if (CommonUtils.isMainProcess(context)) {
                             setBaseUrl(context, config.getBaseUrl());
-                            SharedUtil.setBoolean(
-                                    context, Constants.SP_AUTO_PROFILE, config.isAutoProfile());
+                            SharedUtil.setBoolean(context,
+                                    Constants.SP_AUTO_PROFILE, config.isAutoProfile());
                             Constants.encryptType = config.getEncryptType().getType();
                             Constants.autoInstallation = config.isAutoInstallation();
                             CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
+                            Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
+                            Constants.isTimeCheck = config.isTimeCheck();
                         }
                         if (Constants.autoHeatMap) {
                             SystemIds.getInstance(context).parserId();
@@ -137,15 +139,12 @@ public class AgentProcess {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                     Constants.API_APP_START, Constants.STARTUP, null, startUpMap);
             eventData.put(Constants.X_WHEN, startTime);
-
             trackEvent(context, Constants.API_APP_START, Constants.STARTUP, eventData);
-
             if (CommonUtils.isFirstStart(context)) {
                 sendProfileSetOnce(context, 0);
                 if (Constants.autoInstallation) {
                     sendFirstInstall(context);
                 }
-
             }
         } catch (Throwable throwable) {
         }
@@ -159,7 +158,6 @@ public class AgentProcess {
             long time = NumberFormat.convertToLong(eventTime);
             if (time > 0) {
                 Context context = ContextManager.getContext();
-                time += SharedUtil.getLong(context, Constants.CALIBRATION_TIME, 0);
                 if (context != null && realTimeField != null) {
                     JSONObject endData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_APP_END, Constants.END, null, null);
@@ -202,7 +200,6 @@ public class AgentProcess {
                     if (!pageInfo.containsKey(Constants.PAGE_TITLE)) {
                         autoCollectPageInfo.put(Constants.PAGE_TITLE, mTitle);
                     }
-
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW,
                             pageInfo, autoCollectPageInfo);
@@ -233,7 +230,6 @@ public class AgentProcess {
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_PAGE_VIEW,
                             Constants.PAGE_VIEW, pageInfo, null);
-
                     trackEvent(context,
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
                 } catch (Throwable throwable) {
@@ -246,13 +242,10 @@ public class AgentProcess {
      * 页面信息处理
      */
     public void autoCollectPageView(final Map<String, Object> pageInfo) throws Exception {
-
         Context context = ContextManager.getContext();
         if (context != null) {
-
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                     Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, pageInfo, null);
-
             trackEvent(context, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
         }
     }
@@ -267,7 +260,6 @@ public class AgentProcess {
             if (context != null) {
                 JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                         Constants.API_APP_CLICK, Constants.APP_CLICK, null, screenInfo);
-
                 trackEvent(context, Constants.API_APP_CLICK, Constants.APP_CLICK, eventData);
             }
         } catch (Throwable throwable) {
@@ -863,9 +855,7 @@ public class AgentProcess {
                             return;
                         }
                         if (!CommonUtils.isEmpty(getUrl)) {
-                            String completeUrl = getUrl + "/up";
-                            changeUrlResetUser(context, completeUrl);
-                            SharedUtil.setString(context, Constants.SP_USER_URL, completeUrl);
+                            saveUploadUrl(context, getUrl + "/up");
                         } else {
                             LogPrompt.showErrLog(LogPrompt.URL_ERR);
                         }
@@ -1185,14 +1175,24 @@ public class AgentProcess {
     }
 
     /**
+     * 存储 upload url
+     */
+    private void saveUploadUrl(Context context, String uploadUrl) throws MalformedURLException {
+        if (Constants.isTimeCheck){
+            UploadManager.getInstance(context).sendGetTimeMessage();
+        }
+        changeUrlResetUser(context, uploadUrl);
+        SharedUtil.setString(context, Constants.SP_USER_URL, uploadUrl);
+    }
+
+    /**
      * https 上传地址 设置
      */
     private void setBaseUrl(Context context, String baseUrl) throws Exception {
         if (!CommonUtils.isEmpty(baseUrl)) {
             setVisitorBaseURL(Constants.HTTPS + baseUrl + Constants.HTTPS_PORT);
-            String completeUrl = Constants.HTTPS + baseUrl + Constants.HTTPS_PORT + "/up";
-            changeUrlResetUser(context, completeUrl);
-            SharedUtil.setString(context, Constants.SP_USER_URL, completeUrl);
+            saveUploadUrl(context,
+                    Constants.HTTPS + baseUrl + Constants.HTTPS_PORT + "/up");
         }
     }
 

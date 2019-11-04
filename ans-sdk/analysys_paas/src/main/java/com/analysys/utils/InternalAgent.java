@@ -55,15 +55,14 @@ public class InternalAgent {
      * 获取当前时间
      */
     public static Object getCurrentTime(Context context) {
-        return CommonUtils.getCurrentTime(context);
+        return System.currentTimeMillis();
     }
 
     /**
-     * 数据是否被校准
+     * 是否进行了时间校准
      */
     public static Object isCalibrated(Context context) {
-
-        return CommonUtils.isCalibrated(context);
+        return Constants.isCalibration;
     }
 
     /**

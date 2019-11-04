@@ -1,5 +1,7 @@
 package com.analysys;
 
+import com.analysys.utils.Constants;
+
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
  * @Description: TODO
@@ -13,8 +15,9 @@ public class AnalysysConfig {
     private boolean autoProfile = true;
     private EncryptEnum encryptType = EncryptEnum.EMPTY;
     private String appKey;
-
     private boolean autoInstallation = false;
+    private boolean calibration = Constants.isTimeCheck;
+    private long diffTime = Constants.ignoreDiffTime;
 
     /**
      * 获取 App key
@@ -104,4 +107,26 @@ public class AnalysysConfig {
         this.autoInstallation = autoInstallation;
     }
 
+    /**
+     * 设置是否进行时间校准
+     */
+    public void setTimeCheck(boolean calibration) {
+        this.calibration = calibration;
+    }
+
+    public boolean isTimeCheck() {
+        return calibration;
+    }
+
+    /**
+     * 设置进行时间校准的误差值
+     */
+    public void setMaxDiffTimeInterval(long value) {
+        this.diffTime = value * 1000;
+    }
+
+    public long getMaxDiffTimeInterval() {
+        return diffTime;
+    }
 }
+

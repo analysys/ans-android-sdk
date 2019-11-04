@@ -1,7 +1,5 @@
 package com.analysys.utils;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.text.TextUtils;
 
 import com.analysys.process.LogBean;
@@ -26,31 +24,22 @@ public class CheckUtils {
     /**
      * 校验数据是否符合上传格式
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    public static JSONArray checkEvent(JSONArray sendInfo) {
-        JSONArray jsonData = null;
-        if (!CommonUtils.isEmpty(sendInfo)) {
-            jsonData = new JSONArray();
-            JSONObject json = null, xContext = null;
-            String appId = null, xWhen = null, xWho = null, xWhat = null;
-            for (int i = 0; i < sendInfo.length(); i++) {
-                json = sendInfo.optJSONObject(i);
-                appId = json.optString(Constants.APP_ID);
-                xWhen = json.optString(Constants.X_WHEN);
-                xWho = json.optString(Constants.X_WHO);
-                xWhat = json.optString(Constants.X_WHAT);
-                xContext = json.optJSONObject(Constants.X_CONTEXT);
-                if (TextUtils.isEmpty(appId) || TextUtils.isEmpty(appId.trim())
-                        || TextUtils.isEmpty(xWhen) || TextUtils.isEmpty(xWhen.trim())
-                        || TextUtils.isEmpty(xWho) || TextUtils.isEmpty(xWho.trim())
-                        || TextUtils.isEmpty(xWhat) || TextUtils.isEmpty(xWhat.trim())
-                        || CommonUtils.isEmpty(xContext)) {
-                    continue;
-                }
-                jsonData.put(json);
+    public static JSONObject checkField(JSONObject eventInfo) {
+        if (eventInfo != null) {
+            String appId = eventInfo.optString(Constants.APP_ID);
+            long xWhen = eventInfo.optLong(Constants.X_WHEN);
+            String xWho = eventInfo.optString(Constants.X_WHO);
+            String xWhat = eventInfo.optString(Constants.X_WHAT);
+            JSONObject xContext = eventInfo.optJSONObject(Constants.X_CONTEXT);
+            if (TextUtils.isEmpty(appId) || TextUtils.isEmpty(appId.trim())
+                    || xWhen == 0
+                    || TextUtils.isEmpty(xWho) || TextUtils.isEmpty(xWho.trim())
+                    || TextUtils.isEmpty(xWhat) || TextUtils.isEmpty(xWhat.trim())
+                    || CommonUtils.isEmpty(xContext)) {
+                return null;
             }
         }
-        return jsonData;
+        return eventInfo;
     }
 
     public static boolean checkIdLength(String id) {

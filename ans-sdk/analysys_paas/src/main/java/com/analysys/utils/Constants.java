@@ -236,8 +236,6 @@ public class Constants {
     public static final String APP_START_TIME = "app_start_time";
     public static final String APP_END_INFO = "app_end_info";
     public static final String LAST_OP_TIME = "last_op_time";
-    public static final String CALIBRATION_TIME = "calibration_time";
-    public static long TOUCH_INTERVAL_TIME = 100;
 
     public static String SP_REFER = "referrer";
 
@@ -246,6 +244,15 @@ public class Constants {
     public static int encryptType = 0;
     public static boolean autoInstallation = false;
     public static Map<String, Object> utm = null;
-    public static long TIME_DIFFERENCE = 0;
+
+    // 用户设置是否允许时间校准
+    public static boolean isTimeCheck = false;
+    // 用户设置最大偏差时间
+    public static long ignoreDiffTime = 30 * 1000;
+    // 网络时间与本地时间差值
+    public static long diffTime = 0;
+    // 网络时间获取成功
+    public static boolean isCalibration = false;
+
 }
 

@@ -286,8 +286,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             if (SessionManage.isSessionTimeOut(context)) {
                 // a.走AppEnd 尝试补发流程
                 trackAppEnd(makeTrackAppEndMsg());
-                // b.走AppStart上报
-                appStartTime = (long) CommonUtils.getCurrentTime(context);
+                appStartTime = System.currentTimeMillis();
                 AgentProcess.getInstance(context).appStart(fromBackground, appStartTime);
                 CommonUtils.setIdFile(context,
                         Constants.APP_START_TIME, String.valueOf(appStartTime));
@@ -327,7 +326,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             // 是否首日启动
             realTimeData.put(Constants.FIRST_DAY, CommonUtils.isFirstDay(context));
             // 是否校验
-            realTimeData.put(Constants.TIME_CALIBRATED, CommonUtils.isCalibrated(context));
+            realTimeData.put(Constants.TIME_CALIBRATED, true);
             // 是否登录
             realTimeData.put(Constants.IS_LOGIN, CommonUtils.getLogin(context));
             // session id
@@ -339,7 +338,6 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                             Base64.NO_WRAP)));
             // 存储最后一次操作时间
             CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
-            SharedUtil.setLong(context, Constants.CALIBRATION_TIME, Constants.TIME_DIFFERENCE);
         } catch (JSONException e) {
             e.printStackTrace();
         }

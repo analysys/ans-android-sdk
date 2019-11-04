@@ -59,6 +59,10 @@ public class AnsApplication extends Application {
         config.setAutoProfile(true);
         // 设置使用AES加密
         config.setEncryptType(EncryptEnum.AES);
+        // 设置服务器时间校验
+        config.setTimeCheck(true);
+        // 时间最大允许偏差为5分钟
+        config.setMaxDiffTimeInterval(5 * 60 * 1000);
         // 初始化
         AnalysysAgent.init(this, config);
         AnalysysAgent.setAutoHeatMap(false);

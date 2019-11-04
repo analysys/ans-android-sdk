@@ -59,7 +59,6 @@ class RequestUtils {
             pw.close();
             //获取数据
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                CommonUtils.timeCalibration(connection.getDate());
                 is = connection.getInputStream();
                 bos = new ByteArrayOutputStream();
                 int len;
@@ -123,7 +122,6 @@ class RequestUtils {
                 outputStream.write(requestData.getBytes("UTF-8"));
             }
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                CommonUtils.timeCalibration(connection.getDate());
                 return CommonUtils.readStream(connection.getInputStream());
             } else {
                 return null;
@@ -142,5 +140,53 @@ class RequestUtils {
             }
         }
         return null;
+    }
+
+    static long getRequest(String httpUrl) {
+        HttpURLConnection connection = null;
+//        InputStream is = null;
+//        BufferedReader br = null;
+//        String result = null;
+        long date = 0;
+        try {
+            // 创建远程url连接对象
+            URL url = new URL(httpUrl);
+            // 通过远程url连接对象打开一个连接，强转成httpURLConnection类
+            connection = (HttpURLConnection) url.openConnection();
+            // 设置连接方式：get
+            connection.setRequestMethod("GET");
+            // 设置连接主机服务器的超时时间：20 * 1000毫秒
+            connection.setConnectTimeout(20 * 1000);
+            // 设置读取远程返回的数据时间：20 * 1000毫秒
+            connection.setReadTimeout(20 * 1000);
+            // 发送请求
+            connection.connect();
+//            ANSLog.e("网络请求成功" + connection.getResponseCode());
+//            ANSLog.e("get获取时间：" + connection.getDate());
+            date = connection.getDate();
+            // 通过connection连接，获取输入流
+//            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+//                ANSLog.e("网络请求成功");
+//                is = connection.getInputStream();
+//                 封装输入流is，并指定字符集
+//                br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+//                 存放数据
+//                StringBuffer sbf = new StringBuffer();
+//                String temp = null;
+//                while ((temp = br.readLine()) != null) {
+//                    sbf.append(temp);
+//                    sbf.append("\r\n");
+//                }
+//                result = sbf.toString();
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭远程连接
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return date;
     }
 }

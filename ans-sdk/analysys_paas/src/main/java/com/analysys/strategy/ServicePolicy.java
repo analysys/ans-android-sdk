@@ -58,7 +58,7 @@ class ServicePolicy extends BaseSendStatus {
         if (intervalTime < timeDiff) {
             return true;
         } else {
-            UploadManager.getInstance(context).sendDelayedMessage(intervalTime - timeDiff);
+            UploadManager.getInstance(context).sendUploadDelayedMessage(intervalTime - timeDiff);
             return false;
         }
     }
@@ -70,7 +70,7 @@ class ServicePolicy extends BaseSendStatus {
         if (intervalTime < timeDiff) {
             return true;
         } else {
-            UploadManager.getInstance(context).sendDelayedMessage(intervalTime - timeDiff);
+            UploadManager.getInstance(context).sendUploadDelayedMessage(intervalTime - timeDiff);
             return false;
         }
     }
