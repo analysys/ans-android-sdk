@@ -1,6 +1,7 @@
 package com.analysys.utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -330,8 +331,10 @@ public class CommonUtils {
         }
         ActivityManager activityManager =
                 (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningApps =
-                activityManager.getRunningAppProcesses();
+        List<ActivityManager.RunningAppProcessInfo> runningApps = null;
+        if (activityManager != null) {
+            runningApps = activityManager.getRunningAppProcesses();
+        }
         if (runningApps == null) {
             return false;
         }
@@ -357,7 +360,11 @@ public class CommonUtils {
         }
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context
                 .CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = null;
+        if (connMgr != null) {
+            networkInfo = connMgr.getActiveNetworkInfo();
+        }
+
         if (networkInfo == null) {
             return netType;
         }

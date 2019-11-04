@@ -206,7 +206,7 @@ public class UploadManager {
                 int index = path.lastIndexOf(".");
                 Object object = CommonUtils.reflexUtils(
                         path.substring(0, index),
-                        path.substring(index + 1, path.length()));
+                        path.substring(index + 1));
                 if (object != null) {
                     return (Map<String, String>) object;
                 }

@@ -93,8 +93,8 @@ public class CheckUtils {
                 LogBean.setDetails(Constants.CODE_FAILED, LogPrompt.MAP_SIZE_ERROR);
             }
             Set<String> keys = parameters.keySet();
-            String key = null;
-            Object value = null;
+            String key;
+            Object value;
             for (Iterator<String> iterator = keys.iterator(); iterator.hasNext(); ) {
                 key = iterator.next();
                 value = parameters.get(key);
@@ -138,11 +138,14 @@ public class CheckUtils {
         if (CommonUtils.isEmpty(trackMould)) {
             return true;
         }
+        if (trackMould == null) {
+            return true;
+        }
         JSONArray funcList = trackMould.optJSONArray(Constants.FUNC_LIST);
         if (CommonUtils.isEmpty(funcList)) {
             return true;
         }
-        String path = null;
+        String path;
         for (int i = 0; i < funcList.length(); i++) {
             path = funcList.optString(i);
             CommonUtils.reflexUtils(
@@ -163,7 +166,7 @@ public class CheckUtils {
         if (methodArray == null) {
             return Constants.CODE_CUT_OFF;
         }
-        String path = null;
+        String path;
         for (int i = 0; i < methodArray.length(); i++) {
             path = methodArray.optString(i);
             CommonUtils.reflexUtils(
