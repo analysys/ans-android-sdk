@@ -110,7 +110,7 @@ public class AnalysysConfig {
     /**
      * 设置是否进行时间校准
      */
-    public void setTimeCheck(boolean calibration) {
+    public void setAllowTimeCheck(boolean calibration) {
         this.calibration = calibration;
     }
 
