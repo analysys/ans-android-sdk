@@ -198,7 +198,7 @@ public class UploadManager {
                     long xWhen = eventInfo.optLong(Constants.X_WHEN);
                     eventInfo.put(Constants.X_WHEN, calibrationTime(xWhen));
                     xContext = eventInfo.optJSONObject(Constants.X_CONTEXT);
-                    if (xContext != null) {
+                    if (xContext != null && xContext.has(Constants.TIME_CALIBRATED)) {
                         xContext.put(Constants.TIME_CALIBRATED, Constants.isCalibration);
                     }
                 }
