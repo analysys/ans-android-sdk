@@ -44,7 +44,7 @@
 
                 android:onClick="onClick">
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/cccRelativeLayout"
                     android:layout_width="100dp"
                     android:layout_height="120dp"
@@ -59,7 +59,7 @@
                         android:onClick="onClick"
                         android:text="多层嵌套" />
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </AbsoluteLayout>
         </LinearLayout>
 
