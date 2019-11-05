@@ -3,6 +3,9 @@ captures
 import-summary.txt
 
 #java files
+*.class
+*.dex
+
 #for idea temp file
 *.iws
 *.ipr
@@ -15,6 +18,8 @@ __MACOSX
 
 #test android studio module
 *.gradle/
+release
+out
 build
 *bin/
 *gen/
