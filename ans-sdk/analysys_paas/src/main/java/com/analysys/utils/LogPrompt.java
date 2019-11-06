@@ -62,16 +62,7 @@ public class LogPrompt {
     public static void showCheckTimeLog(long netTime, long nowTime, long absDiff) {
         ANSLog.d("收到服务器的时间：" + CommonUtils.timeConversion(netTime));
         ANSLog.d("本地时间：" + CommonUtils.timeConversion(nowTime));
-        ANSLog.d("时间相差：" + (absDiff / 1000) + " 秒");
-        if (absDiff > Constants.ignoreDiffTime) {
-            ANSLog.d("差值大于："
-                    + Constants.ignoreDiffTime / 1000
-                    + " 秒，数据将会进行时间校准。");
-        } else {
-            ANSLog.d("差值小于："
-                    + Constants.ignoreDiffTime / 1000
-                    + " 秒，数据将不会进行时间校准。");
-        }
+        ANSLog.d("时间相差：" + (absDiff / 1000) + " 秒，数据将会进行时间校准。");
     }
 
     /**
