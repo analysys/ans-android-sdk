@@ -941,13 +941,6 @@ public class CommonUtils {
     }
 
     /**
-     * 数据是否被校准
-     */
-    public static Object isCalibrated(Context context) {
-        return Constants.isCalibration;
-    }
-
-    /**
      * 获取debug状态 服务器设置 > 用户设置 > 默认设置
      */
     public static Object getDebugMode(Context context) {
