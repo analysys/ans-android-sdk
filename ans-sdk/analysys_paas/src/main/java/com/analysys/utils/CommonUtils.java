@@ -110,7 +110,7 @@ public class CommonUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        Date date = new Date(System.currentTimeMillis());
+        Date date = new Date(getCalibrationTimeMillis());
         return simpleDateFormat.format(date);
     }
 
@@ -270,8 +270,8 @@ public class CommonUtils {
      * 获取首次启动时间
      */
     public static String getFirstStartTime(Context context) {
-        String firstTime = SharedUtil.getString(context, Constants.SP_FIRST_START_TIME,
-                Constants.EMPTY);
+        String firstTime = SharedUtil.getString(context,
+                Constants.SP_FIRST_START_TIME, Constants.EMPTY);
         if (isEmpty(firstTime)) {
             firstTime = getTime();
             SharedUtil.setString(context, Constants.SP_FIRST_START_TIME, firstTime);
@@ -286,7 +286,7 @@ public class CommonUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        Date date = new Date(System.currentTimeMillis());
+        Date date = new Date(getCalibrationTimeMillis());
         return simpleDateFormat.format(date);
     }
 
@@ -1256,4 +1256,12 @@ public class CommonUtils {
         }
         return null;
     }
+
+    /**
+     * 获取时间校准后的时间
+     */
+    public static long getCalibrationTimeMillis() {
+        return System.currentTimeMillis() + Constants.diffTime;
+    }
+
 }

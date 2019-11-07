@@ -223,16 +223,16 @@ public class UploadManager {
      */
     private void calibrationTime(String url) {
         // 获取网络时间
-        long netTime = RequestUtils.getRequest(url);
-        if (netTime != 0) {
+        long serverTime = RequestUtils.getRequest(url);
+        if (serverTime != 0) {
             // 计算网络时间与本地时间差值
-            long nowTime = System.currentTimeMillis();
-            long diff = netTime - nowTime;
+            long currentTime = System.currentTimeMillis();
+            long diff = serverTime - currentTime;
             long absDiff = Math.abs(diff);
             if (absDiff > Constants.ignoreDiffTime) {
                 Constants.diffTime = diff;
                 Constants.isCalibration = true;
-                LogPrompt.showCheckTimeLog(netTime, nowTime, absDiff);
+                LogPrompt.showCheckTimeLog(serverTime, currentTime, absDiff);
             }
         }
     }
