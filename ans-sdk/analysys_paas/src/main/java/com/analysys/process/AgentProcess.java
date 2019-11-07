@@ -85,6 +85,7 @@ public class AgentProcess {
                             CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
                             Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
                             Constants.isTimeCheck = config.isTimeCheck();
+                            CommonUtils.setCheckTime(context);
                         }
                         if (Constants.autoHeatMap) {
                             SystemIds.getInstance(context).parserId();
@@ -1178,7 +1179,7 @@ public class AgentProcess {
      * 存储 upload url
      */
     private void saveUploadUrl(Context context, String uploadUrl) throws MalformedURLException {
-        if (Constants.isTimeCheck){
+        if (Constants.isTimeCheck) {
             UploadManager.getInstance(context).sendGetTimeMessage();
         }
         changeUrlResetUser(context, uploadUrl);
@@ -1313,7 +1314,8 @@ public class AgentProcess {
                 profileInfo.put(Constants.DEV_FIRST_VISIT_LANGUAGE,
                         Locale.getDefault().getLanguage());
             } else if (type == 1) {
-                profileInfo.put(Constants.DEV_RESET_TIME, CommonUtils.getTime());
+                profileInfo.put(Constants.DEV_RESET_TIME,
+                        CommonUtils.getTime(context));
             } else {
                 return;
             }

@@ -99,6 +99,8 @@ public class Constants {
     public static final String SP_EVENT_TIME = "lastEventTime";
     public static final String SP_START_DAY = "startDay";
     public static final String SP_PAGE_END_TIME = "pageEndTime";
+    public static final String SP_DIFF_TIME = "diffTime";
+    public static final String SP_CHECK_TIME = "checkTime";
 
     public static final String REAL_TIME_DATA = "realTimeData";
 

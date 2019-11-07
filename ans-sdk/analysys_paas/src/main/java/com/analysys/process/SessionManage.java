@@ -102,14 +102,14 @@ public class SessionManage {
      */
     private boolean isSpanDay() {
         if (CommonUtils.isEmpty(startDay)) {
-            startDay = SharedUtil.getString(mContext, Constants.SP_START_DAY, null);
+            startDay = CommonUtils.getIdFile(mContext, Constants.SP_START_DAY);
             if (CommonUtils.isEmpty(startDay)) {
                 setStartDay();
                 return false;
             }
         }
         // 其次判断是不是同一天，要不要更新session
-        if (!CommonUtils.getDay().equals(startDay)) {
+        if (!CommonUtils.getDay(mContext).equals(startDay)) {
             setStartDay();
             return true;
         }
@@ -120,8 +120,8 @@ public class SessionManage {
      * 存储页面的开始日期
      */
     private void setStartDay() {
-        startDay = CommonUtils.getDay();
-        SharedUtil.setString(mContext, Constants.SP_START_DAY, startDay);
+        startDay = CommonUtils.getDay(mContext);
+        CommonUtils.setIdFile(mContext, Constants.SP_START_DAY, startDay);
     }
 
 //    /**
