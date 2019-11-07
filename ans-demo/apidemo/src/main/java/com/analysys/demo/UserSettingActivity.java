@@ -81,7 +81,7 @@ public class UserSettingActivity extends AppCompatActivity {
             Log.i(tag, "不产生事件");
         } else if (viewId == R.id.getPresetProperties) {//设置本地数据缓存上限值为2000条
             Map<String, Object> properties = AnalysysAgent.getPresetProperties(mContext);
-            Log.e(tag, "预置属性：\n" + properties);
+            Log.i(tag, "预置属性：\n" + properties);
         }
     }
 }
