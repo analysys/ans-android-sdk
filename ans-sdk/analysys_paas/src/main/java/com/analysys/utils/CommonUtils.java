@@ -286,7 +286,7 @@ public class CommonUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        Date date = new Date(getCalibrationTimeMillis(context));
+        Date date = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(date);
     }
 
