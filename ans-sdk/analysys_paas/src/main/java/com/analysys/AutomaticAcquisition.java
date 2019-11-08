@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
  * @Description: 自动采集页面信息
@@ -62,7 +64,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         mWorkThread.start();
         mHandler = new Handler(mWorkThread.getLooper()) {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage(@NonNull Message msg) {
                 switch (msg.what) {
                     case TRACK_APP_END:
                         // 上报数据
@@ -84,7 +86,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityCreated(final Activity activity, Bundle savedInstanceState) {
+    public void onActivityCreated(@NonNull final Activity activity, Bundle savedInstanceState) {
         if (Constants.autoHeatMap) {
             initHeatMap(new WeakReference<>(activity));
         }
@@ -94,25 +96,25 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityStarted(final Activity activity) {
+    public void onActivityStarted(@NonNull final Activity activity) {
         ANSLog.e("");
         appStart(new WeakReference<>(activity));
     }
 
     @Override
-    public void onActivityResumed(Activity activity) {
+    public void onActivityResumed(@NonNull Activity activity) {
         if (Constants.autoHeatMap) {
             checkLayoutListener(new WeakReference<>(activity), true);
         }
     }
 
     @Override
-    public void onActivityPaused(final Activity activity) {
+    public void onActivityPaused(@NonNull final Activity activity) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
                 CommonUtils.setIdFile(activity.getApplicationContext(),
-                        Constants.SP_PAGE_END_TIME,
+                        Constants.SP_LAST_PAGE_CHANGE,
                         String.valueOf(System.currentTimeMillis()));
             }
         });
@@ -120,16 +122,16 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityStopped(Activity activity) {
+    public void onActivityStopped(@NonNull Activity activity) {
         activityStop(new WeakReference<>(activity));
     }
 
     @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
     }
 
     @Override
-    public void onActivityDestroyed(Activity activity) {
+    public void onActivityDestroyed(@NonNull Activity activity) {
     }
 
     private void initHeatMap(final WeakReference<Activity> wa) {
@@ -145,7 +147,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                         HeatMap.getInstance(
                                 activity.getApplicationContext()).pageInfo = HeatMap.getInstance(
                                 activity.getApplicationContext()).initPageInfo(activity);
-                    } catch (Throwable e) {
+                    } catch (Throwable ignored) {
                     }
                     activity.getWindow().getDecorView().post(new Runnable() {
                         @Override
@@ -154,7 +156,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                                 HeatMap.getInstance(
                                         activity.getApplicationContext()).hookDecorViewClick(
                                         activity.getWindow().getDecorView());
-                            } catch (Throwable throwable) {
+                            } catch (Throwable ignored) {
                             }
                         }
                     });
@@ -173,12 +175,20 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                         if (activity != null) {
                             Context context = activity.getApplicationContext();
                             filePath = activity.getFilesDir().getAbsolutePath();
+                            // 1.尝试切session
                             sessionManage(context, activity.getIntent());
+
+                           String changeTime = String.valueOf(System.currentTimeMillis());
+                            ANSLog.i("AppStart存储时间："+changeTime);
+                            // 2.存lastPageChange
+                            CommonUtils.setIdFile(activity.getApplicationContext(),
+                                    Constants.SP_LAST_PAGE_CHANGE, changeTime);
+
                             activityStart(context);
                             pageView(activity);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -251,10 +261,18 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         if (activity != null) {
             Context context = activity.get();
             if (context != null) {
+                // 热图部分逻辑不能在子线程执行
                 if (Constants.autoHeatMap) {
                     checkLayoutListener(activity, false);
                 }
-                appEnd(context);
+                // 单队列线程执行
+                ANSThreadPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        // 调用AppEnd
+                        appEnd();
+                    }
+                });
             }
         }
     }
@@ -306,7 +324,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                 }
             }
             // 4.开启定时存储任务(10s)（实时记录最后一次操作/appEnd 信息）
-            mHandler.sendEmptyMessage(SAVE_END_INFO);
+            mHandler.sendEmptyMessageDelayed(SAVE_END_INFO, Constants.APPEND_TIMER_DELAY_MILLIS);
         }
         pageViewIncrease();
     }
@@ -400,23 +418,18 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     /**
      * 页面应用关闭
      */
-    private void appEnd(final Context context) {
-        ANSThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                pageViewDecrease();
-                int count = CommonUtils.readCount(filePath);
-                // 最后一个页面
-                if (count < 1) {
-                    // 1.关闭定时任务 （实时记录最后一次操作/appEnd 信息）
-                    mHandler.removeMessages(SAVE_END_INFO);
-                    // 修整EndInfo先关信息，使其更加精确
-                    saveEndInfoCache();
-                    // 2.发送AppEnd delay 任务
-                    mHandler.sendMessageDelayed(makeTrackAppEndMsg(), Constants.BG_INTERVAL_TIME);
-                }
-            }
-        });
+    private void appEnd() {
+        pageViewDecrease();
+        int count = CommonUtils.readCount(filePath);
+        // 最后一个页面
+        if (count < 1) {
+            // 1.关闭定时任务 （实时记录最后一次操作/appEnd 信息）
+            mHandler.removeMessages(SAVE_END_INFO);
+            // 修整EndInfo先关信息，使其更加精确
+            saveEndInfoCache();
+            // 2.发送AppEnd delay 任务
+            mHandler.sendMessageDelayed(makeTrackAppEndMsg(), Constants.BG_INTERVAL_TIME);
+        }
     }
 
     /**

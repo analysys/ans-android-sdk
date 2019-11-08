@@ -79,7 +79,7 @@ public class SessionManage {
      */
     private boolean isSessionTimeOut(Context context) {
         if (context != null) {
-            String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_PAGE_END_TIME);
+            String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_LAST_PAGE_CHANGE);
             if (pageEndTime != null) {
                 long endTime = Long.valueOf(pageEndTime);
                 if (System.currentTimeMillis() - endTime < Constants.SESSION_INVALID) {
@@ -123,7 +123,7 @@ public class SessionManage {
 //     */
 //    private boolean isTimeOut() {
 //        if (pageEndTime < 1) {
-//            pageEndTime = SharedUtil.getLong(mContext, Constants.SP_PAGE_END_TIME, 0L);
+//            pageEndTime = SharedUtil.getLong(mContext, Constants.SP_LAST_PAGE_CHANGE, 0L);
 //        }
 //        if (pageEndTime > 1) {
 //            long time = System.currentTimeMillis();

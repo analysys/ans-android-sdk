@@ -98,7 +98,7 @@ public class Constants {
     public static final String SP_SESSION_ID = "getSessionId";
     public static final String SP_EVENT_TIME = "lastEventTime";
     public static final String SP_START_DAY = "startDay";
-    public static final String SP_PAGE_END_TIME = "pageEndTime";
+    public static final String SP_LAST_PAGE_CHANGE = "pageEndTime";
     public static final String SP_DIFF_TIME = "diffTime";
     public static final String SP_CHECK_TIME = "checkTime";
 //    public static final String SP_PAGE_END = "pageEnd";
@@ -164,6 +164,9 @@ public class Constants {
     /** 退出后台信息发送延迟时间 */
     public static final long TRACK_END_INVALID = 5 * 1000;
     public static final long SESSION_INVALID = 5 * 1000;
+    /** AppEnd 轮询器启动延迟时间 */
+    public static final int APPEND_TIMER_DELAY_MILLIS = 100;
+
 
     public static final String SAVE_TYPE = "$Event";
 
