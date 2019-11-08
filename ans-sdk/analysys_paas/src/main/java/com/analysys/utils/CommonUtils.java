@@ -1261,7 +1261,7 @@ public class CommonUtils {
      * 获取时间校准后的时间
      */
     public static long getCalibrationTimeMillis(Context context) {
-        if (getCheckTime(context)) {
+        if (Constants.isTimeCheck) {
             if (!CommonUtils.isMainProcess(context)) {
                 String diff = CommonUtils.getIdFile(context, Constants.SP_DIFF_TIME);
                 if (diff != null) {
@@ -1272,29 +1272,4 @@ public class CommonUtils {
         }
         return System.currentTimeMillis();
     }
-
-    /**
-     * 存储用户设置是否进行时间校准标记，用于跨进程判断
-     */
-    public static void setCheckTime(Context context) {
-        CommonUtils.setIdFile(context, Constants.SP_CHECK_TIME,
-                String.valueOf(Constants.isTimeCheck));
-    }
-
-    /**
-     * 获取用户设置是否进行时间校准标记
-     */
-    public static boolean getCheckTime(Context context) {
-        if (CommonUtils.isMainProcess(context)) {
-            return Constants.isTimeCheck;
-        } else {
-            String checkTime = CommonUtils.getIdFile(context, Constants.SP_CHECK_TIME);
-            if (checkTime != null) {
-                return Boolean.valueOf(checkTime);
-            }
-            return Constants.isTimeCheck;
-        }
-    }
-
-
 }
