@@ -332,7 +332,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     /**
      * 判断是否超时
      */
-    public static boolean isAppEnd(Context context) {
+    private static boolean isAppEnd(Context context) {
         long invalid = 0;
         String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
         if (!CommonUtils.isEmpty(lastOperateTime)) {

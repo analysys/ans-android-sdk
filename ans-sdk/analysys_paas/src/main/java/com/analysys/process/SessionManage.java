@@ -82,9 +82,8 @@ public class SessionManage {
             String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_LAST_PAGE_CHANGE);
             if (pageEndTime != null) {
                 long endTime = Long.valueOf(pageEndTime);
-                if (System.currentTimeMillis() - endTime < Constants.SESSION_INVALID) {
-                    return false;
-                }
+                // 上次变动时间到现在是否超过30s
+                return System.currentTimeMillis() - endTime >= Constants.SESSION_INVALID;
             }
         }
         return true;
@@ -136,7 +135,7 @@ public class SessionManage {
 //        return false;
 //    }
 
-    public void setSessionId() {
+    private void setSessionId() {
         sessionId = getSession();
         CommonUtils.setIdFile(mContext, Constants.SP_SESSION_ID, sessionId);
     }
@@ -160,14 +159,14 @@ public class SessionManage {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(val.getBytes());
             m = md5.digest();
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
         return getString(m);
     }
 
     private String getString(@Nullable byte[] b) {
         if (b != null) {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (int value : b) {
                 int a = value;
                 if (a < 0) {
