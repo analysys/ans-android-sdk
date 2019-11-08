@@ -77,15 +77,21 @@ public class AgentProcess {
                         saveKey(context, config.getAppKey());
                         saveChannel(context, config.getChannel());
                         if (CommonUtils.isMainProcess(context)) {
+                            // 同时设置 UploadUrl/WebSocketUrl/ConfigUrl
                             setBaseUrl(context, config.getBaseUrl());
-                            SharedUtil.setBoolean(context,
-                                    Constants.SP_AUTO_PROFILE, config.isAutoProfile());
+                            // 设置首次启动是否发送
+                            Constants.isAutoProfile = config.isAutoProfile();
+                            // 设置加密类型
                             Constants.encryptType = config.getEncryptType().getType();
+                            // 设置渠道归因是否开启
                             Constants.autoInstallation = config.isAutoInstallation();
+                            // 重置PV计数器值
                             CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
+                            // 用户忽略最大时间差值
                             Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
-                            Constants.isTimeCheck = config.isTimeCheck();
                         }
+                        // 设置时间校准是否开启
+                        Constants.isTimeCheck = config.isTimeCheck();
                         if (Constants.autoHeatMap) {
                             SystemIds.getInstance(context).parserId();
                         }
@@ -1178,7 +1184,8 @@ public class AgentProcess {
      * 存储 upload url
      */
     private void saveUploadUrl(Context context, String uploadUrl) throws MalformedURLException {
-        if (Constants.isTimeCheck){
+        // 判断是否进行时间校准且为主进程
+        if (Constants.isTimeCheck && CommonUtils.isMainProcess(context)) {
             UploadManager.getInstance(context).sendGetTimeMessage();
         }
         changeUrlResetUser(context, uploadUrl);
@@ -1305,7 +1312,7 @@ public class AgentProcess {
      * 首次安装后是否发送profile_set_once
      */
     private void sendProfileSetOnce(Context context, int type) throws Exception {
-        if (SharedUtil.getBoolean(context, Constants.SP_AUTO_PROFILE, true)) {
+        if (Constants.isAutoProfile) {
             Map<String, Object> profileInfo = new HashMap<>();
             if (type == 0) {
                 profileInfo.put(Constants.DEV_FIRST_VISIT_TIME,
@@ -1313,7 +1320,8 @@ public class AgentProcess {
                 profileInfo.put(Constants.DEV_FIRST_VISIT_LANGUAGE,
                         Locale.getDefault().getLanguage());
             } else if (type == 1) {
-                profileInfo.put(Constants.DEV_RESET_TIME, CommonUtils.getTime());
+                profileInfo.put(Constants.DEV_RESET_TIME,
+                        CommonUtils.getTime(context));
             } else {
                 return;
             }

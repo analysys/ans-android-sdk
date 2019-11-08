@@ -231,6 +231,9 @@ public class UploadManager {
             long absDiff = Math.abs(diff);
             if (absDiff > Constants.ignoreDiffTime) {
                 Constants.diffTime = diff;
+                // 将差值存储文件，解决跨进程问题
+                CommonUtils.setIdFile(mContext,
+                        Constants.SP_DIFF_TIME, Long.toString(diff));
                 Constants.isCalibration = true;
                 LogPrompt.showCheckTimeLog(serverTime, currentTime, absDiff);
             }

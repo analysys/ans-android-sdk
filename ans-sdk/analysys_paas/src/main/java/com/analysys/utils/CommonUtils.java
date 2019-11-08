@@ -106,11 +106,11 @@ public class CommonUtils {
     /**
      * 获取当前时间,格式 yyyy-MM-dd hh:mm:ss.SSS
      */
-    public static String getTime() {
+    public static String getTime(Context context) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        Date date = new Date(getCalibrationTimeMillis());
+        Date date = new Date(getCalibrationTimeMillis(context));
         return simpleDateFormat.format(date);
     }
 
@@ -273,7 +273,7 @@ public class CommonUtils {
         String firstTime = SharedUtil.getString(context,
                 Constants.SP_FIRST_START_TIME, Constants.EMPTY);
         if (isEmpty(firstTime)) {
-            firstTime = getTime();
+            firstTime = getTime(context);
             SharedUtil.setString(context, Constants.SP_FIRST_START_TIME, firstTime);
         }
         return firstTime;
@@ -282,11 +282,11 @@ public class CommonUtils {
     /**
      * 获取当前日期,格式 yyyy/MM/dd
      */
-    public static String getDay() {
+    public static String getDay(Context context) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        Date date = new Date(getCalibrationTimeMillis());
+        Date date = new Date(getCalibrationTimeMillis(context));
         return simpleDateFormat.format(date);
     }
 
@@ -930,7 +930,7 @@ public class CommonUtils {
      * 是否首日访问
      */
     public static Object isFirstDay(Context context) {
-        String nowTime = getDay();
+        String nowTime = getDay(context);
         String firstDay = SharedUtil.getString(context, Constants.DEV_IS_FIRST_DAY, null);
         if (isEmpty(firstDay)) {
             SharedUtil.setString(context, Constants.DEV_IS_FIRST_DAY, nowTime);
@@ -1260,8 +1260,16 @@ public class CommonUtils {
     /**
      * 获取时间校准后的时间
      */
-    public static long getCalibrationTimeMillis() {
-        return System.currentTimeMillis() + Constants.diffTime;
+    public static long getCalibrationTimeMillis(Context context) {
+        if (Constants.isTimeCheck) {
+            if (!CommonUtils.isMainProcess(context)) {
+                String diff = CommonUtils.getIdFile(context, Constants.SP_DIFF_TIME);
+                if (diff != null) {
+                    Constants.diffTime = Long.valueOf(diff);
+                }
+            }
+            return System.currentTimeMillis() + Constants.diffTime;
+        }
+        return System.currentTimeMillis();
     }
-
 }
