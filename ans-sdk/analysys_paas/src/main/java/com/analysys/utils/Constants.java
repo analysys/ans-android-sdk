@@ -101,6 +101,8 @@ public class Constants {
     public static final String SP_PAGE_END_TIME = "pageEndTime";
     public static final String SP_DIFF_TIME = "diffTime";
     public static final String SP_CHECK_TIME = "checkTime";
+//    public static final String SP_PAGE_END = "pageEnd";
+
 
     public static final String REAL_TIME_DATA = "realTimeData";
 
@@ -158,9 +160,10 @@ public class Constants {
     /** 到达缓存上限后，继续存储，每次删除的条数 */
     public static final int DELETE_COUNT = 10;
     /** 退出后台信息记录间隔时间 */
-    public static final long BG_INTERVAL_TIME = 30 * 1000;
+    public static final long BG_INTERVAL_TIME = 10 * 1000;
     /** 退出后台信息发送延迟时间 */
-    public static final long TRACK_END_INVALID = 30 * 1000;
+    public static final long TRACK_END_INVALID = 5 * 1000;
+    public static final long SESSION_INVALID = 5 * 1000;
 
     public static final String SAVE_TYPE = "$Event";
 

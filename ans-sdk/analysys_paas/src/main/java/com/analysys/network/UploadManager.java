@@ -12,6 +12,7 @@ import com.analysys.process.AgentProcess;
 import com.analysys.process.LifeCycleConfig;
 import com.analysys.strategy.BaseSendStatus;
 import com.analysys.strategy.PolicyManager;
+import com.analysys.utils.ANSLog;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -80,6 +81,7 @@ public class UploadManager {
         }
         dbCacheCheck();
         TableAllInfo.getInstance(mContext).insert(sendData.toString(), type);
+        ANSLog.e("上传日志：" + sendData);
         if (CommonUtils.isMainProcess(mContext)) {
             BaseSendStatus sendStatus = PolicyManager.getPolicyType(mContext);
             if (sendStatus.isSend(mContext)) {

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
@@ -18,9 +19,11 @@ import com.analysys.deeplink.DeepLink;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.HeatMap;
 import com.analysys.process.SessionManage;
+import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.NumberFormat;
 import com.analysys.utils.SharedUtil;
 
 import org.json.JSONException;
@@ -66,8 +69,12 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                         trackAppEnd(msg);
                         break;
                     case SAVE_END_INFO:
-                        saveEndInfoCache();
-                        sendEmptyMessageDelayed(SAVE_END_INFO, Constants.TRACK_END_INVALID);
+                        int count = CommonUtils.readCount(filePath);
+                        ANSLog.i("计数器：" + count);
+                        if (count != 0) {
+                            saveEndInfoCache();
+                            sendEmptyMessageDelayed(SAVE_END_INFO, Constants.TRACK_END_INVALID);
+                        }
                         break;
                     default:
                         break;
@@ -88,6 +95,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
 
     @Override
     public void onActivityStarted(final Activity activity) {
+        ANSLog.e("");
         appStart(new WeakReference<>(activity));
     }
 
@@ -103,7 +111,9 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                SessionManage.getInstance(activity.getApplicationContext()).setPageEnd();
+                CommonUtils.setIdFile(activity.getApplicationContext(),
+                        Constants.SP_PAGE_END_TIME,
+                        String.valueOf(System.currentTimeMillis()));
             }
         });
 
@@ -283,7 +293,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             // 1.移除AppEnd delay 任务
             mHandler.removeMessages(TRACK_APP_END);
             // 2.判断session是否超时（30s）
-            if (SessionManage.isSessionTimeOut(context)) {
+            if (isAppEnd(context)) {
                 // a.走AppEnd 尝试补发流程
                 trackAppEnd(makeTrackAppEndMsg());
                 appStartTime = System.currentTimeMillis();
@@ -299,6 +309,19 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             mHandler.sendEmptyMessage(SAVE_END_INFO);
         }
         pageViewIncrease();
+    }
+
+    /**
+     * 判断是否超时
+     */
+    public static boolean isAppEnd(Context context) {
+        long invalid = 0;
+        String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
+        if (!CommonUtils.isEmpty(lastOperateTime)) {
+            long aLong = NumberFormat.convertToLong(lastOperateTime);
+            invalid = Math.abs(aLong - System.currentTimeMillis());
+        }
+        return invalid == 0 || invalid > Constants.BG_INTERVAL_TIME;
     }
 
     /**
@@ -336,6 +359,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             CommonUtils.setIdFile(context, Constants.APP_END_INFO,
                     new String(Base64.encode(String.valueOf(realTimeData).getBytes(),
                             Base64.NO_WRAP)));
+            ANSLog.e(Process.myPid() + "记录最后操作时间：" + time);
             // 存储最后一次操作时间
             CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
         } catch (JSONException e) {

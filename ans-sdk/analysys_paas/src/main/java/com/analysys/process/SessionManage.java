@@ -4,11 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.analysys.utils.ANSLog;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
-import com.analysys.utils.NumberFormat;
-import com.analysys.utils.SharedUtil;
 
 import java.security.MessageDigest;
 import java.util.Random;
@@ -24,7 +21,6 @@ public class SessionManage {
 
     private Context mContext = null;
     private String sessionId = null;
-    private long pageEndTime = 0;
     private String startDay = "";
 
     public static SessionManage getInstance(Context context) {
@@ -66,25 +62,6 @@ public class SessionManage {
         return sessionId;
     }
 
-    public void setPageEnd() {
-        long time = System.currentTimeMillis();
-        pageEndTime = time;
-        SharedUtil.setLong(mContext, Constants.SP_PAGE_END_TIME, time);
-    }
-
-    /**
-     * 判断是否超时
-     */
-    public static boolean isSessionTimeOut(Context context) {
-        long invalid = 0;
-        String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
-        if (!CommonUtils.isEmpty(lastOperateTime)) {
-            long aLong = NumberFormat.convertToLong(lastOperateTime);
-            invalid = Math.abs(aLong - System.currentTimeMillis());
-        }
-        return invalid == 0 || invalid > Constants.BG_INTERVAL_TIME;
-    }
-
     /**
      * 首先判断内存session是否为空，如果是，读取本地，如果本地也为空，创建session并返回
      */
@@ -96,6 +73,23 @@ public class SessionManage {
         }
         return false;
     }
+
+    /**
+     * 判断 Session 是否超时
+     */
+    private boolean isSessionTimeOut(Context context) {
+        if (context != null) {
+            String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_PAGE_END_TIME);
+            if (pageEndTime != null) {
+                long endTime = Long.valueOf(pageEndTime);
+                if (System.currentTimeMillis() - endTime < Constants.SESSION_INVALID) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
     /**
      * 由是否跨天判断是否需要重置session
