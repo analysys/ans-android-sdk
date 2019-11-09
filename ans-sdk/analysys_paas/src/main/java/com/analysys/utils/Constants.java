@@ -160,10 +160,10 @@ public class Constants {
     /** 到达缓存上限后，继续存储，每次删除的条数 */
     public static final int DELETE_COUNT = 10;
     /** 退出后台信息记录间隔时间 */
-    public static final long BG_INTERVAL_TIME = 10 * 1000;
+    public static final long BG_INTERVAL_TIME = 30 * 1000;
     /** 退出后台信息发送延迟时间 */
-    public static final long TRACK_END_INVALID = 5 * 1000;
-    public static final long SESSION_INVALID = 5 * 1000;
+    public static final long TRACK_END_INVALID = 10 * 1000;
+    public static final long SESSION_INVALID = 30 * 1000;
     /** AppEnd 轮询器启动延迟时间 */
     public static final int APPEND_TIMER_DELAY_MILLIS = 100;
 

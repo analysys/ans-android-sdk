@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.os.Process;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
@@ -72,7 +71,6 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                         break;
                     case SAVE_END_INFO:
                         int count = CommonUtils.readCount(filePath);
-                        ANSLog.i("计数器：" + count);
                         if (count != 0) {
                             saveEndInfoCache();
                             sendEmptyMessageDelayed(SAVE_END_INFO, Constants.TRACK_END_INVALID);
@@ -179,7 +177,6 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                             sessionManage(context, activity.getIntent());
 
                            String changeTime = String.valueOf(System.currentTimeMillis());
-                            ANSLog.i("AppStart存储时间："+changeTime);
                             // 2.存lastPageChange
                             CommonUtils.setIdFile(activity.getApplicationContext(),
                                     Constants.SP_LAST_PAGE_CHANGE, changeTime);
@@ -377,7 +374,6 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             CommonUtils.setIdFile(context, Constants.APP_END_INFO,
                     new String(Base64.encode(String.valueOf(realTimeData).getBytes(),
                             Base64.NO_WRAP)));
-            ANSLog.e(Process.myPid() + "记录最后操作时间：" + time);
             // 存储最后一次操作时间
             CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
         } catch (JSONException e) {
