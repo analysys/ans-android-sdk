@@ -20,7 +20,6 @@ import java.util.Random;
 public class SessionManage {
 
     private Context mContext = null;
-    private String sessionId = null;
     private String startDay = "";
 
     public static SessionManage getInstance(Context context) {
@@ -42,7 +41,7 @@ public class SessionManage {
             return;
         }
         // 判断session是否为空
-        if (isEmptySession()) {
+        if (CommonUtils.isEmpty(getSessionId())) {
             setSessionId();
             return;
         }
@@ -53,25 +52,10 @@ public class SessionManage {
     }
 
     /**
-     * 获取ession Id
+     * 获取 session Id
      */
     public String getSessionId() {
-        if (CommonUtils.isEmpty(sessionId)) {
-            sessionId = CommonUtils.getIdFile(mContext, Constants.SP_SESSION_ID);
-        }
-        return sessionId;
-    }
-
-    /**
-     * 首先判断内存session是否为空，如果是，读取本地，如果本地也为空，创建session并返回
-     */
-    private boolean isEmptySession() {
-        // 首先判断内存session是否为空，如果为空，读取本地，如果本地也为空，创建session并返回
-        if (CommonUtils.isEmpty(sessionId)) {
-            sessionId = getSessionId();
-            return CommonUtils.isEmpty(sessionId);
-        }
-        return false;
+        return CommonUtils.getIdFile(mContext, Constants.SP_SESSION_ID);
     }
 
     /**
@@ -136,8 +120,7 @@ public class SessionManage {
 //    }
 
     private void setSessionId() {
-        sessionId = getSession();
-        CommonUtils.setIdFile(mContext, Constants.SP_SESSION_ID, sessionId);
+        CommonUtils.setIdFile(mContext, Constants.SP_SESSION_ID, getSession());
     }
 
     /**
