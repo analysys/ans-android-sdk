@@ -308,8 +308,8 @@ public class AgentProcess {
         // 判断 session 是否需要重置
         SessionManage.getInstance(context).resetSession(false);
         // 更新最后一次用户操作时间
-        CommonUtils.setIdFile(context, Constants.LAST_OP_TIME,
-                System.currentTimeMillis() + "");
+        CommonUtils.setIdFile(context, Constants.SP_LAST_PAGE_CHANGE,
+                String.valueOf(System.currentTimeMillis()));
     }
 
     /**

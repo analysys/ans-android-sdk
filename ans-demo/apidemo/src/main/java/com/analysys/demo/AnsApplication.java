@@ -67,7 +67,7 @@ public class AnsApplication extends Application {
         // 初始化
         AnalysysAgent.init(this, config);
         // 开启热图数据采集
-        AnalysysAgent.setAutoHeatMap(true);
+        AnalysysAgent.setAutoHeatMap(false);
         // 设置数据上传/更新地址
         AnalysysAgent.setUploadURL(this, UPLOAD_URL);
         // 设置 WebSocket 连接 Url
