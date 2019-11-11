@@ -87,8 +87,11 @@ public class AgentProcess {
                             Constants.autoInstallation = config.isAutoInstallation();
                             // 重置PV计数器值
                             CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
-                            // 用户忽略最大时间差值
-                            Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
+                            long MaxDiffTimeInterval = config.getMaxDiffTimeInterval();
+                            if (0 <= MaxDiffTimeInterval) {
+                                // 用户忽略最大时间差值
+                                Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
+                            }
                         }
                         // 设置时间校准是否开启
                         Constants.isTimeCheck = config.isTimeCheck();
