@@ -1,0 +1,37 @@
+rootProject.ext.gradle_base_sdk this
+
+def jarName = "analysys_cmb_sdk.jar"
+def proguardJar = 'analysys_CMB_' + "${rootProject.ext.sdkVer}_${rootProject.ext.time}" + '.jar'
+def release = "${project.rootDir}" + '/release/'
+task buildCMB(type: Jar, dependsOn: ['build']) {
+    archiveFileName = jarName
+    from('build/intermediates/javac/release/classes')
+    destinationDirectory = file(release)
+    from fileTree(dir: 'src/main', includes: ['assets/**'])
+    exclude('com/scott/hellolib/BuildConfig.class')
+    exclude('com/scott/hellolib/BuildConfig\$*.class')
+    exclude('**/R.class')
+    exclude('**/R\$*.class')
+}
+
+/**
+ * 混淆jar包
+ */
+def androidSDKDir = project.android.sdkDirectory.absolutePath
+def androidJarDir = androidSDKDir.toString() + '/platforms/' + "${android.compileSdkVersion}" + '/android.jar'
+task makeCMB(type: proguard.gradle.ProGuardTask, dependsOn: 'buildCMB') {
+    injars(release + jarName)
+    outjars(release + proguardJar)
+    configuration 'proguard-rules.pro'
+    libraryjars(androidJarDir)
+    dontshrink
+    doLast {
+        delete release + jarName
+    }
+}
+
+//删除为混淆文件
+def rmJar(String filePath) {
+    File file = new File(filePath)
+    file.delete()
+}

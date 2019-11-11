@@ -1,0 +1,37 @@
+{
+  "$startup": {
+    "xcontext": [
+      "$start_source",
+      "$start_source_detail",
+      "$screen_density",
+      "$imei",
+      "$imei2",
+      "$imsi",
+      "$imsi2",
+      "$mac",
+      "$cpu_model",
+      "$cpu_abi",
+      "$cpu_serial",
+      "$original_id",
+      "$location"
+    ]
+  },
+  "$end": {
+    "xcontext": [
+      "$original_id",
+      "$location"
+    ]
+  },
+  "$track": {
+    "xcontext": [
+      "$original_id",
+      "$location"
+    ]
+  },
+  "$pageview": {
+    "xcontext": [
+      "$original_id",
+      "$location"
+    ]
+  }
+}

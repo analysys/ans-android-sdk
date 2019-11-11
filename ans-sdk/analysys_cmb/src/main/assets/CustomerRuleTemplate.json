@@ -1,0 +1,64 @@
+{
+  "xcontext": {
+    "$original_id": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getOriginalId",
+      "required": true
+    },
+    "$location": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getLocation",
+      "required": true
+    },
+    "$start_source": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getStartSource",
+      "required": true
+    },
+    "$start_source_detail": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getSourceDetail",
+      "required": true
+    },
+    "$screen_density": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getScreenDensity",
+      "required": true
+    },
+    "$imei2": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getIMEI2",
+      "required": true
+    },
+    "$imsi": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getIMSI1",
+      "required": true
+    },
+    "$imsi2": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getIMSI2",
+      "required": true
+    },
+    "$mac": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getMac",
+      "required": true
+    },
+    "$cpu_model": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getCPUModel",
+      "required": true
+    },
+    "$cpu_abi": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getCPUAbi",
+      "required": true
+    },
+    "$cpu_serial": {
+      "valueType": 0,
+      "value": "com.analysys.basic.BasicAgent.getCPUSerial",
+      "required": true
+    }
+  }
+}
