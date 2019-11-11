@@ -165,7 +165,7 @@ public class Constants {
     public static final long TRACK_END_INVALID = 10 * 1000;
     public static final long SESSION_INVALID = 30 * 1000;
     /** AppEnd 轮询器启动延迟时间 */
-    public static final int APPEND_TIMER_DELAY_MILLIS = 100;
+    public static final int APPEND_TIMER_DELAY_MILLIS = 200;
 
 
     public static final String SAVE_TYPE = "$Event";

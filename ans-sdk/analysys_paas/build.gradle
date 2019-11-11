@@ -50,22 +50,16 @@ task makeModule(dependsOn: ['copyDemo', 'copyKey', 'copyGradle', 'copyConfig']) 
         writeFile(moduleName, projectName)
     }
 }
-def projectPath = "${project.rootDir}"
-def modulePath = projectPath + '/ans-demo/'
-def demoProjectPath = projectPath + '/release/' + projectName
+def projectPath = "${project.rootDir}/"
+def modulePath = projectPath + 'ans-demo/'
+def demoProjectPath = projectPath + 'release/' + projectName
 def demoModulePath = demoProjectPath + '/ans-demo/'
-
-task showDemo() {
-    println(">>>>> 1 " + projectPath)
-    println(">>>>> 2 " + modulePath)
-    println(">>>>> 3 " + demoProjectPath)
-    println(">>>>> 3 " + demoModulePath)
-}
 
 task copyDemo(type: Copy) {
     from modulePath + '/' + moduleName
-    into projectPath + '/release/' + projectName + '/' + moduleName
-    exclude '*build', '*' + moduleName + '.iml'
+    into projectPath + 'release/' + projectName + '/' + moduleName
+    exclude '*build'
+    exclude '*.iml'
 }
 
 task copyKey(type: Copy) {
@@ -87,9 +81,9 @@ task copyConfig(type: Copy) {
 }
 // 打zip包
 task makeZip(type: Zip, dependsOn: ['makeModule']) {
-    from outer + 'release/'
+    from projectPath + 'release/'
     baseName = 'analysys_paas_android_java_' + "${rootProject.ext.sdkVer}_${rootProject.ext.time}"
-    destinationDir file('../zip/')
+    destinationDir file(projectPath + 'zip/')
 }
 
 
