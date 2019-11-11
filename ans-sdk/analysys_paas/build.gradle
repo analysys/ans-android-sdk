@@ -45,7 +45,7 @@ def writeFile(String moduleName, String projectName) {
 
 
 /** 拷贝 生成demo  */
-task makeModule(dependsOn: ['copyDemo', 'copyKey', 'copyGradle', 'copyConfig']) {
+task makeModule(dependsOn: ['copyDemo', 'copyKey', 'copyGradle', 'copyBuildExt', 'copyConfig']) {
     doLast {
         writeFile(moduleName, projectName)
     }
@@ -60,6 +60,11 @@ task copyDemo(type: Copy) {
     into projectPath + 'release/' + projectName + '/' + moduleName
     exclude '*build'
     exclude '*.iml'
+}
+
+task copyBuildExt(type: Copy) {
+    from projectPath + 'gradleBuildExt'
+    into demoProjectPath + '/gradleBuildExt'
 }
 
 task copyKey(type: Copy) {
