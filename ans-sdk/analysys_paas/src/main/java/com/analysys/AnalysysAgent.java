@@ -5,6 +5,7 @@ import android.content.Context;
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
 import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -467,6 +468,15 @@ public class AnalysysAgent {
      */
     public static void resetHybridModel(Context context, Object webView) {
         AgentProcess.getInstance(context).resetHybridModel(webView);
+    }
+
+    /**
+     * 上报异常
+     * @param context
+     * @param throwable
+     */
+    public static void reportException(Context context, Throwable throwable){
+        CrashHandler.getInstance().reportException(context,throwable,CrashHandler.CrashType.crash_java);
     }
 }
 

@@ -22,6 +22,8 @@ public class Constants {
     public static final String TRACK = "$track";
     public static final String APP_CLICK = "$app_click";
     public static final String FIRST_INSTALL = "$first_installation";
+    public static final String APP_CRASH_DATA = "$app_crash";
+
 
     public static final String DURATION_TIME = "$duration";
     public static final String NETWORK_TYPE = "$network";
@@ -132,6 +134,9 @@ public class Constants {
     public static final String PUSH_EVENT_CLICK_MSG = "$push_click";
     public static final String PUSH_EVENT_PROCESS_SUCCESS = "$push_process_success";
 
+    public static final String CRASH_DATA= "$crash_data";
+    public static final String CRASH_TYPE = "$crash_type";
+
     public static final String HYBRID_AGENT = " AnalysysAgent/Hybrid";
 
     /** 默认满足条数上传 */
@@ -200,6 +205,8 @@ public class Constants {
     public static final String API_APP_END = "appEnd";
     public static final String API_APP_CLICK = "appClick";
     public static final String API_FIRST_INSTALL = "firstInstallation";
+    public static final String API_CRAHS_DATA = "app_crash";
+
 
     public static final String API_SET_INTERVAL_TIME = "setIntervalTime";
     public static final String API_SET_MAX_CACHE_SIZE = "setMaxCacheSize";

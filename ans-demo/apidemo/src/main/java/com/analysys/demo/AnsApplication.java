@@ -64,6 +64,8 @@ public class AnsApplication extends Application {
         config.setMaxDiffTimeInterval(5 * 60);
         // 开启渠道归因
         config.setAutoInstallation(true);
+
+        config.setEnableException(true);
         // 初始化
         AnalysysAgent.init(this, config);
         // 开启热图数据采集
@@ -74,6 +76,8 @@ public class AnsApplication extends Application {
         AnalysysAgent.setVisitorDebugURL(this, SOCKET_URL);
         // 设置配置下发 Url
         AnalysysAgent.setVisitorConfigURL(this, CONFIG_URL);
+
+
     }
 
     /**
