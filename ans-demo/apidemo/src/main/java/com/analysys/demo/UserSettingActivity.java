@@ -44,10 +44,6 @@ public class UserSettingActivity extends AppCompatActivity {
         } else if (viewId == R.id.getDistinctId) {
             String id = AnalysysAgent.getDistinctId(mContext);
             Log.i(tag, " Distinct id ：" + id);
-
-            // 设置不做自动采集
-            AnalysysAgent.setAutomaticCollection(mContext, false);
-            Log.i(tag, "不产生事件");
         } else if (viewId == R.id.automaticCollection) {// 设置不做自动采集
             AnalysysAgent.setAutomaticCollection(mContext, false);
             Log.i(tag, "不产生事件");
