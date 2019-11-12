@@ -476,7 +476,7 @@ public class AnalysysAgent {
      * @param throwable
      */
     public static void reportException(Context context, Throwable throwable){
-        CrashHandler.getInstance().reportException(context,throwable,CrashHandler.CrashType.crash_java);
+        CrashHandler.getInstance().reportException(context,throwable,CrashHandler.CrashType.crash_report);
     }
 }
 

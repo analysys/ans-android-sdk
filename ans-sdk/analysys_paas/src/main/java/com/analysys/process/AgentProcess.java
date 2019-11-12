@@ -71,7 +71,7 @@ public class AgentProcess {
         CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
             @Override
             public void onAppCrash(Throwable e) {
-                CrashHandler.getInstance().reportException(context,e,CrashHandler.CrashType.crash_java);
+                CrashHandler.getInstance().reportException(context,e,CrashHandler.CrashType.crash_auto);
             }
         });
         registerLifecycleCallbacks(context);

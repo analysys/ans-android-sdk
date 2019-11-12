@@ -28,8 +28,8 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     private CrashCallBack handler = null;
 
     public class CrashType {
-        public static final int crash_java = 0;
-        public static final int crash_c = 1;
+        public static final int crash_auto = 0;
+        public static final int crash_report = 1;
     }
 
     private CrashHandler() {
@@ -110,19 +110,20 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      */
     public void reportException(Context context, Throwable ex, int type) {
         if (ex != null) {
-            Writer writer = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(writer);
-            ex.printStackTrace(printWriter);
-            Throwable cause = ex.getCause();
-            while (cause != null) {
-                cause.printStackTrace(printWriter);
-                cause = cause.getCause();
-            }
-            printWriter.close();
-            String result = writer.toString();
+//            Writer writer = new StringWriter();
+//            PrintWriter printWriter = new PrintWriter(writer);
+//            ex.printStackTrace(printWriter);
+//            Throwable cause = ex.getCause();
+//            while (cause != null) {
+//                cause.printStackTrace(printWriter);
+//                cause = cause.getCause();
+//            }
+//            printWriter.close();
+//            String result = writer.toString();
+
 
             HashMap<String, Object> crashMap = new HashMap<>(2);
-            crashMap.put(Constants.CRASH_DATA, result);
+            crashMap.put(Constants.CRASH_DATA, Log.getStackTraceString(ex));
             crashMap.put(Constants.CRASH_TYPE, type);
 
             AgentProcess.getInstance(context).track(Constants.APP_CRASH_DATA, crashMap);
