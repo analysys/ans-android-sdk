@@ -261,5 +261,7 @@ public class Constants {
     public static long diffTime = 0;
     // 网络时间获取成功
     public static boolean isCalibration = false;
+    // 应用启动来源
+    public static int sourceNum = 1;
 }
 

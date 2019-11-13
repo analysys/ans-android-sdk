@@ -1272,4 +1272,20 @@ public class CommonUtils {
         }
         return System.currentTimeMillis();
     }
+
+    /**
+     * 获取应用启动来源
+     */
+    public static String getLaunchSource() {
+        switch (Constants.sourceNum) {
+            case 1:
+                return "icon";
+            case 2:
+                return "msg";
+            case 3:
+                return "url";
+            default:
+                return "0";
+        }
+    }
 }

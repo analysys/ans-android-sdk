@@ -185,6 +185,18 @@ public class AnalysysAgent {
     }
 
     /**
+     * 应用启动来源，
+     * 参数为 1. icon启动 默认值为icon启动
+     * 参数为 2. msg 启动
+     * 参数为 3. deepLink启动
+     * 参数为 5. 其他方式启动
+     */
+    public static void launchSource(int source) {
+        Constants.sourceNum = source;
+    }
+
+
+    /**
      * 注册单个通用属性
      *
      * @param superPropertyName 属性名称,以字母或$开头,可以包含大小写字母/数字/ _ /$,
