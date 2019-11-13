@@ -394,6 +394,40 @@ public class AgentProcess {
         });
     }
 
+    public void alias(final String aliasId) {
+        ANSThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Context context = ContextManager.getContext();
+                    if (context != null) {
+                        if (!CheckUtils.checkIdLength(aliasId)) {
+                            LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
+                            return;
+                        }
+                        String original = CommonUtils.getDistinctId(context);
+                        SharedUtil.setString(context, Constants.SP_ORIGINAL_ID, original);
+                        CommonUtils.setIdFile(context, Constants.SP_ALIAS_ID, aliasId);
+                        SharedUtil.setInt(context, Constants.SP_IS_LOGIN, 1);
+
+                        Map<String, Object> aliasMap = new HashMap<>();
+                        aliasMap.put(Constants.ORIGINAL_ID, original);
+
+                        JSONObject eventData = DataAssemble.getInstance(context).getEventData(
+                                Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
+
+                        if (!CommonUtils.isEmpty(eventData)) {
+                            trackEvent(context, Constants.API_ALIAS, Constants.ALIAS, eventData);
+                            sendProfileSetOnce(context, 0);
+                        } else {
+                            LogPrompt.showLog(Constants.API_ALIAS, false);
+                        }
+                    }
+                } catch (Throwable throwable) {
+                }
+            }
+        });
+    }
 
     /**
      * profile set 键值对

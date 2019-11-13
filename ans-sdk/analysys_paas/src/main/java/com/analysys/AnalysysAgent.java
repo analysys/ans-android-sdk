@@ -108,8 +108,13 @@ public class AnalysysAgent {
      * @param originalId 可以是现在使用也可以是历史使用的id,不局限于本地正使用的distinctId,
      * 若为空则使用本地的distinctId,长度大于0且小于255字符
      */
+    @Deprecated
     public static void alias(Context context, String aliasId, String originalId) {
         AgentProcess.getInstance(context).alias(aliasId, originalId);
+    }
+
+    public static void alias(Context context, String aliasId) {
+        AgentProcess.getInstance(context).alias(aliasId);
     }
 
     /**
