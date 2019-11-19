@@ -19,6 +19,7 @@ import com.analysys.utils.LogPrompt;
 import com.analysys.utils.SharedUtil;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -37,17 +38,21 @@ public class UploadManager {
 
     private Context mContext;
     private SendHandler mHandler;
-    private int constantlySend = 1;
+    private int uploadData = 0x01;
+    private int delayUploadData = 0x02;
+    private int updateTime = 0x03;
     private String spv = "";
 
-    public UploadManager() {
+    private UploadManager() {
         HandlerThread thread = new HandlerThread(Constants.THREAD_NAME, Thread.MIN_PRIORITY);
         thread.start();
         mHandler = new SendHandler(thread.getLooper());
     }
 
     public static UploadManager getInstance(Context context) {
-        Holder.INSTANCE.initContext(context);
+        if (Holder.INSTANCE.mContext == null && context != null) {
+            Holder.INSTANCE.mContext = context;
+        }
         return Holder.INSTANCE;
     }
 
@@ -59,7 +64,7 @@ public class UploadManager {
         if (CommonUtils.isMainProcess(mContext)) {
             long servicePolicyNo = SharedUtil.getLong(mContext, Constants.SP_POLICY_NO, -1L);
             if (servicePolicyNo == -1 || servicePolicyNo == 1) {
-                sendMessage();
+                sendUploadMessage();
             }
         } else {
             LogPrompt.processFailed();
@@ -73,57 +78,165 @@ public class UploadManager {
         if (CommonUtils.isEmpty(sendData)) {
             return;
         }
-        long maxCount = AgentProcess.getInstance(mContext).getMaxCacheSize();
-        long count = TableAllInfo.getInstance(mContext).selectCount();
-        if (maxCount <= count) {
-            TableAllInfo.getInstance(mContext).delete(Constants.DELETE_COUNT);
-        }
-        TableAllInfo.getInstance(mContext).insert(String.valueOf(sendData), type);
+        dbCacheCheck();
+        TableAllInfo.getInstance(mContext).insert(sendData.toString(), type);
         if (CommonUtils.isMainProcess(mContext)) {
-            if (Constants.ALIAS.equals(type)) {
-                BaseSendStatus sendStatus = PolicyManager.getPolicyType(mContext);
-                if (sendStatus.isSend(mContext)) {
-                    if (mHandler.hasMessages(constantlySend)) {
-                        mHandler.removeMessages(constantlySend);
-                    }
-                    sendMessage();
-                }
-            } else {
-                if (mHandler.hasMessages(constantlySend)) {
-                    mHandler.removeMessages(constantlySend);
-                }
-                sendMessage();
+            BaseSendStatus sendStatus = PolicyManager.getPolicyType(mContext);
+            if (sendStatus.isSend(mContext)) {
+                sendUploadMessage();
             }
         } else {
             LogPrompt.processFailed();
         }
     }
 
+    private void dbCacheCheck() {
+        long maxCount = AgentProcess.getInstance(mContext).getMaxCacheSize();
+        long count = TableAllInfo.getInstance(mContext).selectCount();
+        if (maxCount <= count) {
+            TableAllInfo.getInstance(mContext).delete(Constants.DELETE_COUNT);
+        }
+    }
+
+
     /**
      * 发送实时消息
      */
-    public void sendMessage() {
-        if (!mHandler.hasMessages(constantlySend)) {
-            Message msg = Message.obtain();
-            msg.what = constantlySend;
-            mHandler.sendMessage(msg);
+    private void sendUploadMessage() {
+        if (mHandler.hasMessages(delayUploadData)) {
+            mHandler.removeMessages(uploadData);
         }
+        Message msg = Message.obtain();
+        msg.what = uploadData;
+        mHandler.sendMessage(msg);
+
     }
 
     /**
      * 发送delay消息
      */
-    public void sendDelayedMessage(long time) {
-        if (!mHandler.hasMessages(constantlySend)) {
+    public void sendUploadDelayedMessage(long time) {
+        if (mHandler.hasMessages(delayUploadData)) {
+            mHandler.removeMessages(delayUploadData);
+        }
+        Message msg = Message.obtain();
+        msg.what = uploadData;
+        mHandler.sendMessageDelayed(msg, time);
+    }
+
+    /**
+     * 发送获取网络时间消息
+     */
+    public void sendGetTimeMessage() {
+        if (!mHandler.hasMessages(updateTime)) {
             Message msg = Message.obtain();
-            msg.what = constantlySend;
-            mHandler.sendMessageDelayed(msg, time);
+            msg.what = updateTime;
+            mHandler.sendMessage(msg);
         }
     }
 
-    private void initContext(Context context) {
-        if (mContext == null && context != null) {
-            mContext = context;
+    /**
+     * 处理数据压缩,上传和返回值解析
+     */
+    private class SendHandler extends Handler {
+
+        private SendHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            try {
+                String url = CommonUtils.getUrl(mContext);
+                if (!CommonUtils.isEmpty(url)) {
+                    int what = msg.what;
+                    if (what == uploadData || what == delayUploadData) {
+                        uploadData(url);
+                    } else if (what == updateTime) {
+                        calibrationTime(url);
+                    }
+                } else {
+                    LogPrompt.showErrLog(LogPrompt.URL_ERR);
+                }
+            } catch (Throwable throwable) {
+            }
+        }
+    }
+
+    /**
+     * 数据上传
+     */
+    private void uploadData(String url) throws IOException, JSONException {
+        if (CommonUtils.isNetworkAvailable(mContext)) {
+            JSONArray eventArray = TableAllInfo.getInstance(mContext).select();
+            // 上传数据检查校验
+            eventArray = checkUploadData(eventArray);
+            if (!CommonUtils.isEmpty(eventArray)) {
+                LogPrompt.showSendMessage(url, eventArray);
+                encryptData(url, String.valueOf(eventArray));
+            } else {
+                TableAllInfo.getInstance(mContext).deleteData();
+            }
+        } else {
+            LogPrompt.networkErr();
+        }
+    }
+
+    /**
+     * 检查上传数据，过滤异常数据
+     */
+    private JSONArray checkUploadData(JSONArray eventArray) throws JSONException {
+        JSONArray newEventArray = null;
+        if (eventArray != null) {
+            newEventArray = new JSONArray();
+            JSONObject eventInfo, xContext;
+            for (int i = 0; i < eventArray.length(); i++) {
+                eventInfo = eventArray.optJSONObject(i);
+                // 过滤异常数据
+                eventInfo = CheckUtils.checkField(eventInfo);
+                if (eventInfo != null) {
+                    long xWhen = eventInfo.optLong(Constants.X_WHEN);
+                    eventInfo.put(Constants.X_WHEN, calibrationTime(xWhen));
+                    xContext = eventInfo.optJSONObject(Constants.X_CONTEXT);
+                    if (xContext != null && xContext.has(Constants.TIME_CALIBRATED)) {
+                        xContext.put(Constants.TIME_CALIBRATED, Constants.isCalibration);
+                    }
+                }
+                newEventArray.put(eventInfo);
+            }
+        }
+        return newEventArray;
+    }
+
+    /**
+     * 校准XWhen时间
+     */
+    private long calibrationTime(long time) {
+        if (Constants.isTimeCheck) {
+            time += Constants.diffTime;
+        }
+        return time;
+    }
+
+    /**
+     * 获取时间差值
+     */
+    private void calibrationTime(String url) {
+        // 获取网络时间
+        long serverTime = RequestUtils.getRequest(url);
+        if (serverTime != 0) {
+            // 计算网络时间与本地时间差值
+            long currentTime = System.currentTimeMillis();
+            long diff = serverTime - currentTime;
+            long absDiff = Math.abs(diff);
+            if (absDiff > Constants.ignoreDiffTime) {
+                Constants.diffTime = diff;
+                // 将差值存储文件，解决跨进程问题
+                CommonUtils.setIdFile(mContext,
+                        Constants.SP_DIFF_TIME, Long.toString(diff));
+                Constants.isCalibration = true;
+                LogPrompt.showCheckTimeLog(serverTime, currentTime, absDiff);
+            }
         }
     }
 
@@ -206,7 +319,7 @@ public class UploadManager {
                 int index = path.lastIndexOf(".");
                 Object object = CommonUtils.reflexUtils(
                         path.substring(0, index),
-                        path.substring(index + 1, path.length()));
+                        path.substring(index + 1));
                 if (object != null) {
                     return (Map<String, String>) object;
                 }
@@ -288,15 +401,15 @@ public class UploadManager {
             long failureTime = SharedUtil.getLong(mContext, Constants.SP_FAILURE_TIME, -1L);
             // 获取上传失败时间,如果上传失败时间为0，发送delay任务
             if (failureTime == 0) {
-                sendDelayedMessage(intervalTime + getRandomNumb());
+                sendUploadDelayedMessage(intervalTime + getRandomNumb());
             } else {
                 // 如果当前时间 减 失败时间 大于 间隔时间 则立即上传
                 long difference = Math.abs(System.currentTimeMillis() - failureTime);
                 if (difference > intervalTime) {
-                    sendMessage();
+                    sendUploadMessage();
                 } else {
                     // 如果当前时间减失败时间小于间隔时间，则间隔时间减当前时间与失败时间的差值加随机数delay
-                    sendDelayedMessage(intervalTime - difference + getRandomNumb());
+                    sendUploadDelayedMessage(intervalTime - difference + getRandomNumb());
                 }
             }
         } else {
@@ -342,39 +455,4 @@ public class UploadManager {
         public static final UploadManager INSTANCE = new UploadManager();
     }
 
-    /**
-     * 处理数据压缩,上传和返回值解析
-     */
-    private class SendHandler extends Handler {
-        private SendHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            try {
-                if (msg.what == constantlySend) {
-                    if (!CommonUtils.isNetworkAvailable(mContext)) {
-                        LogPrompt.networkErr();
-                        return;
-                    }
-                    String url = CommonUtils.getUrl(mContext);
-                    if (CommonUtils.isEmpty(url)) {
-                        LogPrompt.showErrLog(LogPrompt.URL_ERR);
-                        return;
-                    }
-                    JSONArray selectInfo = TableAllInfo.getInstance(mContext).select();
-                    // 异常数据过滤
-                    selectInfo = CheckUtils.checkEvent(selectInfo);
-                    if (!CommonUtils.isEmpty(selectInfo)) {
-                        LogPrompt.showSendMessage(url, selectInfo);
-                        encryptData(url, String.valueOf(selectInfo));
-                    } else {
-                        TableAllInfo.getInstance(mContext).deleteData();
-                    }
-                }
-            } catch (Throwable throwable) {
-            }
-        }
-    }
 }

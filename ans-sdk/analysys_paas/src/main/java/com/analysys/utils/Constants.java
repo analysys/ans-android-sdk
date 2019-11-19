@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Constants {
 
-    public static final String DEV_SDK_VERSION = "4.3.6.6";
+    public static final String DEV_SDK_VERSION = "4.3.7";
 
     public static final String PAGE_VIEW = "$pageview";
     public static final String STARTUP = "$startup";
@@ -98,7 +98,11 @@ public class Constants {
     public static final String SP_SESSION_ID = "getSessionId";
     public static final String SP_EVENT_TIME = "lastEventTime";
     public static final String SP_START_DAY = "startDay";
-    public static final String SP_PAGE_END_TIME = "pageEndTime";
+    public static final String SP_LAST_PAGE_CHANGE = "pageEndTime";
+    public static final String SP_DIFF_TIME = "diffTime";
+    public static final String SP_CHECK_TIME = "checkTime";
+//    public static final String SP_PAGE_END = "pageEnd";
+
 
     public static final String REAL_TIME_DATA = "realTimeData";
 
@@ -158,7 +162,11 @@ public class Constants {
     /** 退出后台信息记录间隔时间 */
     public static final long BG_INTERVAL_TIME = 30 * 1000;
     /** 退出后台信息发送延迟时间 */
-    public static final long TRACK_END_INVALID = 30 * 1000;
+    public static final long TRACK_END_INVALID = 10 * 1000;
+    public static final long SESSION_INVALID = 30 * 1000;
+    /** AppEnd 轮询器启动延迟时间 */
+    public static final int APPEND_TIMER_DELAY_MILLIS = 200;
+
 
     public static final String SAVE_TYPE = "$Event";
 
@@ -236,16 +244,22 @@ public class Constants {
     public static final String APP_START_TIME = "app_start_time";
     public static final String APP_END_INFO = "app_end_info";
     public static final String LAST_OP_TIME = "last_op_time";
-    public static final String CALIBRATION_TIME = "calibration_time";
-    public static long TOUCH_INTERVAL_TIME = 100;
 
     public static String SP_REFER = "referrer";
 
-    public static long touchTime = 0;
+    public static boolean isAutoProfile = true;
     public static boolean autoHeatMap = false;
     public static int encryptType = 0;
     public static boolean autoInstallation = false;
     public static Map<String, Object> utm = null;
-    public static long TIME_DIFFERENCE = 0;
+
+    // 用户设置是否允许时间校准
+    public static boolean isTimeCheck = false;
+    // 用户设置最大偏差时间
+    public static long ignoreDiffTime = 30 * 1000;
+    // 网络时间与本地时间差值
+    public static long diffTime = 0;
+    // 网络时间获取成功
+    public static boolean isCalibration = false;
 }
 

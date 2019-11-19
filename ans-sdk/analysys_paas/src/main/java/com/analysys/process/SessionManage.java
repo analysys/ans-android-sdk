@@ -6,8 +6,6 @@ import androidx.annotation.Nullable;
 
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
-import com.analysys.utils.NumberFormat;
-import com.analysys.utils.SharedUtil;
 
 import java.security.MessageDigest;
 import java.util.Random;
@@ -22,8 +20,6 @@ import java.util.Random;
 public class SessionManage {
 
     private Context mContext = null;
-    private String sessionId = null;
-    private long pageEndTime = 0;
     private String startDay = "";
 
     public static SessionManage getInstance(Context context) {
@@ -40,12 +36,12 @@ public class SessionManage {
             return;
         }
         // 判断此次启动是否为deepLink启动
-        if (!deepLink) {
+        if (deepLink) {
             setSessionId();
             return;
         }
         // 判断session是否为空
-        if (isEmptySession()) {
+        if (CommonUtils.isEmpty(getSessionId())) {
             setSessionId();
             return;
         }
@@ -56,59 +52,41 @@ public class SessionManage {
     }
 
     /**
-     * 获取ession Id
+     * 获取 session Id
      */
     public String getSessionId() {
-        if (CommonUtils.isEmpty(sessionId)) {
-            sessionId = CommonUtils.getIdFile(mContext, Constants.SP_SESSION_ID);
-        }
-        return sessionId;
-    }
-
-    public void setPageEnd() {
-        long time = System.currentTimeMillis();
-        pageEndTime = time;
-        SharedUtil.setLong(mContext, Constants.SP_PAGE_END_TIME, time);
+        return CommonUtils.getIdFile(mContext, Constants.SP_SESSION_ID);
     }
 
     /**
-     * 判断是否超时
+     * 判断 Session 是否超时
      */
-    public static boolean isSessionTimeOut(Context context) {
-        long invalid = 0;
-        String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
-        if (!CommonUtils.isEmpty(lastOperateTime)) {
-            long aLong = NumberFormat.convertToLong(lastOperateTime);
-            invalid = Math.abs(aLong - System.currentTimeMillis());
+    private boolean isSessionTimeOut(Context context) {
+        if (context != null) {
+            String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_LAST_PAGE_CHANGE);
+            if (pageEndTime != null) {
+                long endTime = Long.valueOf(pageEndTime);
+                // 上次变动时间到现在是否超过30s
+                return System.currentTimeMillis() - endTime >= Constants.SESSION_INVALID;
+            }
         }
-        return invalid == 0 || invalid > Constants.BG_INTERVAL_TIME;
+        return true;
     }
 
-    /**
-     * 首先判断内存session是否为空，如果是，读取本地，如果本地也为空，创建session并返回
-     */
-    private boolean isEmptySession() {
-        // 首先判断内存session是否为空，如果为空，读取本地，如果本地也为空，创建session并返回
-        if (CommonUtils.isEmpty(sessionId)) {
-            sessionId = getSessionId();
-            return CommonUtils.isEmpty(sessionId);
-        }
-        return false;
-    }
 
     /**
      * 由是否跨天判断是否需要重置session
      */
     private boolean isSpanDay() {
         if (CommonUtils.isEmpty(startDay)) {
-            startDay = SharedUtil.getString(mContext, Constants.SP_START_DAY, null);
+            startDay = CommonUtils.getIdFile(mContext, Constants.SP_START_DAY);
             if (CommonUtils.isEmpty(startDay)) {
                 setStartDay();
                 return false;
             }
         }
         // 其次判断是不是同一天，要不要更新session
-        if (!CommonUtils.getDay().equals(startDay)) {
+        if (!CommonUtils.getDay(mContext).equals(startDay)) {
             setStartDay();
             return true;
         }
@@ -119,8 +97,8 @@ public class SessionManage {
      * 存储页面的开始日期
      */
     private void setStartDay() {
-        startDay = CommonUtils.getDay();
-        SharedUtil.setString(mContext, Constants.SP_START_DAY, startDay);
+        startDay = CommonUtils.getDay(mContext);
+        CommonUtils.setIdFile(mContext, Constants.SP_START_DAY, startDay);
     }
 
 //    /**
@@ -128,7 +106,7 @@ public class SessionManage {
 //     */
 //    private boolean isTimeOut() {
 //        if (pageEndTime < 1) {
-//            pageEndTime = SharedUtil.getLong(mContext, Constants.SP_PAGE_END_TIME, 0L);
+//            pageEndTime = SharedUtil.getLong(mContext, Constants.SP_LAST_PAGE_CHANGE, 0L);
 //        }
 //        if (pageEndTime > 1) {
 //            long time = System.currentTimeMillis();
@@ -141,9 +119,8 @@ public class SessionManage {
 //        return false;
 //    }
 
-    public void setSessionId() {
-        sessionId = getSession();
-        CommonUtils.setIdFile(mContext, Constants.SP_SESSION_ID, sessionId);
+    private void setSessionId() {
+        CommonUtils.setIdFile(mContext, Constants.SP_SESSION_ID, getSession());
     }
 
     /**
@@ -165,14 +142,14 @@ public class SessionManage {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(val.getBytes());
             m = md5.digest();
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
         return getString(m);
     }
 
     private String getString(@Nullable byte[] b) {
         if (b != null) {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (int value : b) {
                 int a = value;
                 if (a < 0) {
