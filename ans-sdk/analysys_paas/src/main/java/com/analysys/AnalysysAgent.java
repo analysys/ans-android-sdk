@@ -26,6 +26,17 @@ public class AnalysysAgent {
         AgentProcess.getInstance().init(context,config);
     }
 
+    /**
+     * 初始化接口
+     *
+     * @return 配置信息
+     */
+    public static AnalysysConfig getConfig() {
+       return AgentProcess.getInstance().getConfig();
+    }
+
+
+
 
     //    /**
 //     * 不采集当前View热图
@@ -48,7 +59,7 @@ public class AnalysysAgent {
      * @param pages 忽略的页面集合
      */
     public static void setIgnoreHeatMaByPages(Set<String> pages){
-        AgentProcess.getInstance().setAutoHeatMapIgnoreByPages(pages);
+        AgentProcess.getInstance().setIgnoreHeatMaByPages(pages);
     }
 
 //    /**

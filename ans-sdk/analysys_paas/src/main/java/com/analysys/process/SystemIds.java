@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.SparseArray;
 
 import com.analysys.utils.ANSLog;
+import com.analysys.utils.AnalysysUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -19,46 +20,44 @@ import java.util.Map;
  */
 public class SystemIds {
 
-    private final Map<String, Integer> mIdNameToId;
-    private final SparseArray<String> mIdToIdName;
+    private boolean isParser;
+
+    private final Map<String, Integer> mIdNameToId = new HashMap<>();
+    private final SparseArray<String> mIdToIdName = new SparseArray<>();
     private final boolean isDebug = false;
-    private Context mContext = null;
 
-    private SystemIds() {
-        mIdNameToId = new HashMap<String, Integer>();
-        mIdToIdName = new SparseArray<String>();
-    }
-
-    public static SystemIds getInstance(Context context) {
-        Holder.INSTANCE.init(context);
+    public static SystemIds getInstance() {
         return Holder.INSTANCE;
     }
 
-    private void init(Context context) {
-        if (context != null && mContext == null) {
-            mContext = context;
-        }
-    }
 
     /**
      * 解析id
      */
-    public void parserId() {
+    void parserId() {
+        // 值执行一次
+        if (isParser) return;
+        isParser = true;
+
         Class<?> sysIdClass = getDrawablesSystemClass();
         readClassIds(sysIdClass, "android", mIdNameToId);
         String localClassName = getLocalDrawablesClassName();
         try {
-            final Class<?> rIdClass = Class.forName(localClassName);
-            readClassIds(rIdClass, null, mIdNameToId);
-        } catch (ClassNotFoundException e) {
+            if (localClassName != null) {
+                final Class<?> rIdClass = Class.forName(localClassName);
+                readClassIds(rIdClass, null, mIdNameToId);
+            }
+        } catch (ClassNotFoundException ignored) {
         }
         sysIdClass = getIdSystemClass();
         readClassIds(sysIdClass, "android", mIdNameToId);
         localClassName = getLocalIdClassName();
         try {
-            final Class<?> rIdClass = Class.forName(localClassName);
-            readClassIds(rIdClass, null, mIdNameToId);
-        } catch (ClassNotFoundException e) {
+            if (localClassName != null) {
+                final Class<?> rIdClass = Class.forName(localClassName);
+                readClassIds(rIdClass, null, mIdNameToId);
+            }
+        } catch (ClassNotFoundException ignored) {
         }
         for (Map.Entry<String, Integer> idMapping : mIdNameToId.entrySet()) {
             mIdToIdName.put(idMapping.getValue(), idMapping.getKey());
@@ -69,8 +68,7 @@ public class SystemIds {
                               Map<String, Integer> namesToIds) {
         try {
             final Field[] fields = platformIdClass.getFields();
-            for (int i = 0; i < fields.length; i++) {
-                final Field field = fields[i];
+            for (final Field field : fields) {
                 final int modifiers = field.getModifiers();
                 if (Modifier.isStatic(modifiers)) {
                     final Class<?> fieldType = field.getType();
@@ -99,11 +97,11 @@ public class SystemIds {
         return mIdNameToId.containsKey(name);
     }
 
-    public int idFromName(String name) {
-        return mIdNameToId.get(name);
-    }
+//    public int idFromName(String name) {
+//        return mIdNameToId.get(name);
+//    }
 
-    public String nameForId(int id) {
+    String nameForId(int id) {
         return mIdToIdName.get(id);
     }
 
@@ -112,8 +110,9 @@ public class SystemIds {
     }
 
     private String getLocalDrawablesClassName() {
-        if (mContext != null) {
-            return mContext.getPackageName() + ".R$drawable";
+        Context context = AnalysysUtil.getContext();
+        if (context != null) {
+            return context.getPackageName() + ".R$drawable";
         } else {
             return null;
         }
@@ -124,19 +123,16 @@ public class SystemIds {
     }
 
     private String getLocalIdClassName() {
-        if (mContext != null) {
-            return mContext.getPackageName() + ".R$id";
+        Context context = AnalysysUtil.getContext();
+        if (context != null) {
+            return context.getPackageName() + ".R$id";
         } else {
             return null;
         }
     }
 
-    public boolean isRegister() {
-        if (mIdNameToId == null || mIdNameToId.size() <= 0 || mIdToIdName == null || mIdToIdName.size() <= 0) {
-            return false;
-        } else {
-            return true;
-        }
+    boolean isRegister() {
+        return !mIdNameToId.isEmpty() && mIdToIdName.size() > 0;
     }
 
     private static class Holder {
