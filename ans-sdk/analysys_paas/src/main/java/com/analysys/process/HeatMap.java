@@ -1,7 +1,6 @@
 package com.analysys.process;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.text.TextUtils;
@@ -42,12 +41,8 @@ public class HeatMap {
 
     public Map<String, Object> pageInfo = null, clickInfo = null;
     private float rx = 0, ry = 0, x = 0, y = 0;
-    private Context mContext = null;
 
-    public static HeatMap getInstance(Context context) {
-        if (Holder.INSTANCE.mContext == null && context != null) {
-            Holder.INSTANCE.mContext = context.getApplicationContext();
-        }
+    public static HeatMap getInstance() {
         return HeatMap.Holder.INSTANCE;
     }
 
@@ -204,7 +199,7 @@ public class HeatMap {
     }
 
     private boolean setPath(View v) throws JSONException {
-        String path = PathGeneral.getInstance().general(mContext, v);
+        String path = PathGeneral.getInstance().general(v.getContext(), v);
         if (!TextUtils.isEmpty(path) && !CommonUtils.isEmpty(new JSONArray(path))) {
             clickInfo.put(Constants.TOUCH_ELEMENT_PATH, path.replaceAll(" ", ""));
             return true;

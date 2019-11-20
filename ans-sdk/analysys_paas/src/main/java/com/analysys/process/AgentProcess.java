@@ -1439,6 +1439,14 @@ public class AgentProcess {
                 context, url);
     }
 
+    public void setAutoHeatMapIgnoreByPages(Set<String> pages) {
+//        HeatMap.getInstance()
+    }
+
+    public void setAutoHeatMapByPages(Set<String> pages) {
+        
+    }
+
     private static class Holder {
         public static final AgentProcess INSTANCE = new AgentProcess();
     }

@@ -8,6 +8,7 @@ import com.analysys.utils.Constants;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -31,6 +32,54 @@ public class AnalysysAgent {
      */
     public static void setAutoHeatMap(boolean autoTrack) {
         Constants.autoHeatMap = autoTrack;
+    }
+
+    //    /**
+//     * 不采集当前View热图
+//     * @param v 
+//     */
+//    public static void setAutoHeatMapIgnoreByView(View v){
+//        
+//    }
+//
+//    /**
+//     * 不采集一类View热图
+//     * @param viewTypes 
+//     */
+//    public static void setAutoHeatMapIgnoreByViewTypes(Set<Class<? extends View>> viewTypes){
+//
+//    }
+
+    /**
+     * 不采集页面热图
+     * @param pages 忽略的页面集合
+     */
+    public static void setAutoHeatMapIgnoreByPages(Set<String> pages){
+        AgentProcess.getInstance().setAutoHeatMapIgnoreByPages(pages);
+    }
+
+//    /**
+//     * 只采集当前View热图
+//     * @param v
+//     */
+//    public static void setAutoHeatMapByView(View v){
+//
+//    }
+//
+//    /**
+//     * 只采集一类View热图
+//     * @param viewTypes
+//     */
+//    public static void setAutoHeatMapByViewTypes(Set<Class<? extends View>> viewTypes){
+//
+//    }
+
+    /**
+     * 采集热图页面百名单
+     * @param pages 只采集的页面集合
+     */
+    public static void setAutoHeatMapByPages(Set<String> pages){
+        AgentProcess.getInstance().setAutoHeatMapByPages(pages);
     }
 
     /**

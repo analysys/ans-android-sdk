@@ -142,18 +142,16 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                 final Activity activity = wa.get();
                 if (activity != null) {
                     try {
-                        HeatMap.getInstance(
-                                activity.getApplicationContext()).pageInfo = HeatMap.getInstance(
-                                activity.getApplicationContext()).initPageInfo(activity);
+                        HeatMap instance = HeatMap.getInstance();
+                        instance.pageInfo = instance.initPageInfo(activity);
                     } catch (Throwable ignored) {
                     }
                     activity.getWindow().getDecorView().post(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                HeatMap.getInstance(
-                                        activity.getApplicationContext()).hookDecorViewClick(
-                                        activity.getWindow().getDecorView());
+                                HeatMap.getInstance()
+                                        .hookDecorViewClick(activity.getWindow().getDecorView());
                             } catch (Throwable ignored) {
                             }
                         }
