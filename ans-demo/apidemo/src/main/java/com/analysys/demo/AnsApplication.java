@@ -36,10 +36,8 @@ public class AnsApplication extends Application {
         initAnalsysy();
 
         // 尝试初始化对应模块
-        switch (BuildConfig.Build_Type) {
-            case "compatibility":
-                // 尝试初始化三方兼容模块
-                ARouter.getInstance().build("/compatibilityDemo/api").navigation();
+        if ("compatibility".equals(BuildConfig.Build_Type)) {// 尝试初始化三方兼容模块
+            ARouter.getInstance().build("/compatibilityDemo/api").navigation();
         }
     }
 
@@ -67,7 +65,7 @@ public class AnsApplication extends Application {
         // 初始化
         AnalysysAgent.init(this, config);
         // 开启热图数据采集
-        AnalysysAgent.setAutoHeatMap(false);
+        AnalysysAgent.setAutoHeatMap(true);
         // 设置数据上传/更新地址
         AnalysysAgent.setUploadURL(this, UPLOAD_URL);
         // 设置 WebSocket 连接 Url
