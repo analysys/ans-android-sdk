@@ -45,10 +45,13 @@ public class HeatMap {
     public Map<String, Object> pageInfo = null;
     private Map<String, Object> clickInfo = null;
     private float rx = 0, ry = 0, x = 0, y = 0;
-
+    
     public static HeatMap getInstance() {
-        SystemIds.getInstance().parserId();
         return HeatMap.Holder.INSTANCE;
+    }
+
+    private HeatMap() {
+        SystemIds.getInstance().parserId();
     }
 
     /**
