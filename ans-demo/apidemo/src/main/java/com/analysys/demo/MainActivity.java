@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.analysys.ANSAutoPageTracker;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity implements ANSAutoPageTracke
         } else if (id == R.id.visualDemoButton) {
             // 跳转可视化模块
             ARouter.getInstance().build("/visualDemo/TopVisualPage").navigation();
+        } else if (id == R.id.TestHeatMapButton) {
+            // 跳转可视化模块
+            startActivity(new Intent(MainActivity.this, HeatMapTestActivity.class));
         }
     }
 
