@@ -1,9 +1,5 @@
 package com.analysys.process;
 
-import android.content.Context;
-
-import androidx.test.InstrumentationRegistry;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,11 +14,10 @@ import java.util.Map;
  * @Author: Wang-X-C
  */
 public class AgentProcessTest {
-    private Context mContext = InstrumentationRegistry.getContext();
 
     @Test
     public void getInstance() {
-        Assert.assertNotNull(AgentProcess.getInstance(mContext));
+        Assert.assertNotNull(AgentProcess.getInstance());
     }
 
     @Test
@@ -35,8 +30,8 @@ public class AgentProcessTest {
 
     @Test
     public void appStart() {
-        AgentProcess.getInstance(mContext).appStart(true, System.currentTimeMillis());
-        AgentProcess.getInstance(mContext).appStart(false, System.currentTimeMillis());
+        AgentProcess.getInstance().appStart(true, System.currentTimeMillis());
+        AgentProcess.getInstance().appStart(false, System.currentTimeMillis());
     }
 
     @Test
@@ -51,12 +46,12 @@ public class AgentProcessTest {
     @Test
     public void hybridPageView() {
         String pageName = "testPage";
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("aa", "AAA");
         map.put("bb", "BBB");
-        AgentProcess.getInstance(mContext).hybridPageView(pageName, map);
-        AgentProcess.getInstance(mContext).hybridPageView(null, map);
-        AgentProcess.getInstance(mContext).hybridPageView(pageName, null);
+        AgentProcess.getInstance().hybridPageView(pageName, map);
+        AgentProcess.getInstance().hybridPageView(null, map);
+        AgentProcess.getInstance().hybridPageView(pageName, null);
     }
 
     @Test
@@ -68,7 +63,7 @@ public class AgentProcessTest {
 
     @Test
     public void pageTouchInfo() {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("aaa", "AAA");
         map.put("bbb", "BBB");
 //        AgentProcess.getInstance(mContext).pageTouchInfo(map);

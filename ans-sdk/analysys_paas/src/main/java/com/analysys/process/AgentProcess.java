@@ -15,6 +15,7 @@ import com.analysys.network.UploadManager;
 import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -56,17 +57,21 @@ public class AgentProcess {
     private Application mApp = null;
     private String mTitle = "", mUrl = "";
     private Map<String, Object> properties;
+    
+    private AnalysysConfig mConfig = new AnalysysConfig();
 
-    public static AgentProcess getInstance(Context context) {
-        ContextManager.setContext(context);
+    public static AgentProcess getInstance() {
         return Holder.INSTANCE;
     }
 
     /**
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
-    public void init(final AnalysysConfig config) {
-        final Context context = ContextManager.getContext();
+    public void init(final Context context, final AnalysysConfig config) {
+        if (config != null) {
+            mConfig = config;
+        }
+        AnalysysUtil.init(context);
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
             @Override
@@ -74,28 +79,28 @@ public class AgentProcess {
                 try {
                     if (context != null) {
                         TemplateManage.initMould(context);
-                        saveKey(context, config.getAppKey());
-                        saveChannel(context, config.getChannel());
+                        saveKey(context, mConfig.getAppKey());
+                        saveChannel(context, mConfig.getChannel());
                         if (CommonUtils.isMainProcess(context)) {
                             // 同时设置 UploadUrl/WebSocketUrl/ConfigUrl
-                            setBaseUrl(context, config.getBaseUrl());
+                            setBaseUrl(context, mConfig.getBaseUrl());
                             // 设置首次启动是否发送
-                            Constants.isAutoProfile = config.isAutoProfile();
+                            Constants.isAutoProfile = mConfig.isAutoProfile();
                             // 设置加密类型
-                            Constants.encryptType = config.getEncryptType().getType();
+                            Constants.encryptType = mConfig.getEncryptType().getType();
                             // 设置渠道归因是否开启
-                            Constants.autoInstallation = config.isAutoInstallation();
+                            Constants.autoInstallation = mConfig.isAutoInstallation();
                             // 重置PV计数器值
                             CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
-                            long MaxDiffTimeInterval = config.getMaxDiffTimeInterval();
+                            long MaxDiffTimeInterval = mConfig.getMaxDiffTimeInterval();
                             if (0 <= MaxDiffTimeInterval) {
                                 // 用户忽略最大时间差值
-                                Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
+                                Constants.ignoreDiffTime = mConfig.getMaxDiffTimeInterval();
                             }
                         }
                         // 设置时间校准是否开启
-                        Constants.isTimeCheck = config.isTimeCheck();
-                        if (Constants.autoHeatMap) {
+                        Constants.isTimeCheck = mConfig.isTimeCheck();
+                        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
                             SystemIds.getInstance(context).parserId();
                         }
                         LifeCycleConfig.initUploadConfig(context);
@@ -103,7 +108,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showInitLog(false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -116,7 +121,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context == null || debug < 0 || 2 < debug) {
                     Log.w("analysys", Constants.API_SET_DEBUG_MODE + ": set failed!");
                     return;
@@ -136,7 +141,7 @@ public class AgentProcess {
      */
     public void appStart(final boolean isFromBackground, long startTime) {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context == null) {
                 return;
             }
@@ -155,7 +160,7 @@ public class AgentProcess {
                     sendFirstInstall(context);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -166,7 +171,7 @@ public class AgentProcess {
         try {
             long time = NumberFormat.convertToLong(eventTime);
             if (time > 0) {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null && realTimeField != null) {
                     JSONObject endData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_APP_END, Constants.END, null, null);
@@ -177,7 +182,7 @@ public class AgentProcess {
                     trackEvent(context, Constants.API_APP_END, Constants.END, endData);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -195,7 +200,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -214,7 +219,7 @@ public class AgentProcess {
                             pageInfo, autoCollectPageInfo);
 
                     trackEvent(context, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -228,7 +233,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -241,7 +246,7 @@ public class AgentProcess {
                             Constants.PAGE_VIEW, pageInfo, null);
                     trackEvent(context,
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -251,7 +256,7 @@ public class AgentProcess {
      * 页面信息处理
      */
     public void autoCollectPageView(final Map<String, Object> pageInfo) throws Exception {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                     Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, pageInfo, null);
@@ -264,14 +269,14 @@ public class AgentProcess {
      */
     void pageTouchInfo(final Map<String, Object> screenDetail) {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             Map<String, Object> screenInfo = CommonUtils.deepCopy(screenDetail);
             if (context != null) {
                 JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                         Constants.API_APP_CLICK, Constants.APP_CLICK, null, screenInfo);
                 trackEvent(context, Constants.API_APP_CLICK, Constants.APP_CLICK, eventData);
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -284,7 +289,7 @@ public class AgentProcess {
             public void run() {
                 try {
                     Map<String, Object> eventInfo = CommonUtils.deepCopy(eventDetail);
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         LogPrompt.showLog(Constants.API_TRACK, false);
                         return;
@@ -301,7 +306,7 @@ public class AgentProcess {
                                 eventInfo, null, eventName);
                     }
                     trackEvent(context, Constants.API_TRACK, eventName, eventData);
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -322,7 +327,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context == null) {
                     return;
                 }
@@ -340,7 +345,7 @@ public class AgentProcess {
      * 获取distinctId
      */
     public String getDistinctId() {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             return CommonUtils.getDistinctId(context);
         }
@@ -355,7 +360,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         if (!CheckUtils.checkIdLength(aliasId)) {
                             LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
@@ -388,7 +393,7 @@ public class AgentProcess {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -412,7 +417,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -421,7 +426,7 @@ public class AgentProcess {
                         trackEvent(context, Constants.API_PROFILE_SET,
                                 Constants.PROFILE_SET, eventData);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -435,7 +440,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -447,7 +452,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_SET_ONCE, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -457,7 +462,7 @@ public class AgentProcess {
      * profile set 键值对
      */
     public void profileSetOnce(final String profileKey, final Object profileValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Object> propertyMap = new HashMap<>();
             propertyMap.put(profileKey, profileValue);
@@ -475,7 +480,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, ? extends Number> profileInfo =
                                 CommonUtils.deepCopy(profileDetail);
@@ -488,7 +493,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_INCREMENT, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -498,7 +503,7 @@ public class AgentProcess {
      * profile increment
      */
     public void profileIncrement(final String profileKey, final Number profileValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Number> profileMap = new HashMap<>();
             profileMap.put(profileKey, profileValue);
@@ -516,7 +521,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -528,7 +533,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_APPEND, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -538,7 +543,7 @@ public class AgentProcess {
      * profile append
      */
     public void profileAppend(final String propertyName, final Object propertyValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Object> properMap = new HashMap<>();
             properMap.put(propertyName, propertyValue);
@@ -552,7 +557,7 @@ public class AgentProcess {
      * 给一个列表类型的Profile增加一个或多个元素
      */
     public void profileAppend(final String profileKey, final List<Object> profileValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Object> profileMap = new HashMap<>();
             profileMap.put(profileKey, profileValue);
@@ -570,7 +575,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(propertyKey)) {
                         Map<String, Object> profileMap = new HashMap<>();
                         profileMap.put(propertyKey, "");
@@ -585,7 +590,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_UNSET, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -599,7 +604,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -610,7 +615,7 @@ public class AgentProcess {
                     trackEvent(context, Constants.API_PROFILE_DELETE,
                             Constants.PROFILE_DELETE, eventData);
 
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -624,7 +629,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -640,7 +645,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_REGISTER_SUPER_PROPERTY, LogBean.getLog());
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
 
             }
@@ -655,7 +660,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         LogPrompt.showLog(
                                 Constants.API_REGISTER_SUPER_PROPERTIES, LogBean.getLog());
@@ -670,7 +675,7 @@ public class AgentProcess {
                         }
                         saveSuperProperty(context, propertyInfo);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
 
@@ -683,7 +688,7 @@ public class AgentProcess {
      */
     public Map<String, Object> getSuperProperty() {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context == null) {
                 return new HashMap<>();
             }
@@ -692,7 +697,7 @@ public class AgentProcess {
             if (!CommonUtils.isEmpty(superProperty)) {
                 return CommonUtils.jsonToMap(new JSONObject(superProperty));
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return new HashMap<>();
     }
@@ -702,7 +707,7 @@ public class AgentProcess {
      */
     public Object getSuperProperty(String propertyKey) {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context != null && !CommonUtils.isEmpty(propertyKey)) {
                 String superProperty = SharedUtil.getString(
                         context, Constants.SP_SUPER_PROPERTY, null);
@@ -710,7 +715,7 @@ public class AgentProcess {
                     return new JSONObject(superProperty).opt(propertyKey);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -723,7 +728,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(superPropertyName)) {
                         String property = SharedUtil.getString(
                                 context, Constants.SP_SUPER_PROPERTY, null);
@@ -737,7 +742,7 @@ public class AgentProcess {
                                     Constants.API_UNREGISTER_SUPER_PROPERTY, true);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -751,13 +756,13 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         SharedUtil.remove(context, Constants.SP_SUPER_PROPERTY);
                         LogPrompt.showLog(
                                 Constants.API_CLEAR_SUPER_PROPERTIES, true);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -770,7 +775,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null && 1 < time) {
                     SharedUtil.setLong(
                             context, Constants.SP_USER_INTERVAL_TIME, time * 1000);
@@ -786,7 +791,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null && 1 < count) {
                     SharedUtil.setLong(
                             context, Constants.SP_USER_EVENT_COUNT, count);
@@ -829,7 +834,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         resetUserInfo(context);
                         CommonUtils.setIdFile(context, Constants.SP_UUID, "");
@@ -852,7 +857,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(url)) {
                         String getUrl;
                         if (url.startsWith(Constants.HTTP)) {
@@ -869,7 +874,7 @@ public class AgentProcess {
                             LogPrompt.showErrLog(LogPrompt.URL_ERR);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -883,7 +888,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null) {
                     SharedUtil.setBoolean(context, Constants.SP_IS_COLLECTION, isAuto);
                 }
@@ -895,7 +900,7 @@ public class AgentProcess {
      * 获取自动采集开关状态
      */
     public boolean getAutomaticCollection() {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             return SharedUtil.getBoolean(
                     context, Constants.SP_IS_COLLECTION, true);
@@ -907,7 +912,7 @@ public class AgentProcess {
      * 获取忽略自动采集的页面
      */
     public List<String> getIgnoredAutomaticCollection() {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             String activities = SharedUtil.getString(
                     context, Constants.SP_IGNORED_COLLECTION, null);
@@ -926,7 +931,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -951,7 +956,7 @@ public class AgentProcess {
                                 CommonUtils.toString(pageNames));
                     }
 
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -964,7 +969,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null) {
                     UploadManager.getInstance(context).flushSendManager();
                 }
@@ -977,7 +982,7 @@ public class AgentProcess {
      */
     public Map<String, Object> getPresetProperties() {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context != null) {
                 if (properties == null) {
                     properties = new HashMap<>();
@@ -1004,7 +1009,7 @@ public class AgentProcess {
                     return properties;
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return new HashMap<>();
     }
@@ -1014,14 +1019,13 @@ public class AgentProcess {
      */
     public void interceptUrl(String url, Object view) {
         try {
-            Context context = ContextManager.getContext();
-            if (context != null && !CommonUtils.isEmpty(url)) {
+            if (!CommonUtils.isEmpty(url)) {
                 String decodedURL = java.net.URLDecoder.decode(url, "UTF-8");
                 if (decodedURL.startsWith(ANALYSYS_AGENT)) {
-                    HybridBridge.getInstance(context).execute(decodedURL, view);
+                    HybridBridge.getInstance().execute(decodedURL, view);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -1033,17 +1037,19 @@ public class AgentProcess {
             try {
                 Method getSettings = webView.getClass().getMethod(GET_SETTINGS);
                 Object webSettings = getSettings.invoke(webView);
-                Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
-                String userAgent = (String) getUserAgentString.invoke(webSettings);
-                Method setUserAgentString = webSettings.getClass().getMethod(
-                        SET_USER_AGENT, String.class);
-                if (!CommonUtils.isEmpty(userAgent)) {
-                    setUserAgentString.invoke(
-                            webSettings, userAgent + Constants.HYBRID_AGENT);
-                } else {
-                    setUserAgentString.invoke(webSettings, Constants.HYBRID_AGENT);
+                if (webSettings != null) {
+                    Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
+                    String userAgent = (String) getUserAgentString.invoke(webSettings);
+                    Method setUserAgentString = webSettings.getClass().getMethod(
+                            SET_USER_AGENT, String.class);
+                    if (!CommonUtils.isEmpty(userAgent)) {
+                        setUserAgentString.invoke(
+                                webSettings, userAgent + Constants.HYBRID_AGENT);
+                    } else {
+                        setUserAgentString.invoke(webSettings, Constants.HYBRID_AGENT);
+                    }
                 }
-            } catch (Throwable throwable) {
+            } catch (Throwable ignored) {
             }
         }
     }
@@ -1053,20 +1059,21 @@ public class AgentProcess {
      */
     public void resetHybridModel(final Object webView) {
         try {
-            if (!CommonUtils.isEmpty(webView)) {
+            if (webView != null) {
                 Method getSettings = webView.getClass().getMethod(GET_SETTINGS);
                 Object webSettings = getSettings.invoke(webView);
-                Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
-                String userAgent = (String) getUserAgentString.invoke(webSettings);
-                Method setUserAgentString = webSettings.getClass().getMethod(SET_USER_AGENT,
-                        String.class);
-                if (!CommonUtils.isEmpty(userAgent)
-                        && (userAgent.contains(Constants.HYBRID_AGENT))) {
-                    userAgent = userAgent.replace(Constants.HYBRID_AGENT, "");
-                    setUserAgentString.invoke(webSettings, userAgent);
+                if (webSettings != null) {
+                    Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
+                    String userAgent = (String) getUserAgentString.invoke(webSettings);
+                    Method setUserAgentString = webSettings.getClass().getMethod(SET_USER_AGENT,
+                            String.class);
+                    if (userAgent != null && (userAgent.contains(Constants.HYBRID_AGENT))) {
+                        userAgent = userAgent.replace(Constants.HYBRID_AGENT, "");
+                        setUserAgentString.invoke(webSettings, userAgent);
+                    }
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -1078,14 +1085,14 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualBase != null) {
                             setUrl(context, LifeCycleConfig.visualBase.optString(START), url);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1099,14 +1106,14 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visual != null) {
                             setUrl(context, LifeCycleConfig.visual.optString(START), url);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1120,7 +1127,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualConfig != null) {
@@ -1129,7 +1136,7 @@ public class AgentProcess {
                                     url);
                         }
                     }
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1140,7 +1147,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initPushConfig(context);
                         if (LifeCycleConfig.pushParse != null) {
@@ -1153,7 +1160,7 @@ public class AgentProcess {
                                     context, provider, pushId);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1165,7 +1172,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initPushConfig(context);
                         if (LifeCycleConfig.pushClick != null) {
@@ -1177,7 +1184,7 @@ public class AgentProcess {
                                     context, campaign, isClick, listener);
                         }
                     }
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1324,7 +1331,7 @@ public class AgentProcess {
                         Locale.getDefault().getLanguage());
             } else if (type == 1) {
                 profileInfo.put(Constants.DEV_RESET_TIME,
-                        CommonUtils.getTime(context));
+                        CommonUtils.getTime());
             } else {
                 return;
             }
@@ -1437,8 +1444,20 @@ public class AgentProcess {
                 context, url);
     }
 
+    public void setAutoHeatMapIgnoreByPages(Set<String> pages) {
+        HeatMap.getInstance().setAutoHeatMapIgnoreByPages(pages);
+    }
+
+    public void setAutoHeatMapByPages(Set<String> pages) {
+        HeatMap.getInstance().setAutoHeatMapByPages(pages);
+    }
+
     private static class Holder {
         public static final AgentProcess INSTANCE = new AgentProcess();
+    }
+
+    public AnalysysConfig getConfig() {
+        return mConfig;
     }
 
 //    /**

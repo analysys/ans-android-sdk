@@ -85,7 +85,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
 
     @Override
     public void onActivityCreated(@NonNull final Activity activity, Bundle savedInstanceState) {
-        if (Constants.autoHeatMap) {
+        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
             initHeatMap(new WeakReference<>(activity));
         }
         if (context == null) {
@@ -101,7 +101,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        if (Constants.autoHeatMap) {
+        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
             checkLayoutListener(new WeakReference<>(activity), true);
         }
     }
@@ -142,18 +142,15 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                 final Activity activity = wa.get();
                 if (activity != null) {
                     try {
-                        HeatMap.getInstance(
-                                activity.getApplicationContext()).pageInfo = HeatMap.getInstance(
-                                activity.getApplicationContext()).initPageInfo(activity);
+                        HeatMap.getInstance().initPageInfo(activity);
                     } catch (Throwable ignored) {
                     }
                     activity.getWindow().getDecorView().post(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                HeatMap.getInstance(
-                                        activity.getApplicationContext()).hookDecorViewClick(
-                                        activity.getWindow().getDecorView());
+                                HeatMap.getInstance()
+                                        .hookDecorViewClick(activity.getWindow().getDecorView());
                             } catch (Throwable ignored) {
                             }
                         }
@@ -259,7 +256,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             Context context = activity.get();
             if (context != null) {
                 // 热图部分逻辑不能在子线程执行
-                if (Constants.autoHeatMap) {
+                if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
                     checkLayoutListener(activity, false);
                 }
                 // 单队列线程执行
@@ -312,7 +309,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                 // a.走AppEnd 尝试补发流程
                 trackAppEnd(makeTrackAppEndMsg());
                 appStartTime = System.currentTimeMillis();
-                AgentProcess.getInstance(context).appStart(fromBackground, appStartTime);
+                AgentProcess.getInstance().appStart(fromBackground, appStartTime);
                 CommonUtils.setIdFile(context,
                         Constants.APP_START_TIME, String.valueOf(appStartTime));
                 // 用于判断是否是后台启动
@@ -389,7 +386,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         boolean isAuto = SharedUtil.getBoolean(
                 context, Constants.SP_IS_COLLECTION, true);
         if (isAuto && isAutomaticCollection(context, pageUrl)) {
-            AgentProcess.getInstance(context).autoCollectPageView(pageInfo);
+            AgentProcess.getInstance().autoCollectPageView(pageInfo);
         }
     }
 
@@ -483,7 +480,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                     // 获取实时更新数据时间
                     JSONObject data = new JSONObject(endInfo);
                     // 1. appEndTrack
-                    AgentProcess.getInstance(context).appEnd(opt, data);
+                    AgentProcess.getInstance().appEnd(opt, data);
                     // 2. 清空config中appEndInfoCache
                     CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
                     // 3. 清空页面来源信息

@@ -6,7 +6,7 @@ import android.webkit.WebView;
 
 import com.analysys.AnalysysAgent;
 import com.analysys.process.AgentProcess;
-import com.analysys.process.ContextManager;
+import com.analysys.utils.AnalysysUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,8 +20,7 @@ public class HybridBridge {
 
     private static final String SCHEME = "analysysagent";
 
-    public static HybridBridge getInstance(Context context) {
-        ContextManager.setContext(context);
+    public static HybridBridge getInstance() {
         return Holder.INSTANCE;
     }
 
@@ -29,13 +28,13 @@ public class HybridBridge {
      * process msg from JS
      *
      */
-    public void execute(String url, Object webView) throws Exception {
+    public void execute(String url, Object webView) {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context != null && url.startsWith(SCHEME)) {
-                String info = url.substring((SCHEME.length() + 1), url.length());
+                String info = url.substring((SCHEME.length() + 1));
                 JSONObject obj = new JSONObject(info);
-                if (obj != null && obj.length() > 0) {
+                if (obj.length() > 0) {
                     String functionName = obj.optString("functionName");
                     JSONArray args = obj.optJSONArray("functionParams");
                     String callback = obj.optString("callbackFunName");
@@ -58,7 +57,7 @@ public class HybridBridge {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -226,7 +225,7 @@ public class HybridBridge {
             String pageName = array.optString(0);
             JSONObject obj = array.optJSONObject(1);
             Map<String, Object> map = convertToMap(obj);
-            AgentProcess.getInstance(context).hybridPageView(pageName, map);
+            AgentProcess.getInstance().hybridPageView(pageName, map);
         } else {
             String pageName = array.optString(0);
             if (!TextUtils.isEmpty(pageName)) {
@@ -269,7 +268,7 @@ public class HybridBridge {
      * convert JSONObject to Map
      */
     private Map<String, Object> convertToMap(JSONObject obj) {
-        Map<String, Object> res = new HashMap<String, Object>();
+        Map<String, Object> res = new HashMap<>();
         if (obj != null && obj.length() > 0) {
             Iterator<String> it = obj.keys();
             while (it.hasNext()) {
@@ -282,7 +281,7 @@ public class HybridBridge {
     }
 
     private Map<String, Number> convertToNumberMap(JSONObject obj) {
-        Map<String, Number> res = new HashMap<String, Number>();
+        Map<String, Number> res = new HashMap<>();
         if (obj != null && obj.length() > 0) {
             Iterator<String> it = obj.keys();
             while (it.hasNext()) {
