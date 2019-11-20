@@ -53,11 +53,9 @@ public class HeatMap {
 
     /**
      * 初始化页面宽高分辨率等信息
-     *
-     * @param activity
      */
-    public Map<String, Object> initPageInfo(Activity activity)throws Exception {
-        pageInfo = new HashMap<String, Object>();
+    public Map<String, Object> initPageInfo(Activity activity) {
+        pageInfo = new HashMap<>();
         if (activity != null) {
             pageInfo.put(Constants.PAGE_URL, activity.getClass().getName());
             DisplayMetrics metrics = new DisplayMetrics();
@@ -81,7 +79,7 @@ public class HeatMap {
 
     /***
      * 递归调用解析view
-     * @param decorView
+     * @param decorView 根节点view
      */
     public void hookDecorViewClick(View decorView) throws Exception {
         if (decorView instanceof ViewGroup) {
@@ -133,7 +131,7 @@ public class HeatMap {
 
     }
 
-    private void setCoordinate(final View v, final MotionEvent event) throws Exception {
+    private void setCoordinate(final View v, final MotionEvent event) {
         if (isTouch(event)) {
             x = event.getX();
             y = event.getY();
@@ -143,7 +141,7 @@ public class HeatMap {
                 public void run() {
                     try {
                         if (clickInfo == null) {
-                            clickInfo = new HashMap<String, Object>();
+                            clickInfo = new HashMap<>();
                         } else {
                             clickInfo.clear();
                         }
@@ -154,7 +152,7 @@ public class HeatMap {
                             clickInfo.putAll(pageInfo);
                             AgentProcess.getInstance().pageTouchInfo(clickInfo);
                         }
-                    } catch (Throwable throwable) {
+                    } catch (Throwable ignored) {
                     }
                 }
             });
@@ -218,13 +216,13 @@ public class HeatMap {
         Class<?> compatClass = null;
         try {
             compatClass = Class.forName("android.support.v7.widget.SwitchCompat");
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
 
         }
         if (compatClass == null) {
             try {
                 compatClass = Class.forName("androidx.appcompat.widget.SwitchCompat");
-            } catch (Throwable t) {
+            } catch (Throwable ignored) {
 
             }
         }
@@ -281,7 +279,7 @@ public class HeatMap {
     private class HookTouchListener implements View.OnTouchListener {
         private View.OnTouchListener onTouchListener;
 
-        public HookTouchListener(View.OnTouchListener onTouchListener) {
+        private HookTouchListener(View.OnTouchListener onTouchListener) {
             this.onTouchListener = onTouchListener;
         }
 
@@ -291,7 +289,7 @@ public class HeatMap {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 try {
                     setCoordinate(v, event);
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
 //            boolean x1 = patch(v, event);
@@ -310,7 +308,7 @@ public class HeatMap {
     /**
      * 根据堆栈查看是否循环递归
      *
-     * @param ste
+     * @param ste 方法调用栈
      * @return true 递归
      */
     private boolean isLoop(StackTraceElement[] ste) {
@@ -318,9 +316,7 @@ public class HeatMap {
             String methodPath = ste[2].getClassName() + "." + ste[2].getMethodName();
             String methodPath2 = ste[3].getClassName() + "." + ste[3].getMethodName();
 //            Log.i("sanbo", methodPath + "<----->" + methodPath2);
-            if (TextUtils.equals(methodPath, methodPath2)) {
-                return true;
-            }
+            return TextUtils.equals(methodPath, methodPath2);
         }
         return false;
     }

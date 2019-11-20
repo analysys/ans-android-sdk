@@ -46,7 +46,7 @@ public class AgentProcessTest {
     @Test
     public void hybridPageView() {
         String pageName = "testPage";
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("aa", "AAA");
         map.put("bb", "BBB");
         AgentProcess.getInstance().hybridPageView(pageName, map);
@@ -63,7 +63,7 @@ public class AgentProcessTest {
 
     @Test
     public void pageTouchInfo() {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("aaa", "AAA");
         map.put("bbb", "BBB");
 //        AgentProcess.getInstance(mContext).pageTouchInfo(map);

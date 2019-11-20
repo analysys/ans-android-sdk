@@ -2,13 +2,13 @@ package com.analysys.process;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
-
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 
 import java.security.MessageDigest;
 import java.util.Random;
+
+import androidx.annotation.Nullable;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -86,7 +86,7 @@ public class SessionManage {
             }
         }
         // 其次判断是不是同一天，要不要更新session
-        if (!CommonUtils.getDay(mContext).equals(startDay)) {
+        if (!CommonUtils.getDay().equals(startDay)) {
             setStartDay();
             return true;
         }
@@ -97,7 +97,7 @@ public class SessionManage {
      * 存储页面的开始日期
      */
     private void setStartDay() {
-        startDay = CommonUtils.getDay(mContext);
+        startDay = CommonUtils.getDay();
         CommonUtils.setIdFile(mContext, Constants.SP_START_DAY, startDay);
     }
 

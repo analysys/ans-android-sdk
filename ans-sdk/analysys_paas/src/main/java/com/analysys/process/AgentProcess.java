@@ -103,7 +103,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showInitLog(false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -155,7 +155,7 @@ public class AgentProcess {
                     sendFirstInstall(context);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -177,7 +177,7 @@ public class AgentProcess {
                     trackEvent(context, Constants.API_APP_END, Constants.END, endData);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -214,7 +214,7 @@ public class AgentProcess {
                             pageInfo, autoCollectPageInfo);
 
                     trackEvent(context, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -241,7 +241,7 @@ public class AgentProcess {
                             Constants.PAGE_VIEW, pageInfo, null);
                     trackEvent(context,
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -271,7 +271,7 @@ public class AgentProcess {
                         Constants.API_APP_CLICK, Constants.APP_CLICK, null, screenInfo);
                 trackEvent(context, Constants.API_APP_CLICK, Constants.APP_CLICK, eventData);
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -301,7 +301,7 @@ public class AgentProcess {
                                 eventInfo, null, eventName);
                     }
                     trackEvent(context, Constants.API_TRACK, eventName, eventData);
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -388,7 +388,7 @@ public class AgentProcess {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -421,7 +421,7 @@ public class AgentProcess {
                         trackEvent(context, Constants.API_PROFILE_SET,
                                 Constants.PROFILE_SET, eventData);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -447,7 +447,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_SET_ONCE, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -488,7 +488,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_INCREMENT, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -528,7 +528,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_APPEND, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -585,7 +585,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_UNSET, false);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -610,7 +610,7 @@ public class AgentProcess {
                     trackEvent(context, Constants.API_PROFILE_DELETE,
                             Constants.PROFILE_DELETE, eventData);
 
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -640,7 +640,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_REGISTER_SUPER_PROPERTY, LogBean.getLog());
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
 
             }
@@ -670,7 +670,7 @@ public class AgentProcess {
                         }
                         saveSuperProperty(context, propertyInfo);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
 
@@ -692,7 +692,7 @@ public class AgentProcess {
             if (!CommonUtils.isEmpty(superProperty)) {
                 return CommonUtils.jsonToMap(new JSONObject(superProperty));
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return new HashMap<>();
     }
@@ -710,7 +710,7 @@ public class AgentProcess {
                     return new JSONObject(superProperty).opt(propertyKey);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -737,7 +737,7 @@ public class AgentProcess {
                                     Constants.API_UNREGISTER_SUPER_PROPERTY, true);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -757,7 +757,7 @@ public class AgentProcess {
                         LogPrompt.showLog(
                                 Constants.API_CLEAR_SUPER_PROPERTIES, true);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -869,7 +869,7 @@ public class AgentProcess {
                             LogPrompt.showErrLog(LogPrompt.URL_ERR);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -951,7 +951,7 @@ public class AgentProcess {
                                 CommonUtils.toString(pageNames));
                     }
 
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1004,7 +1004,7 @@ public class AgentProcess {
                     return properties;
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return new HashMap<>();
     }
@@ -1020,7 +1020,7 @@ public class AgentProcess {
                     HybridBridge.getInstance().execute(decodedURL, view);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -1032,17 +1032,19 @@ public class AgentProcess {
             try {
                 Method getSettings = webView.getClass().getMethod(GET_SETTINGS);
                 Object webSettings = getSettings.invoke(webView);
-                Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
-                String userAgent = (String) getUserAgentString.invoke(webSettings);
-                Method setUserAgentString = webSettings.getClass().getMethod(
-                        SET_USER_AGENT, String.class);
-                if (!CommonUtils.isEmpty(userAgent)) {
-                    setUserAgentString.invoke(
-                            webSettings, userAgent + Constants.HYBRID_AGENT);
-                } else {
-                    setUserAgentString.invoke(webSettings, Constants.HYBRID_AGENT);
+                if (webSettings != null) {
+                    Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
+                    String userAgent = (String) getUserAgentString.invoke(webSettings);
+                    Method setUserAgentString = webSettings.getClass().getMethod(
+                            SET_USER_AGENT, String.class);
+                    if (!CommonUtils.isEmpty(userAgent)) {
+                        setUserAgentString.invoke(
+                                webSettings, userAgent + Constants.HYBRID_AGENT);
+                    } else {
+                        setUserAgentString.invoke(webSettings, Constants.HYBRID_AGENT);
+                    }
                 }
-            } catch (Throwable throwable) {
+            } catch (Throwable ignored) {
             }
         }
     }
@@ -1052,20 +1054,21 @@ public class AgentProcess {
      */
     public void resetHybridModel(final Object webView) {
         try {
-            if (!CommonUtils.isEmpty(webView)) {
+            if (webView != null) {
                 Method getSettings = webView.getClass().getMethod(GET_SETTINGS);
                 Object webSettings = getSettings.invoke(webView);
-                Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
-                String userAgent = (String) getUserAgentString.invoke(webSettings);
-                Method setUserAgentString = webSettings.getClass().getMethod(SET_USER_AGENT,
-                        String.class);
-                if (!CommonUtils.isEmpty(userAgent)
-                        && (userAgent.contains(Constants.HYBRID_AGENT))) {
-                    userAgent = userAgent.replace(Constants.HYBRID_AGENT, "");
-                    setUserAgentString.invoke(webSettings, userAgent);
+                if (webSettings != null) {
+                    Method getUserAgentString = webSettings.getClass().getMethod(GET_USER_AGENT);
+                    String userAgent = (String) getUserAgentString.invoke(webSettings);
+                    Method setUserAgentString = webSettings.getClass().getMethod(SET_USER_AGENT,
+                            String.class);
+                    if (userAgent != null && (userAgent.contains(Constants.HYBRID_AGENT))) {
+                        userAgent = userAgent.replace(Constants.HYBRID_AGENT, "");
+                        setUserAgentString.invoke(webSettings, userAgent);
+                    }
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -1084,7 +1087,7 @@ public class AgentProcess {
                             setUrl(context, LifeCycleConfig.visualBase.optString(START), url);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1105,7 +1108,7 @@ public class AgentProcess {
                             setUrl(context, LifeCycleConfig.visual.optString(START), url);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1128,7 +1131,7 @@ public class AgentProcess {
                                     url);
                         }
                     }
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1152,7 +1155,7 @@ public class AgentProcess {
                                     context, provider, pushId);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1176,7 +1179,7 @@ public class AgentProcess {
                                     context, campaign, isClick, listener);
                         }
                     }
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -1323,7 +1326,7 @@ public class AgentProcess {
                         Locale.getDefault().getLanguage());
             } else if (type == 1) {
                 profileInfo.put(Constants.DEV_RESET_TIME,
-                        CommonUtils.getTime(context));
+                        CommonUtils.getTime());
             } else {
                 return;
             }

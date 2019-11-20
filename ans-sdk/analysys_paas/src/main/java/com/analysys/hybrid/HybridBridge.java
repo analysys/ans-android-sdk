@@ -28,13 +28,13 @@ public class HybridBridge {
      * process msg from JS
      *
      */
-    public void execute(String url, Object webView) throws Exception {
+    public void execute(String url, Object webView) {
         try {
             Context context = AnalysysUtil.getContext();
             if (context != null && url.startsWith(SCHEME)) {
-                String info = url.substring((SCHEME.length() + 1), url.length());
+                String info = url.substring((SCHEME.length() + 1));
                 JSONObject obj = new JSONObject(info);
-                if (obj != null && obj.length() > 0) {
+                if (obj.length() > 0) {
                     String functionName = obj.optString("functionName");
                     JSONArray args = obj.optJSONArray("functionParams");
                     String callback = obj.optString("callbackFunName");
@@ -57,7 +57,7 @@ public class HybridBridge {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -268,7 +268,7 @@ public class HybridBridge {
      * convert JSONObject to Map
      */
     private Map<String, Object> convertToMap(JSONObject obj) {
-        Map<String, Object> res = new HashMap<String, Object>();
+        Map<String, Object> res = new HashMap<>();
         if (obj != null && obj.length() > 0) {
             Iterator<String> it = obj.keys();
             while (it.hasNext()) {
@@ -281,7 +281,7 @@ public class HybridBridge {
     }
 
     private Map<String, Number> convertToNumberMap(JSONObject obj) {
-        Map<String, Number> res = new HashMap<String, Number>();
+        Map<String, Number> res = new HashMap<>();
         if (obj != null && obj.length() > 0) {
             Iterator<String> it = obj.keys();
             while (it.hasNext()) {
