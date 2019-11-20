@@ -1,6 +1,7 @@
 package com.analysys.process;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.text.TextUtils;
@@ -28,7 +29,9 @@ import org.json.JSONException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -283,7 +286,10 @@ public class HeatMap {
 //            Log.v("sanbo", Log.getStackTraceString(new Exception(v.hashCode() + "")));
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 try {
-                    setCoordinate(v, event);
+                    // 黑白名单判断
+                    if(isTackHeatMap(v)){
+                        setCoordinate(v, event);
+                    }
                 } catch (Throwable ignored) {
                 }
             }
@@ -316,84 +322,78 @@ public class HeatMap {
         return false;
     }
 
-    //        private Boolean patch(View v, MotionEvent event) {
-//            // 获取是否递归调用
-//            boolean isLoop = isLoop(Thread.currentThread().getStackTrace());
-//            Log.i("sanbo", v.hashCode() + "------[ " + getAction(event) + " ] isLoop:" + isLoop
-//            + "----onTouchListener： " + onTouchListener);
-//            if (isLoop) {
-//                // 处理递归调用的情况.
-//                boolean isTouchProcessed = false;
-//                // 不管是否递归，都需要处理回调函数。不然影响功能
-//                if (onTouchListener != null) {
-//                    isTouchProcessed = onTouchListener.onTouch(v, event);
-//                }
-//                //如果有点击回调函数，则不拦截，如果没有回调函数，则拦截。
-//                boolean hasClickCallback = hasClickCallback(v);
-//                Log.w("sanbo", v.hashCode() + "------[ " + getAction(event) + " ]  onTouch
-//                结果===>" + isTouchProcessed + "-------callback: " + hasClickCallback);
-//                if (hasClickCallback) {
-//                    return false;
-//                } else {
-//                    return true;
-//                }
-//            } else {
-//                //不递归的情况,回调
-//                if (onTouchListener != null) {
-//                    return onTouchListener.onTouch(v, event);
-//                }
-//            }
-//            return null;
-//        }
 
-//    private void printLog(View view, Object touchListenerObj) {
-//        String nameForId = SystemIds.getInstance(view.getContext()).nameForId(view.getId());
-//        if ("onTouch1".equals(nameForId)) {
-//            Log.d("sanbo", String.format("nameForId=%s,touchListenerObj instanceof
-//            HookTouchListener:%s", nameForId, (touchListenerObj instanceof HookTouchListener)));
-//        }
-//    }
+    // --------------------- 黑白名单 ---------------------------------
 
-    //    private String getAction(MotionEvent event) {
-//
-//        int action = event.getAction();
-//        String type;
-//        switch (action) {
-//            case MotionEvent.ACTION_DOWN:
-//                type = "DOWN";
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                type = "MOVE";
-//                break;
-//            case MotionEvent.ACTION_UP:
-//                type = "UP";
-//                break;
-//
-//            default:
-//                type = String.valueOf(action);
-//                break;
-//        }
-//        return type;
-//    }
+    // 黑白名单
+    private HashSet<String> mIgnoreByPages = new HashSet<>();
+    private HashSet<String> mAutoByPages = new HashSet<>();
 
-//    private boolean hasClickCallback(View v) {
-//
-//        try {
-//            Class viewClass = Class.forName("android.view.View");
-//            Method getListenerInfoMethod = viewClass.getDeclaredMethod("getListenerInfo");
-//            if (!getListenerInfoMethod.isAccessible()) {
-//                getListenerInfoMethod.setAccessible(true);
-//            }
-//            Class mListenerInfoClass = Class.forName("android.view.View$ListenerInfo");
-//            Field mOnClickListener = mListenerInfoClass.getDeclaredField("mOnClickListener");
-//            Field mOnLongClickListener = mListenerInfoClass.getDeclaredField
-//            ("mOnLongClickListener");
-//            if (mOnClickListener != null || mOnLongClickListener != null) {
-//                return true;
-//            }
-//        } catch (Throwable e) {
-//        }
-//        return false;
-//    }
+    /**
+     * 热图黑名单
+     */
+    void setAutoHeatMapIgnoreByPages(Set<String> pages) {
+        mIgnoreByPages.clear();
+        mIgnoreByPages.addAll(pages);
+    }
+
+    /**
+     * 热图白名单
+     */
+    void setAutoHeatMapByPages(Set<String> pages) {
+        mAutoByPages.clear();
+        mAutoByPages.addAll(pages);
+    }
+
+    /**
+     * 判断是否上报热图信息
+     */
+    private boolean isTackHeatMap(View v) {
+        if (isInIgnoreList(v)) {
+            return false;
+        } else if (hasAutoList()) {
+            return isInAutoList(v);
+        }
+        return true;
+    }
+
+    /**
+     * 判断是否存在黑名单
+     *
+     * @return 是否存在黑名单
+     */
+    private boolean hasAutoList() {
+        return !mAutoByPages.isEmpty();
+    }
+
+    /**
+     * 判断是否命中黑名单
+     *
+     * @return 是否命中白名单
+     */
+    private boolean isInIgnoreList(View v) {
+        Context context = v.getContext();
+        if (context instanceof Activity) {
+            String pageName = context.getClass().getCanonicalName();
+            return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否命中白名单
+     *
+     * @return 是否命中白名单
+     */
+    private boolean isInAutoList(View v) {
+        Context context = v.getContext();
+        if (context instanceof Activity) {
+            String pageName = context.getClass().getCanonicalName();
+            return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
+        }
+        return false;
+    }
+
+    // --------------------- 黑白名单 ---------------------------------
 
 }

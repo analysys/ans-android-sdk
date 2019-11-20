@@ -1440,11 +1440,11 @@ public class AgentProcess {
     }
 
     public void setAutoHeatMapIgnoreByPages(Set<String> pages) {
-//        HeatMap.getInstance()
+        HeatMap.getInstance().setAutoHeatMapIgnoreByPages(pages);
     }
 
     public void setAutoHeatMapByPages(Set<String> pages) {
-        
+        HeatMap.getInstance().setAutoHeatMapByPages(pages);
     }
 
     private static class Holder {
