@@ -8,9 +8,6 @@ import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
 import com.analysys.EncryptEnum;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
  * @Description: TODO
@@ -67,7 +64,7 @@ public class AnsApplication extends Application {
         // 开启渠道归因
         config.setAutoInstallation(true);
         // 开启热图数据采集
-        config.setAutoHeatMap(true);
+        config.setAutoHeatMap(false);
         // 初始化
         AnalysysAgent.init(this, config);
         // 设置数据上传/更新地址
@@ -76,13 +73,6 @@ public class AnsApplication extends Application {
         AnalysysAgent.setVisitorDebugURL(this, SOCKET_URL);
         // 设置配置下发 Url
         AnalysysAgent.setVisitorConfigURL(this, CONFIG_URL);
-
-        // 设置热图黑白名单
-        Set<String> pages = new HashSet<>();
-        pages.add(MainActivity.class.getName());
-        pages.add(UserSettingActivity.class.getName());
-//        AnalysysAgent.setIgnoreHeatMaByPages(pages);
-        AnalysysAgent.setAutoHeatMapByPages(pages);
     }
 
     /**

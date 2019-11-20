@@ -1,6 +1,5 @@
 package com.analysys.process;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +25,10 @@ import java.util.List;
 public class PathGeneral {
     private boolean isDebug = false;
     private int mContentID = -1;
-    private Context mContext = null;
     private ArrayList<JSONObject> mTempPath;
-    /** 结束标志 */
+    /**
+     * 结束标志
+     */
     private String[] mNosupportEntryName = new String[]{"action_bar", "content", "decor_content_parent"};
     private String[] mNoSupportList = new String[]{
             // 页面悬浮
@@ -55,19 +55,18 @@ public class PathGeneral {
      * 6. view_class: 来源 view.getClass().getCanonicalName() 自己和父节点的类名字
      * </pre>
      */
-    public String general(Context context, View view) {
+    public String general(View view) {
         try {
             if (isFinalPoint(view)) {
                 return null;
             }
-            mContext = context.getApplicationContext();
             // 备用ID清空
             mContentID = -1;
             // 清理遍历
             if (mTempPath != null) {
                 mTempPath.clear();
             } else {
-                mTempPath = new ArrayList<JSONObject>();
+                mTempPath = new ArrayList<>();
             }
             // 获取可变性path
             getDynamicPath(view);
@@ -121,11 +120,7 @@ public class PathGeneral {
                 if (vvp instanceof View) {
                     // 取父节点
                     getDynamicPath((View) vvp);
-                } else {
-                    return;
                 }
-            } else {
-                return;
             }
         } catch (Throwable e) {
             //ANSLog.e(e);
@@ -162,7 +157,7 @@ public class PathGeneral {
             if (TextUtils.isEmpty(contentDescription)) {
                 int viewId = view.getId();
                 if (viewId != -1) {
-                    String mpid = SystemIds.getInstance(mContext).nameForId(viewId);
+                    String mpid = SystemIds.getInstance().nameForId(viewId);
                     if (!TextUtils.isEmpty(mpid)) {
                         obj.put("mp_id_name", mpid);
                         obj.put("index", 0);
@@ -179,8 +174,6 @@ public class PathGeneral {
 
     /**
      * 根据view_class定位的时候回去index
-     *
-     * @throws JSONException
      */
     private void updateIndexWhenUseViewClass(JSONObject obj, View view, int index) throws JSONException {
         // 当三个id都没有的时候，去类型
@@ -241,7 +234,7 @@ public class PathGeneral {
     protected boolean isFinalPoint(View view) {
         int viewId = view.getId();
         if (viewId != -1) {
-            String mpid = SystemIds.getInstance(mContext).nameForId(viewId);
+            String mpid = SystemIds.getInstance().nameForId(viewId);
             if (!TextUtils.isEmpty(mpid) && "android:content".equals(mpid)) {
                 mContentID = viewId;
                 return true;
@@ -249,7 +242,7 @@ public class PathGeneral {
         }
         // 通过 EntryName来识别 action_bar/content/decor_content_parent
         try {
-            String entryname = mContext.getResources().getResourceEntryName(viewId);
+            String entryname = view.getResources().getResourceEntryName(viewId);
             if (!TextUtils.isEmpty(entryname) && Arrays.asList(mNosupportEntryName).contains(entryname)) {
                 return true;
             } else {
@@ -262,27 +255,20 @@ public class PathGeneral {
 
     private boolean checkClass(View view) {
         String viewClass = view.getClass().getCanonicalName();
-        if (Arrays.asList(mNoSupportList).contains(viewClass)) {
-            return true;
-        }
-        return false;
+        return Arrays.asList(mNoSupportList).contains(viewClass);
     }
 
     /**
      * 判断类型是否包含
      */
     private boolean isContextType(View temp, String selfClass) {
-        List<String> types = new ArrayList<String>();
+        List<String> types = new ArrayList<>();
         Class<?> klass = temp.getClass();
-        while (klass != Object.class) {
+        while (klass != null && klass != Object.class) {
             types.add(klass.getCanonicalName());
             klass = klass.getSuperclass();
         }
-        if (types.contains(selfClass)) {
-            return true;
-        } else {
-            return false;
-        }
+        return types.contains(selfClass);
     }
 
     private static class Holder {

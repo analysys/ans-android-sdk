@@ -100,9 +100,9 @@ public class AgentProcess {
                         }
                         // 设置时间校准是否开启
                         Constants.isTimeCheck = mConfig.isTimeCheck();
-                        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
-                            SystemIds.getInstance(context).parserId();
-                        }
+//                        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
+//                            SystemIds.getInstance().parserId();
+//                        }
                         LifeCycleConfig.initUploadConfig(context);
                         LogPrompt.showInitLog(true);
                     } else {
@@ -1444,8 +1444,8 @@ public class AgentProcess {
                 context, url);
     }
 
-    public void setAutoHeatMapIgnoreByPages(Set<String> pages) {
-        HeatMap.getInstance().setAutoHeatMapIgnoreByPages(pages);
+    public void setIgnoreHeatMaByPages(Set<String> pages) {
+        HeatMap.getInstance().setIgnoreHeatMaByPages(pages);
     }
 
     public void setAutoHeatMapByPages(Set<String> pages) {

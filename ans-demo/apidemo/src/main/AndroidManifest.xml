@@ -33,6 +33,11 @@
         <activity android:name=".EventActivity" />
         <activity android:name=".PropertyActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".HeatMapTestActivity" />
+        <activity
+            android:name=".SingleProcessTestActivity"
+            android:process=":singleProcess" />
+
         <meta-data
             android:name="ANALYSYS_AUTO_COLLECTION_MAC"
             android:value="false"/>

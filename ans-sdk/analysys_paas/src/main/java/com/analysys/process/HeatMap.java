@@ -42,11 +42,16 @@ import java.util.Set;
  */
 public class HeatMap {
 
-    public Map<String, Object> pageInfo = null, clickInfo = null;
+    public Map<String, Object> pageInfo = null;
+    private Map<String, Object> clickInfo = null;
     private float rx = 0, ry = 0, x = 0, y = 0;
-
+    
     public static HeatMap getInstance() {
         return HeatMap.Holder.INSTANCE;
+    }
+
+    private HeatMap() {
+        SystemIds.getInstance().parserId();
     }
 
     /**
@@ -201,7 +206,7 @@ public class HeatMap {
     }
 
     private boolean setPath(View v) throws JSONException {
-        String path = PathGeneral.getInstance().general(v.getContext(), v);
+        String path = PathGeneral.getInstance().general(v);
         if (!TextUtils.isEmpty(path) && !CommonUtils.isEmpty(new JSONArray(path))) {
             clickInfo.put(Constants.TOUCH_ELEMENT_PATH, path.replaceAll(" ", ""));
             return true;
@@ -286,7 +291,7 @@ public class HeatMap {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 try {
                     // 黑白名单判断
-                    if(isTackHeatMap(v)){
+                    if (isTackHeatMap(v)) {
                         setCoordinate(v, event);
                     }
                 } catch (Throwable ignored) {
@@ -331,7 +336,7 @@ public class HeatMap {
     /**
      * 热图黑名单
      */
-    void setAutoHeatMapIgnoreByPages(Set<String> pages) {
+    void setIgnoreHeatMaByPages(Set<String> pages) {
         mIgnoreByPages.clear();
         mIgnoreByPages.addAll(pages);
     }
