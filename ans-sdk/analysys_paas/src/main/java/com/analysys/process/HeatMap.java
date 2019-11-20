@@ -350,9 +350,11 @@ public class HeatMap {
      */
     private boolean isTackHeatMap(View v) {
         if (isInIgnoreList(v)) {
+            // 命中黑名单
             return false;
         } else if (hasAutoList()) {
-            return isInAutoList(v);
+            // 存在白名单
+            return isInAutoList(v); // 命中白名单
         }
         return true;
     }
@@ -374,7 +376,7 @@ public class HeatMap {
     private boolean isInIgnoreList(View v) {
         Context context = v.getContext();
         if (context instanceof Activity) {
-            String pageName = context.getClass().getCanonicalName();
+            String pageName = context.getClass().getName();
             return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
         }
         return false;
@@ -388,8 +390,8 @@ public class HeatMap {
     private boolean isInAutoList(View v) {
         Context context = v.getContext();
         if (context instanceof Activity) {
-            String pageName = context.getClass().getCanonicalName();
-            return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
+            String pageName = context.getClass().getName();
+            return !TextUtils.isEmpty(pageName) && mAutoByPages.contains(pageName);
         }
         return false;
     }

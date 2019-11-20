@@ -19,6 +19,9 @@ public class AnalysysConfig {
     private boolean calibration = Constants.isTimeCheck;
     private long diffTime = Constants.ignoreDiffTime;
 
+    private boolean autoHeatMap = false;
+
+
     /**
      * 获取 App key
      */
@@ -127,6 +130,14 @@ public class AnalysysConfig {
 
     public long getMaxDiffTimeInterval() {
         return diffTime;
+    }
+
+    public void setAutoHeatMap(boolean autoTrack) {
+        autoHeatMap = autoTrack;
+    }
+
+    public boolean isAutoHeatMap() {
+        return autoHeatMap;
     }
 }
 

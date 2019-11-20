@@ -85,7 +85,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
 
     @Override
     public void onActivityCreated(@NonNull final Activity activity, Bundle savedInstanceState) {
-        if (Constants.autoHeatMap) {
+        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
             initHeatMap(new WeakReference<>(activity));
         }
         if (context == null) {
@@ -101,7 +101,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        if (Constants.autoHeatMap) {
+        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
             checkLayoutListener(new WeakReference<>(activity), true);
         }
     }
@@ -257,7 +257,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             Context context = activity.get();
             if (context != null) {
                 // 热图部分逻辑不能在子线程执行
-                if (Constants.autoHeatMap) {
+                if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
                     checkLayoutListener(activity, false);
                 }
                 // 单队列线程执行

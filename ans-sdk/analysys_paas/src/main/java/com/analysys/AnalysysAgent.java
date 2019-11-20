@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
-import com.analysys.utils.Constants;
 
 import java.util.List;
 import java.util.Map;
@@ -29,9 +28,11 @@ public class AnalysysAgent {
 
     /**
      * 热图开启/关闭接口
+     * is old PLZ call {@link com.analysys.AnalysysConfig#setAutoHeatMap(boolean)}
      */
+    @Deprecated 
     public static void setAutoHeatMap(boolean autoTrack) {
-        Constants.autoHeatMap = autoTrack;
+        AgentProcess.getInstance().getConfig().setAutoHeatMap(autoTrack);
     }
 
     //    /**
@@ -54,7 +55,7 @@ public class AnalysysAgent {
      * 不采集页面热图
      * @param pages 忽略的页面集合
      */
-    public static void setAutoHeatMapIgnoreByPages(Set<String> pages){
+    public static void setIgnoreHeatMaByPages(Set<String> pages){
         AgentProcess.getInstance().setAutoHeatMapIgnoreByPages(pages);
     }
 

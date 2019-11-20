@@ -57,6 +57,8 @@ public class AgentProcess {
     private Application mApp = null;
     private String mTitle = "", mUrl = "";
     private Map<String, Object> properties;
+    
+    private AnalysysConfig mConfig = new AnalysysConfig();
 
     public static AgentProcess getInstance() {
         return Holder.INSTANCE;
@@ -66,6 +68,9 @@ public class AgentProcess {
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
     public void init(final Context context, final AnalysysConfig config) {
+        if (config != null) {
+            mConfig = config;
+        }
         AnalysysUtil.init(context);
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
@@ -74,28 +79,28 @@ public class AgentProcess {
                 try {
                     if (context != null) {
                         TemplateManage.initMould(context);
-                        saveKey(context, config.getAppKey());
-                        saveChannel(context, config.getChannel());
+                        saveKey(context, mConfig.getAppKey());
+                        saveChannel(context, mConfig.getChannel());
                         if (CommonUtils.isMainProcess(context)) {
                             // 同时设置 UploadUrl/WebSocketUrl/ConfigUrl
-                            setBaseUrl(context, config.getBaseUrl());
+                            setBaseUrl(context, mConfig.getBaseUrl());
                             // 设置首次启动是否发送
-                            Constants.isAutoProfile = config.isAutoProfile();
+                            Constants.isAutoProfile = mConfig.isAutoProfile();
                             // 设置加密类型
-                            Constants.encryptType = config.getEncryptType().getType();
+                            Constants.encryptType = mConfig.getEncryptType().getType();
                             // 设置渠道归因是否开启
-                            Constants.autoInstallation = config.isAutoInstallation();
+                            Constants.autoInstallation = mConfig.isAutoInstallation();
                             // 重置PV计数器值
                             CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
-                            long MaxDiffTimeInterval = config.getMaxDiffTimeInterval();
+                            long MaxDiffTimeInterval = mConfig.getMaxDiffTimeInterval();
                             if (0 <= MaxDiffTimeInterval) {
                                 // 用户忽略最大时间差值
-                                Constants.ignoreDiffTime = config.getMaxDiffTimeInterval();
+                                Constants.ignoreDiffTime = mConfig.getMaxDiffTimeInterval();
                             }
                         }
                         // 设置时间校准是否开启
-                        Constants.isTimeCheck = config.isTimeCheck();
-                        if (Constants.autoHeatMap) {
+                        Constants.isTimeCheck = mConfig.isTimeCheck();
+                        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
                             SystemIds.getInstance(context).parserId();
                         }
                         LifeCycleConfig.initUploadConfig(context);
@@ -1449,6 +1454,10 @@ public class AgentProcess {
 
     private static class Holder {
         public static final AgentProcess INSTANCE = new AgentProcess();
+    }
+
+    public AnalysysConfig getConfig() {
+        return mConfig;
     }
 
 //    /**
