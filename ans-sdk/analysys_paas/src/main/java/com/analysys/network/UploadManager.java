@@ -91,7 +91,7 @@ public class UploadManager {
     }
 
     private void dbCacheCheck() {
-        long maxCount = AgentProcess.getInstance(mContext).getMaxCacheSize();
+        long maxCount = AgentProcess.getInstance().getMaxCacheSize();
         long count = TableAllInfo.getInstance(mContext).selectCount();
         if (maxCount <= count) {
             TableAllInfo.getInstance(mContext).delete(Constants.DELETE_COUNT);

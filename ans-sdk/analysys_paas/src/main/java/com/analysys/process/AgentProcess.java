@@ -15,6 +15,7 @@ import com.analysys.network.UploadManager;
 import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -57,16 +58,15 @@ public class AgentProcess {
     private String mTitle = "", mUrl = "";
     private Map<String, Object> properties;
 
-    public static AgentProcess getInstance(Context context) {
-        ContextManager.setContext(context);
+    public static AgentProcess getInstance() {
         return Holder.INSTANCE;
     }
 
     /**
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
-    public void init(final AnalysysConfig config) {
-        final Context context = ContextManager.getContext();
+    public void init(final Context context, final AnalysysConfig config) {
+        AnalysysUtil.init(context);
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
             @Override
@@ -116,7 +116,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context == null || debug < 0 || 2 < debug) {
                     Log.w("analysys", Constants.API_SET_DEBUG_MODE + ": set failed!");
                     return;
@@ -136,7 +136,7 @@ public class AgentProcess {
      */
     public void appStart(final boolean isFromBackground, long startTime) {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context == null) {
                 return;
             }
@@ -166,7 +166,7 @@ public class AgentProcess {
         try {
             long time = NumberFormat.convertToLong(eventTime);
             if (time > 0) {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null && realTimeField != null) {
                     JSONObject endData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_APP_END, Constants.END, null, null);
@@ -195,7 +195,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -228,7 +228,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -251,7 +251,7 @@ public class AgentProcess {
      * 页面信息处理
      */
     public void autoCollectPageView(final Map<String, Object> pageInfo) throws Exception {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                     Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, pageInfo, null);
@@ -264,7 +264,7 @@ public class AgentProcess {
      */
     void pageTouchInfo(final Map<String, Object> screenDetail) {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             Map<String, Object> screenInfo = CommonUtils.deepCopy(screenDetail);
             if (context != null) {
                 JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -284,7 +284,7 @@ public class AgentProcess {
             public void run() {
                 try {
                     Map<String, Object> eventInfo = CommonUtils.deepCopy(eventDetail);
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         LogPrompt.showLog(Constants.API_TRACK, false);
                         return;
@@ -322,7 +322,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context == null) {
                     return;
                 }
@@ -340,7 +340,7 @@ public class AgentProcess {
      * 获取distinctId
      */
     public String getDistinctId() {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             return CommonUtils.getDistinctId(context);
         }
@@ -355,7 +355,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         if (!CheckUtils.checkIdLength(aliasId)) {
                             LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
@@ -412,7 +412,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -435,7 +435,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -457,7 +457,7 @@ public class AgentProcess {
      * profile set 键值对
      */
     public void profileSetOnce(final String profileKey, final Object profileValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Object> propertyMap = new HashMap<>();
             propertyMap.put(profileKey, profileValue);
@@ -475,7 +475,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, ? extends Number> profileInfo =
                                 CommonUtils.deepCopy(profileDetail);
@@ -498,7 +498,7 @@ public class AgentProcess {
      * profile increment
      */
     public void profileIncrement(final String profileKey, final Number profileValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Number> profileMap = new HashMap<>();
             profileMap.put(profileKey, profileValue);
@@ -516,7 +516,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -538,7 +538,7 @@ public class AgentProcess {
      * profile append
      */
     public void profileAppend(final String propertyName, final Object propertyValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Object> properMap = new HashMap<>();
             properMap.put(propertyName, propertyValue);
@@ -552,7 +552,7 @@ public class AgentProcess {
      * 给一个列表类型的Profile增加一个或多个元素
      */
     public void profileAppend(final String profileKey, final List<Object> profileValue) {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             Map<String, Object> profileMap = new HashMap<>();
             profileMap.put(profileKey, profileValue);
@@ -570,7 +570,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(propertyKey)) {
                         Map<String, Object> profileMap = new HashMap<>();
                         profileMap.put(propertyKey, "");
@@ -599,7 +599,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -624,7 +624,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -655,7 +655,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         LogPrompt.showLog(
                                 Constants.API_REGISTER_SUPER_PROPERTIES, LogBean.getLog());
@@ -683,7 +683,7 @@ public class AgentProcess {
      */
     public Map<String, Object> getSuperProperty() {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context == null) {
                 return new HashMap<>();
             }
@@ -702,7 +702,7 @@ public class AgentProcess {
      */
     public Object getSuperProperty(String propertyKey) {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context != null && !CommonUtils.isEmpty(propertyKey)) {
                 String superProperty = SharedUtil.getString(
                         context, Constants.SP_SUPER_PROPERTY, null);
@@ -723,7 +723,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(superPropertyName)) {
                         String property = SharedUtil.getString(
                                 context, Constants.SP_SUPER_PROPERTY, null);
@@ -751,7 +751,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         SharedUtil.remove(context, Constants.SP_SUPER_PROPERTY);
                         LogPrompt.showLog(
@@ -770,7 +770,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null && 1 < time) {
                     SharedUtil.setLong(
                             context, Constants.SP_USER_INTERVAL_TIME, time * 1000);
@@ -786,7 +786,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null && 1 < count) {
                     SharedUtil.setLong(
                             context, Constants.SP_USER_EVENT_COUNT, count);
@@ -829,7 +829,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         resetUserInfo(context);
                         CommonUtils.setIdFile(context, Constants.SP_UUID, "");
@@ -852,7 +852,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(url)) {
                         String getUrl;
                         if (url.startsWith(Constants.HTTP)) {
@@ -883,7 +883,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null) {
                     SharedUtil.setBoolean(context, Constants.SP_IS_COLLECTION, isAuto);
                 }
@@ -895,7 +895,7 @@ public class AgentProcess {
      * 获取自动采集开关状态
      */
     public boolean getAutomaticCollection() {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             return SharedUtil.getBoolean(
                     context, Constants.SP_IS_COLLECTION, true);
@@ -907,7 +907,7 @@ public class AgentProcess {
      * 获取忽略自动采集的页面
      */
     public List<String> getIgnoredAutomaticCollection() {
-        Context context = ContextManager.getContext();
+        Context context = AnalysysUtil.getContext();
         if (context != null) {
             String activities = SharedUtil.getString(
                     context, Constants.SP_IGNORED_COLLECTION, null);
@@ -926,7 +926,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         return;
                     }
@@ -964,7 +964,7 @@ public class AgentProcess {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                Context context = ContextManager.getContext();
+                Context context = AnalysysUtil.getContext();
                 if (context != null) {
                     UploadManager.getInstance(context).flushSendManager();
                 }
@@ -977,7 +977,7 @@ public class AgentProcess {
      */
     public Map<String, Object> getPresetProperties() {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context != null) {
                 if (properties == null) {
                     properties = new HashMap<>();
@@ -1014,11 +1014,10 @@ public class AgentProcess {
      */
     public void interceptUrl(String url, Object view) {
         try {
-            Context context = ContextManager.getContext();
-            if (context != null && !CommonUtils.isEmpty(url)) {
+            if (!CommonUtils.isEmpty(url)) {
                 String decodedURL = java.net.URLDecoder.decode(url, "UTF-8");
                 if (decodedURL.startsWith(ANALYSYS_AGENT)) {
-                    HybridBridge.getInstance(context).execute(decodedURL, view);
+                    HybridBridge.getInstance().execute(decodedURL, view);
                 }
             }
         } catch (Throwable throwable) {
@@ -1078,7 +1077,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualBase != null) {
@@ -1099,7 +1098,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visual != null) {
@@ -1120,7 +1119,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualConfig != null) {
@@ -1140,7 +1139,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initPushConfig(context);
                         if (LifeCycleConfig.pushParse != null) {
@@ -1165,7 +1164,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         LifeCycleConfig.initPushConfig(context);
                         if (LifeCycleConfig.pushClick != null) {

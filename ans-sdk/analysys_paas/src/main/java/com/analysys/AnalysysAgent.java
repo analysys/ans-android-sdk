@@ -23,7 +23,7 @@ public class AnalysysAgent {
      * @param config 初始化配置信息
      */
     public static void init(Context context, AnalysysConfig config) {
-        AgentProcess.getInstance(context).init(config);
+        AgentProcess.getInstance().init(context,config);
     }
 
     /**
@@ -41,7 +41,7 @@ public class AnalysysAgent {
      * 2、打开Debug模式,该模式下发送的数据可计入平台数据统计
      */
     public static void setDebugMode(Context context, int debugMode) {
-        AgentProcess.getInstance(context).setDebug(debugMode);
+        AgentProcess.getInstance().setDebug(debugMode);
     }
 
     /**
@@ -52,7 +52,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setUploadURL(Context context, String url) {
-        AgentProcess.getInstance(context).setUploadURL(url);
+        AgentProcess.getInstance().setUploadURL(url);
     }
 
     /**
@@ -62,7 +62,7 @@ public class AnalysysAgent {
      * @param flushInterval 间隔时间,time值大于1
      */
     public static void setIntervalTime(Context context, long flushInterval) {
-        AgentProcess.getInstance(context).setIntervalTime(flushInterval);
+        AgentProcess.getInstance().setIntervalTime(flushInterval);
     }
 
     /**
@@ -71,14 +71,14 @@ public class AnalysysAgent {
      * @param size 上传条数,count值大于1
      */
     public static void setMaxCacheSize(Context context, long size) {
-        AgentProcess.getInstance(context).setMaxCacheSize(size);
+        AgentProcess.getInstance().setMaxCacheSize(size);
     }
 
     /**
      * 读取最大缓存条数
      */
     public static long getMaxCacheSize(Context context) {
-        return AgentProcess.getInstance(context).getMaxCacheSize();
+        return AgentProcess.getInstance().getMaxCacheSize();
     }
 
     /**
@@ -88,7 +88,7 @@ public class AnalysysAgent {
      * @param size 上传条数,size值大于1
      */
     public static void setMaxEventSize(Context context, long size) {
-        AgentProcess.getInstance(context).setMaxEventSize(size);
+        AgentProcess.getInstance().setMaxEventSize(size);
     }
 
     /**
@@ -96,7 +96,7 @@ public class AnalysysAgent {
      * 调用该接口立即上传数据
      */
     public static void flush(Context context) {
-        AgentProcess.getInstance(context).flush();
+        AgentProcess.getInstance().flush();
     }
 
     /**
@@ -109,7 +109,7 @@ public class AnalysysAgent {
      * 若为空则使用本地的distinctId,长度大于0且小于255字符
      */
     public static void alias(Context context, String aliasId, String originalId) {
-        AgentProcess.getInstance(context).alias(aliasId, originalId);
+        AgentProcess.getInstance().alias(aliasId, originalId);
     }
 
     /**
@@ -118,7 +118,7 @@ public class AnalysysAgent {
      * @param distinctId 唯一身份标识,长度大于0且小于255字符
      */
     public static void identify(Context context, String distinctId) {
-        AgentProcess.getInstance(context).identify(distinctId);
+        AgentProcess.getInstance().identify(distinctId);
     }
 
     /**
@@ -127,14 +127,14 @@ public class AnalysysAgent {
      * 如未设置，则返回代码自动生成的uuid
      */
     public static String getDistinctId(Context context) {
-        return AgentProcess.getInstance(context).getDistinctId();
+        return AgentProcess.getInstance().getDistinctId();
     }
 
     /**
      * 清除本地设置
      */
     public static void reset(Context context) {
-        AgentProcess.getInstance(context).reset();
+        AgentProcess.getInstance().reset();
     }
 
     /**
@@ -143,7 +143,7 @@ public class AnalysysAgent {
      * @param eventName 事件名称,以字母或$开头,可以包含大小写字母/数字/ _ / $,不支持中文和乱码,最大长度99字符
      */
     public static void track(Context context, String eventName) {
-        AgentProcess.getInstance(context).track(eventName, null);
+        AgentProcess.getInstance().track(eventName, null);
     }
 
     /**
@@ -155,7 +155,7 @@ public class AnalysysAgent {
      * value支持部分类型：String/Number/boolean/集合/数组,若为字符串,最大长度255字符
      */
     public static void track(Context context, String eventName, Map<String, Object> eventInfo) {
-        AgentProcess.getInstance(context).track(eventName, eventInfo);
+        AgentProcess.getInstance().track(eventName, eventInfo);
     }
 
     /**
@@ -164,7 +164,7 @@ public class AnalysysAgent {
      * @param pageName 页面标识，为字符串,最大长度255字符
      */
     public static void pageView(Context context, String pageName) {
-        AgentProcess.getInstance(context).pageView(context, pageName, null);
+        AgentProcess.getInstance().pageView(context, pageName, null);
     }
 
     /**
@@ -176,7 +176,7 @@ public class AnalysysAgent {
      * value支持部分类型：String/Number/boolean/集合/数组,若为字符串,最大长度255字符
      */
     public static void pageView(Context context, String pageName, Map<String, Object> pageInfo) {
-        AgentProcess.getInstance(context).pageView(context, pageName, pageInfo);
+        AgentProcess.getInstance().pageView(context, pageName, pageInfo);
     }
 
     /**
@@ -190,7 +190,7 @@ public class AnalysysAgent {
      */
     public static void registerSuperProperty(Context context, String superPropertyName,
                                              Object superPropertyValue) {
-        AgentProcess.getInstance(context).registerSuperProperty(superPropertyName,
+        AgentProcess.getInstance().registerSuperProperty(superPropertyName,
                 superPropertyValue);
     }
 
@@ -202,7 +202,7 @@ public class AnalysysAgent {
      * value支持部分类型：String/Number/boolean/集合/数组,若为字符串,最大长度255字符
      */
     public static void registerSuperProperties(Context context, Map<String, Object> superProperty) {
-        AgentProcess.getInstance(context).registerSuperProperties(superProperty);
+        AgentProcess.getInstance().registerSuperProperties(superProperty);
     }
 
     /**
@@ -212,14 +212,14 @@ public class AnalysysAgent {
      * 不支持中文和乱码,长度必须小于99字符
      */
     public static void unRegisterSuperProperty(Context context, String superPropertyName) {
-        AgentProcess.getInstance(context).unregisterSuperProperty(superPropertyName);
+        AgentProcess.getInstance().unregisterSuperProperty(superPropertyName);
     }
 
     /**
      * 清除所有通用属性
      */
     public static void clearSuperProperties(Context context) {
-        AgentProcess.getInstance(context).clearSuperProperty();
+        AgentProcess.getInstance().clearSuperProperty();
     }
 
     /**
@@ -228,14 +228,14 @@ public class AnalysysAgent {
      * @param key 属性名称,以字母或$开头,可以包含大小写字母/数字/ _ /$,不支持中文和乱码,长度必须小于99字符
      */
     public static Object getSuperProperty(Context context, String key) {
-        return AgentProcess.getInstance(context).getSuperProperty(key);
+        return AgentProcess.getInstance().getSuperProperty(key);
     }
 
     /**
      * 获取全部通用属性
      */
     public static Map<String, Object> getSuperProperties(Context context) {
-        return AgentProcess.getInstance(context).getSuperProperty();
+        return AgentProcess.getInstance().getSuperProperty();
     }
 
     /**
@@ -247,7 +247,7 @@ public class AnalysysAgent {
      * 若为数组或集合,则最多包含100条,且key约束条件与属性名称一致,value最大长度255字符
      */
     public static void profileSet(Context context, String propertyName, Object propertyValue) {
-        AgentProcess.getInstance(context).profileSet(propertyName, propertyValue);
+        AgentProcess.getInstance().profileSet(propertyName, propertyValue);
     }
 
     /**
@@ -258,7 +258,7 @@ public class AnalysysAgent {
      * value若为字符串,最大长度255字符
      */
     public static void profileSet(Context context, Map<String, Object> property) {
-        AgentProcess.getInstance(context).profileSet(property);
+        AgentProcess.getInstance().profileSet(property);
     }
 
     /**
@@ -270,7 +270,7 @@ public class AnalysysAgent {
      * 若为数组或集合,则最多包含100条,且key约束条件与属性名称一致,value最大长度255字符
      */
     public static void profileSetOnce(Context context, String propertyName, Object propertyValue) {
-        AgentProcess.getInstance(context).profileSetOnce(propertyName, propertyValue);
+        AgentProcess.getInstance().profileSetOnce(propertyName, propertyValue);
     }
 
     /**
@@ -282,7 +282,7 @@ public class AnalysysAgent {
      * value若为字符串,最大长度255字符
      */
     public static void profileSetOnce(Context context, Map<String, Object> property) {
-        AgentProcess.getInstance(context).profileSetOnce(property);
+        AgentProcess.getInstance().profileSetOnce(property);
     }
 
     /**
@@ -293,7 +293,7 @@ public class AnalysysAgent {
      */
     public static void profileIncrement(Context context, String propertyName, Number
             propertyValue) {
-        AgentProcess.getInstance(context).profileIncrement(propertyName, propertyValue);
+        AgentProcess.getInstance().profileIncrement(propertyName, propertyValue);
     }
 
     /**
@@ -304,14 +304,14 @@ public class AnalysysAgent {
      * 且key以字母或 $ 开头,包括大小写字母/数字/ _ / $,最大长度99字符,不支持乱码和中文,
      */
     public static void profileIncrement(Context context, Map<String, Number> property) {
-        AgentProcess.getInstance(context).profileIncrement(property);
+        AgentProcess.getInstance().profileIncrement(property);
     }
 
     /**
      * 列表类型属性增加单个元素
      */
     public static void profileAppend(Context context, String propertyName, Object propertyValue) {
-        AgentProcess.getInstance(context).profileAppend(propertyName, propertyValue);
+        AgentProcess.getInstance().profileAppend(propertyName, propertyValue);
     }
 
     /**
@@ -323,7 +323,7 @@ public class AnalysysAgent {
      * 若为数组或集合,则最多包含100条,且key约束条件与属性名称一致,value最大长度255字符
      */
     public static void profileAppend(Context context, Map<String, Object> propertyValue) {
-        AgentProcess.getInstance(context).profileAppend(propertyValue);
+        AgentProcess.getInstance().profileAppend(propertyValue);
     }
 
     /**
@@ -335,7 +335,7 @@ public class AnalysysAgent {
      */
     public static void profileAppend(Context context, String propertyName,
                                      List<Object> propertyValue) {
-        AgentProcess.getInstance(context).profileAppend(propertyName, propertyValue);
+        AgentProcess.getInstance().profileAppend(propertyName, propertyValue);
     }
 
     /**
@@ -344,14 +344,14 @@ public class AnalysysAgent {
      * @param propertyName 属性名称,以字母或$开头,可以包含大小写字母/数字/ _ /$,不支持中文和乱码,长度必须小于99字符
      */
     public static void profileUnset(Context context, String propertyName) {
-        AgentProcess.getInstance(context).profileUnset(propertyName);
+        AgentProcess.getInstance().profileUnset(propertyName);
     }
 
     /**
      * 清除所有用户的属性
      */
     public static void profileDelete(Context context) {
-        AgentProcess.getInstance(context).profileDelete();
+        AgentProcess.getInstance().profileDelete();
     }
 
     /**
@@ -360,14 +360,14 @@ public class AnalysysAgent {
      * @param isAuto 默认为true
      */
     public static void setAutomaticCollection(Context context, boolean isAuto) {
-        AgentProcess.getInstance(context).automaticCollection(isAuto);
+        AgentProcess.getInstance().automaticCollection(isAuto);
     }
 
     /**
      * 获取自动采集页面信息开关状态
      */
     public static boolean getAutomaticCollection(Context context) {
-        return AgentProcess.getInstance(context).getAutomaticCollection();
+        return AgentProcess.getInstance().getAutomaticCollection();
     }
 
     /**
@@ -375,14 +375,14 @@ public class AnalysysAgent {
      */
     public static void setIgnoredAutomaticCollectionActivities(Context context,
                                                                List<String> activitiesName) {
-        AgentProcess.getInstance(context).setIgnoredAutomaticCollection(activitiesName);
+        AgentProcess.getInstance().setIgnoredAutomaticCollection(activitiesName);
     }
 
     /**
      * 获取忽略自动采集的页面
      */
     public static List<String> getIgnoredAutomaticCollection(Context context) {
-        return AgentProcess.getInstance(context).getIgnoredAutomaticCollection();
+        return AgentProcess.getInstance().getIgnoredAutomaticCollection();
     }
 
     /**
@@ -391,7 +391,7 @@ public class AnalysysAgent {
      * @return
      */
     public static Map<String, Object> getPresetProperties(Context context) {
-        return AgentProcess.getInstance(context).getPresetProperties();
+        return AgentProcess.getInstance().getPresetProperties();
     }
 
     /**
@@ -402,7 +402,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setVisitorDebugURL(Context context, String url) {
-        AgentProcess.getInstance(context).setVisitorDebugURL(url);
+        AgentProcess.getInstance().setVisitorDebugURL(url);
     }
 
     /**
@@ -413,7 +413,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setVisitorConfigURL(Context context, String url) {
-        AgentProcess.getInstance(context).setVisitorConfigURL(url);
+        AgentProcess.getInstance().setVisitorConfigURL(url);
     }
 
     /**
@@ -423,7 +423,7 @@ public class AnalysysAgent {
      * @param pushId 推送ID
      */
     public static void setPushID(Context context, String provider, String pushId) {
-        AgentProcess.getInstance(context).enablePush(provider, pushId);
+        AgentProcess.getInstance().enablePush(provider, pushId);
     }
 
     /**
@@ -433,7 +433,7 @@ public class AnalysysAgent {
      * @param isClick 是否被点击
      */
     public static void trackCampaign(Context context, String campaign, boolean isClick) {
-        AgentProcess.getInstance(context).trackCampaign(campaign, isClick, null);
+        AgentProcess.getInstance().trackCampaign(campaign, isClick, null);
     }
 
     /**
@@ -445,28 +445,28 @@ public class AnalysysAgent {
      */
     public static void trackCampaign(Context context, String campaign, boolean isClick,
                                      PushListener listener) {
-        AgentProcess.getInstance(context).trackCampaign(campaign, isClick, listener);
+        AgentProcess.getInstance().trackCampaign(campaign, isClick, listener);
     }
 
     /**
      * 拦截监听 URL
      */
     public static void interceptUrl(Context context, String url, Object webView) {
-        AgentProcess.getInstance(context).interceptUrl(url, webView);
+        AgentProcess.getInstance().interceptUrl(url, webView);
     }
 
     /**
      * 设置UA
      */
     public static void setHybridModel(Context context, Object webView) {
-        AgentProcess.getInstance(context).setHybridModel(webView);
+        AgentProcess.getInstance().setHybridModel(webView);
     }
 
     /**
      * 还原 User-Agent 中的字符串
      */
     public static void resetHybridModel(Context context, Object webView) {
-        AgentProcess.getInstance(context).resetHybridModel(webView);
+        AgentProcess.getInstance().resetHybridModel(webView);
     }
 }
 

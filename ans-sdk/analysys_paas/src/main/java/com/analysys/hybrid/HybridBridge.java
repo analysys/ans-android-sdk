@@ -6,7 +6,7 @@ import android.webkit.WebView;
 
 import com.analysys.AnalysysAgent;
 import com.analysys.process.AgentProcess;
-import com.analysys.process.ContextManager;
+import com.analysys.utils.AnalysysUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,8 +20,7 @@ public class HybridBridge {
 
     private static final String SCHEME = "analysysagent";
 
-    public static HybridBridge getInstance(Context context) {
-        ContextManager.setContext(context);
+    public static HybridBridge getInstance() {
         return Holder.INSTANCE;
     }
 
@@ -31,7 +30,7 @@ public class HybridBridge {
      */
     public void execute(String url, Object webView) throws Exception {
         try {
-            Context context = ContextManager.getContext();
+            Context context = AnalysysUtil.getContext();
             if (context != null && url.startsWith(SCHEME)) {
                 String info = url.substring((SCHEME.length() + 1), url.length());
                 JSONObject obj = new JSONObject(info);
@@ -226,7 +225,7 @@ public class HybridBridge {
             String pageName = array.optString(0);
             JSONObject obj = array.optJSONObject(1);
             Map<String, Object> map = convertToMap(obj);
-            AgentProcess.getInstance(context).hybridPageView(pageName, map);
+            AgentProcess.getInstance().hybridPageView(pageName, map);
         } else {
             String pageName = array.optString(0);
             if (!TextUtils.isEmpty(pageName)) {

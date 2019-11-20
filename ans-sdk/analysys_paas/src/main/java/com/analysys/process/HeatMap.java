@@ -152,7 +152,7 @@ public class HeatMap {
                         if (isAddPath) {
                             setClickContent(v);
                             clickInfo.putAll(pageInfo);
-                            AgentProcess.getInstance(mContext).pageTouchInfo(clickInfo);
+                            AgentProcess.getInstance().pageTouchInfo(clickInfo);
                         }
                     } catch (Throwable throwable) {
                     }

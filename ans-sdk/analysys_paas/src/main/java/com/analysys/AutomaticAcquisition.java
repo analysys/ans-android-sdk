@@ -312,7 +312,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                 // a.走AppEnd 尝试补发流程
                 trackAppEnd(makeTrackAppEndMsg());
                 appStartTime = System.currentTimeMillis();
-                AgentProcess.getInstance(context).appStart(fromBackground, appStartTime);
+                AgentProcess.getInstance().appStart(fromBackground, appStartTime);
                 CommonUtils.setIdFile(context,
                         Constants.APP_START_TIME, String.valueOf(appStartTime));
                 // 用于判断是否是后台启动
@@ -389,7 +389,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         boolean isAuto = SharedUtil.getBoolean(
                 context, Constants.SP_IS_COLLECTION, true);
         if (isAuto && isAutomaticCollection(context, pageUrl)) {
-            AgentProcess.getInstance(context).autoCollectPageView(pageInfo);
+            AgentProcess.getInstance().autoCollectPageView(pageInfo);
         }
     }
 
@@ -483,7 +483,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                     // 获取实时更新数据时间
                     JSONObject data = new JSONObject(endInfo);
                     // 1. appEndTrack
-                    AgentProcess.getInstance(context).appEnd(opt, data);
+                    AgentProcess.getInstance().appEnd(opt, data);
                     // 2. 清空config中appEndInfoCache
                     CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
                     // 3. 清空页面来源信息
