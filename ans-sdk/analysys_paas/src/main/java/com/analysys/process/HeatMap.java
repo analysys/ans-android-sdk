@@ -52,7 +52,7 @@ public class HeatMap {
     /**
      * 初始化页面宽高分辨率等信息
      */
-    public Map<String, Object> initPageInfo(Activity activity) {
+    public void initPageInfo(Activity activity) {
         pageInfo = new HashMap<>();
         if (activity != null) {
             pageInfo.put(Constants.PAGE_URL, activity.getClass().getName());
@@ -72,7 +72,6 @@ public class HeatMap {
             }
             pageInfo.put(Constants.TOUCH_SCREEN_SCALE, scale);
         }
-        return pageInfo;
     }
 
     /***

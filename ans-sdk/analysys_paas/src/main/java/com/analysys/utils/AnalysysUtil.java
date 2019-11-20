@@ -18,10 +18,12 @@ public class AnalysysUtil {
     private static Context sContext;
 
     public static void init(Context context) {
-        sContext = context;
-        Context appContext = context.getApplicationContext();
-        if (appContext != null) {
-            sContext = appContext;
+        if (context != null) {
+            sContext = context;
+            Context appContext = context.getApplicationContext();
+            if (appContext != null) {
+                sContext = appContext;
+            }
         }
         if (sContext == null) {
             sContext = getApplication();

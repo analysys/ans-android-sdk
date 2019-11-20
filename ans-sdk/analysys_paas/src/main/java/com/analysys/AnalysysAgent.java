@@ -26,14 +26,6 @@ public class AnalysysAgent {
         AgentProcess.getInstance().init(context,config);
     }
 
-    /**
-     * 热图开启/关闭接口
-     * is old PLZ call {@link com.analysys.AnalysysConfig#setAutoHeatMap(boolean)}
-     */
-    @Deprecated 
-    public static void setAutoHeatMap(boolean autoTrack) {
-        AgentProcess.getInstance().getConfig().setAutoHeatMap(autoTrack);
-    }
 
     //    /**
 //     * 不采集当前View热图
@@ -437,8 +429,6 @@ public class AnalysysAgent {
 
     /**
      * 获取预置属性
-     * @param context
-     * @return
      */
     public static Map<String, Object> getPresetProperties(Context context) {
         return AgentProcess.getInstance().getPresetProperties();
@@ -517,6 +507,15 @@ public class AnalysysAgent {
      */
     public static void resetHybridModel(Context context, Object webView) {
         AgentProcess.getInstance().resetHybridModel(webView);
+    }
+
+    /**
+     * 热图开启/关闭接口
+     * is old PLZ call {@link com.analysys.AnalysysConfig#setAutoHeatMap(boolean)}
+     */
+    @Deprecated
+    public static void setAutoHeatMap(boolean autoTrack) {
+        AgentProcess.getInstance().getConfig().setAutoHeatMap(autoTrack);
     }
 }
 
