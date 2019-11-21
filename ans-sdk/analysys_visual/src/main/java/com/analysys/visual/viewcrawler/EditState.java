@@ -6,6 +6,8 @@ import android.os.Looper;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import com.analysys.visual.utils.UIHelper;
+
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,21 +101,34 @@ class EditState extends UIThreadSet<Activity> {
     private void applyIntendedEdits() {
         for (final Activity activity : getAll()) {
             final String activityName = activity.getClass().getCanonicalName();
-            final View rootView = activity.getWindow().getDecorView().getRootView();
+            Map<String, View> rootViews = new HashMap<>();
 
-            final List<BaseViewVisitor> specificChanges;
-            final List<BaseViewVisitor> wildcardChanges;
-            synchronized (mIntendedEdits) {
-                specificChanges = mIntendedEdits.get(activityName);
-                wildcardChanges = mIntendedEdits.get(null);
+            List<ViewSnapshot.RootViewInfo> listDlgView = UIHelper.getActivityDialogs(activity);
+            if (listDlgView == null || listDlgView.isEmpty()) {
+                final View rootView = activity.getWindow().getDecorView().getRootView();
+                rootViews.put(activityName, rootView);
+            } else {
+                for (ViewSnapshot.RootViewInfo info : listDlgView) {
+                    rootViews.put(info.activityName, info.rootView);
+                }
             }
 
-            if (null != specificChanges) {
-                applyChangesFromList(rootView, specificChanges);
-            }
+            for (String pageName : rootViews.keySet()) {
+                final List<BaseViewVisitor> specificChanges;
+                final List<BaseViewVisitor> wildcardChanges;
+                synchronized (mIntendedEdits) {
+                    specificChanges = mIntendedEdits.get(pageName);
+                    wildcardChanges = mIntendedEdits.get(null);
+                }
 
-            if (null != wildcardChanges) {
-                applyChangesFromList(rootView, wildcardChanges);
+                View rootView = rootViews.get(pageName);
+                if (null != specificChanges) {
+                    applyChangesFromList(rootView, specificChanges);
+                }
+
+                if (null != wildcardChanges) {
+                    applyChangesFromList(rootView, wildcardChanges);
+                }
             }
         }
     }

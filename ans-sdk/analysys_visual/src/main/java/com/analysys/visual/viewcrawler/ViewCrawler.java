@@ -23,6 +23,7 @@ import com.analysys.utils.InternalAgent;
 import com.analysys.visual.utils.Constants;
 import com.analysys.visual.utils.EGJSONUtils;
 import com.analysys.visual.utils.EgPair;
+import com.analysys.visual.utils.UIHelper;
 import com.analysys.visual.utils.VisUtils;
 
 import org.json.JSONArray;
@@ -63,6 +64,7 @@ public class ViewCrawler {
     private static final int MESSAGE_HANDLE_EDITOR_BINDINGS_RECEIVED = 5;
     private static final int MESSAGE_HANDLE_EDITOR_CLOSED = 6;
     private static final int MESSAGE_HANDLE_SEND_EVENT_SERVER = 7;
+    private static final int MESSAGE_CHECK_DLG = 8;
     private static final int EMULATOR_CONNECT_ATTEMPT_INTERVAL_MILLIS = 1000 * 30;
     private static final String TAG = "VisualViewCrawler";
     private final Context mContext;
@@ -104,11 +106,50 @@ public class ViewCrawler {
     public void startUpdates() {
         mMessageThreadHandler.start();
         applyPersistedUpdates();
+
+        mMessageThreadHandler.sendMessageDelayed(
+                mMessageThreadHandler.obtainMessage(MESSAGE_CHECK_DLG), CHECK_DLG_DELAY);
     }
 
     public void applyPersistedUpdates() {
         mMessageThreadHandler.sendMessage(mMessageThreadHandler.obtainMessage
                 (MESSAGE_INITIALIZE_CHANGES));
+    }
+
+    /**
+     * 记录当前界面是否有dialog在显示
+     * */
+    private boolean mIsDlgShowing;
+
+    private long CHECK_DLG_DELAY = 500;
+
+    /**
+     * 是否含有对话框配置
+     */
+    private boolean mContainsDlgConfig;
+
+    /**
+     * 检测dialog显示
+     */
+    private void checkDlg() {
+        if (mContainsDlgConfig || mMessageThreadHandler.isConnected()) {
+            boolean isShowingDlg = false;
+            Set<Activity> allActivity = mEditState.getAllCopy();
+            for (final Activity activity : allActivity) {
+                List<ViewSnapshot.RootViewInfo> listView = UIHelper.getActivityDialogs(activity);
+                if (listView != null && !listView.isEmpty()) {
+                    isShowingDlg = true;
+                    break;
+                }
+            }
+            if (mIsDlgShowing != isShowingDlg) {
+                mIsDlgShowing = isShowingDlg;
+                mMessageThreadHandler.applyEventBindings();
+            }
+        }
+
+        mMessageThreadHandler.sendMessageDelayed(
+                mMessageThreadHandler.obtainMessage(MESSAGE_CHECK_DLG), CHECK_DLG_DELAY);
     }
 
     /**
@@ -321,6 +362,10 @@ public class ViewCrawler {
                     case MESSAGE_HANDLE_SEND_EVENT_SERVER:
                         //新加入逻辑,主动上发埋点事件至socketServer
                         handleEventInfoToServer((JSONObject) msg.obj);
+                        break;
+                    case MESSAGE_CHECK_DLG:
+                        //检查对话框
+                        checkDlg();
                         break;
                     default:
                         break;
@@ -677,6 +722,10 @@ public class ViewCrawler {
             applyEventBindings();
         }
 
+        private boolean isConnected() {
+            return mEditorConnection != null && mEditorConnection.isConnected();
+        }
+
         /**
          * Reads our JSON-stored edits from memory and submits them to our EditState. Overwrites
          * any existing edits at the time that it is run.
@@ -724,9 +773,13 @@ public class ViewCrawler {
             final Map<String, List<BaseViewVisitor>> editMap = new HashMap<String,
                     List<BaseViewVisitor>>();
             final int totalEdits = newVisitors.size();
+            mContainsDlgConfig = false;
             for (int i = 0; i < totalEdits; i++) {
                 final EgPair<String, BaseViewVisitor> next = newVisitors.get(i);
                 final List<BaseViewVisitor> mapElement;
+                if (next.first != null && next.first.endsWith(UIHelper.DIALOG_SUFFIX)) {
+                    mContainsDlgConfig = true;
+                }
                 if (editMap.containsKey(next.first)) {
                     mapElement = editMap.get(next.first);
                 } else {

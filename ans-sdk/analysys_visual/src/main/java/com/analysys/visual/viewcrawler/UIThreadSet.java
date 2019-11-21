@@ -18,25 +18,34 @@ class UIThreadSet<T> {
         mSet = new HashSet<T>();
     }
 
-    public void add(T item) {
+    public synchronized void add(T item) {
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
             throw new RuntimeException("Can't add an activity when not on the UI thread");
         }
         mSet.add(item);
     }
 
-    public void remove(T item) {
+    public synchronized void remove(T item) {
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
             throw new RuntimeException("Can't remove an activity when not on the UI thread");
         }
         mSet.remove(item);
     }
 
-    public Set<T> getAll() {
+    public synchronized Set<T> getAll() {
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
             throw new RuntimeException("Can't remove an activity when not on the UI thread");
         }
         return Collections.unmodifiableSet(mSet);
+    }
+
+    /**
+     * 获取activity拷贝，防止多线程场景下异常
+     */
+    public synchronized Set<T> getAllCopy() {
+        Set<T> newSet = new HashSet<>();
+        newSet.addAll(mSet);
+        return newSet;
     }
 
     public boolean isEmpty() {

@@ -26,6 +26,7 @@ import android.widget.AbsoluteLayout;
 import android.widget.RelativeLayout;
 
 import com.analysys.utils.InternalAgent;
+import com.analysys.visual.utils.UIHelper;
 
 import org.json.JSONObject;
 
@@ -36,7 +37,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @TargetApi(16)
-class ViewSnapshot {
+public class ViewSnapshot {
 
     private static final int MAX_CLASS_NAME_CACHE_SIZE = 255;
     private static final String TAG = "Snapshot";
@@ -342,14 +345,14 @@ class ViewSnapshot {
     private static class RootViewFinder implements Callable<List<RootViewInfo>> {
         private final List<RootViewInfo> mRootViews;
         private final DisplayMetrics mDisplayMetrics;
-        private final CachedBitmap mCachedBitmap;
+        private final Map<String, CachedBitmap> mCachedBitmap;
         private final int mClientDensity = DisplayMetrics.DENSITY_DEFAULT;
         private UIThreadSet<Activity> mLiveActivities;
 
         public RootViewFinder() {
             mDisplayMetrics = new DisplayMetrics();
             mRootViews = new ArrayList<RootViewInfo>();
-            mCachedBitmap = new CachedBitmap();
+            mCachedBitmap = new HashMap<>();
         }
 
         public void findInActivities(UIThreadSet<Activity> liveActivities) {
@@ -362,12 +365,18 @@ class ViewSnapshot {
 
             final Set<Activity> liveActivities = mLiveActivities.getAll();
 
-            for (final Activity a : liveActivities) {
-                final String activityName = a.getClass().getCanonicalName();
-                final View rootView = a.getWindow().getDecorView().getRootView();
-                a.getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
-                final RootViewInfo info = new RootViewInfo(activityName, rootView);
-                mRootViews.add(info);
+            for (final Activity activity : liveActivities) {
+                final String activityName = activity.getClass().getCanonicalName();
+                activity.getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
+
+                List<RootViewInfo> listView = UIHelper.getCurrentWindowViews(activity, activityName);
+                if (listView == null || listView.isEmpty()) {
+                    final View rootView = activity.getWindow().getDecorView().getRootView();
+                    final RootViewInfo info = new RootViewInfo(activityName, rootView);
+                    mRootViews.add(info);
+                } else {
+                    mRootViews.addAll(listView);
+                }
             }
 
             final int viewCount = mRootViews.size();
@@ -415,6 +424,12 @@ class ViewSnapshot {
                         "skipping for now.", e);
             }
 
+            CachedBitmap cachedBitmap = mCachedBitmap.get(info.activityName);
+            if (cachedBitmap == null) {
+                cachedBitmap = new CachedBitmap();
+                mCachedBitmap.put(info.activityName, cachedBitmap);
+            }
+
             float scale = 1.0f;
             if (null != rawBitmap) {
                 final int rawDensity = rawBitmap.getDensity();
@@ -429,7 +444,7 @@ class ViewSnapshot {
                 final int destHeight = (int) ((rawBitmap.getHeight() * scale) + 0.5);
 
                 if (rawWidth > 0 && rawHeight > 0 && destWidth > 0 && destHeight > 0) {
-                    mCachedBitmap.recreate(destWidth, destHeight, mClientDensity, rawBitmap);
+                    cachedBitmap.recreate(destWidth, destHeight, mClientDensity, rawBitmap);
                 }
             }
 
@@ -437,7 +452,7 @@ class ViewSnapshot {
                 rootView.setDrawingCacheEnabled(false);
             }
             info.scale = scale;
-            info.screenshot = mCachedBitmap;
+            info.screenshot = cachedBitmap;
         }
     }
 
@@ -485,7 +500,7 @@ class ViewSnapshot {
         }
     }
 
-    private static class RootViewInfo {
+    public static class RootViewInfo {
         public final String activityName;
         public final View rootView;
         public CachedBitmap screenshot;
