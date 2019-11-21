@@ -108,12 +108,7 @@ public class UIHelper {
                 continue;
             }
 
-            // 检查对话框
-            if (!(context instanceof ContextThemeWrapper)) {
-                continue;
-            }
-            Context baseContext = ((ContextThemeWrapper) context).getBaseContext();
-            if (baseContext == activity) {
+            if (isDialogBelongActivity(context, activity)) {
                 listView.add(new ViewSnapshot.RootViewInfo(getDialogName(activity), view));
             }
         }
@@ -133,7 +128,7 @@ public class UIHelper {
         if (views == null) {
             return null;
         }
-        List<ViewSnapshot.RootViewInfo> listView=null;
+        List<ViewSnapshot.RootViewInfo> listView = null;
         for (int i = 0; i < views.size(); i++) {
             View view = (View) views.get(i);
 
@@ -147,12 +142,7 @@ public class UIHelper {
                 continue;
             }
 
-            // 检查对话框
-            if (!(context instanceof ContextThemeWrapper)) {
-                continue;
-            }
-            Context baseContext = ((ContextThemeWrapper) context).getBaseContext();
-            if (baseContext == activity) {
+            if (isDialogBelongActivity(context, activity)) {
                 if (listView == null) {
                     listView = new ArrayList<>();
                 }
@@ -160,6 +150,26 @@ public class UIHelper {
             }
         }
         return listView;
+    }
+
+    private static boolean isDialogBelongActivity(Context dialogContext, Context activityContext) {
+        int limit = 0;
+        while (true) {
+            if (dialogContext == activityContext) {
+                return true;
+            }
+            if (!(dialogContext instanceof ContextThemeWrapper)) {
+                return false;
+            }
+
+            //防止极端情况
+            if (limit++ > 10) {
+                return false;
+            }
+
+            dialogContext = ((ContextThemeWrapper) dialogContext).getBaseContext();
+        }
+
     }
 
     private static Object getReflectField(Object obj, String fieldName) {
