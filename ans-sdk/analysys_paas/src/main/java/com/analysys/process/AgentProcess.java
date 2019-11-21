@@ -1444,12 +1444,12 @@ public class AgentProcess {
                 context, url);
     }
 
-    public void setIgnoreHeatMaByPages(Set<String> pages) {
-        HeatMap.getInstance().setIgnoreHeatMaByPages(pages);
+    public void setHeatMapBlackListByPages(Set<String> pages) {
+        HeatMap.getInstance().setHeatMapBlackListByPages(pages);
     }
 
-    public void setAutoHeatMapByPages(Set<String> pages) {
-        HeatMap.getInstance().setAutoHeatMapByPages(pages);
+    public void setHeatMapWhiteListByPages(Set<String> pages) {
+        HeatMap.getInstance().setHeatMapWhiteListByPages(pages);
     }
 
     private static class Holder {

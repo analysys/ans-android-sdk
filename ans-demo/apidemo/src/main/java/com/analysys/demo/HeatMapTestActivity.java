@@ -57,14 +57,14 @@ public class HeatMapTestActivity extends AppCompatActivity {
             }, 2000);
         } else if (id == R.id.addButton) {
             // 设置热图白名单
-            AnalysysAgent.setAutoHeatMapByPages(mPages);
+            AnalysysAgent.setHeatMapWhiteListByPages(mPages);
         } else if (id == R.id.ignoreButton) {
             // 设置热图黑名单
-            AnalysysAgent.setIgnoreHeatMaByPages(mPages);
+            AnalysysAgent.setHeatMapBlackListByPages(mPages);
         } else if (id == R.id.clearButton) {
             Set<String> pages = new HashSet<>();
-            AnalysysAgent.setIgnoreHeatMaByPages(pages);
-            AnalysysAgent.setAutoHeatMapByPages(pages);
+            AnalysysAgent.setHeatMapBlackListByPages(pages);
+            AnalysysAgent.setHeatMapWhiteListByPages(pages);
         } else if (id == R.id.SingleProcessButton) {
             startActivity(new Intent(HeatMapTestActivity.this, SingleProcessTestActivity.class));
         }

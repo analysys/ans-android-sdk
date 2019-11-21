@@ -58,8 +58,8 @@ public class AnalysysAgent {
      * 不采集页面热图
      * @param pages 忽略的页面集合
      */
-    public static void setIgnoreHeatMaByPages(Set<String> pages){
-        AgentProcess.getInstance().setIgnoreHeatMaByPages(pages);
+    public static void setHeatMapBlackListByPages(Set<String> pages){
+        AgentProcess.getInstance().setHeatMapBlackListByPages(pages);
     }
 
 //    /**
@@ -82,8 +82,8 @@ public class AnalysysAgent {
      * 采集热图页面百名单
      * @param pages 只采集的页面集合
      */
-    public static void setAutoHeatMapByPages(Set<String> pages){
-        AgentProcess.getInstance().setAutoHeatMapByPages(pages);
+    public static void setHeatMapWhiteListByPages(Set<String> pages){
+        AgentProcess.getInstance().setHeatMapWhiteListByPages(pages);
     }
 
     /**

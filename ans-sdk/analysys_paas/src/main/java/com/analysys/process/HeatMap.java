@@ -336,7 +336,7 @@ public class HeatMap {
     /**
      * 热图黑名单
      */
-    void setIgnoreHeatMaByPages(Set<String> pages) {
+    void setHeatMapBlackListByPages(Set<String> pages) {
         mIgnoreByPages.clear();
         mIgnoreByPages.addAll(pages);
     }
@@ -344,7 +344,7 @@ public class HeatMap {
     /**
      * 热图白名单
      */
-    void setAutoHeatMapByPages(Set<String> pages) {
+    void setHeatMapWhiteListByPages(Set<String> pages) {
         mAutoByPages.clear();
         mAutoByPages.addAll(pages);
     }
