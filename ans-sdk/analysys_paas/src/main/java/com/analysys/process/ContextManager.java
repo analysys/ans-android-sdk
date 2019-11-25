@@ -15,18 +15,15 @@ import java.lang.ref.WeakReference;
  */
 public class ContextManager {
 
-    private static WeakReference<Context> weakReference = null;
+    private static Context sAppContext;
 
     public static Context getContext() {
-        if (weakReference == null) {
-            weakReference = new WeakReference<Context>(CommonUtils.getApplication());
-        }
-        return (weakReference == null) ? null : weakReference.get();
+        return sAppContext;
     }
 
     public static void setContext(Context context) {
-        if (weakReference == null && context != null) {
-            weakReference = new WeakReference<Context>(context.getApplicationContext());
+        if (sAppContext == null && context != null) {
+            sAppContext = context.getApplicationContext();
         }
     }
 }

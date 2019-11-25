@@ -58,7 +58,6 @@ public class AgentProcess {
     private Map<String, Object> properties;
 
     public static AgentProcess getInstance(Context context) {
-        ContextManager.setContext(context);
         return Holder.INSTANCE;
     }
 

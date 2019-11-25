@@ -17,10 +17,10 @@ import com.analysys.EncryptEnum;
  */
 public class AnsApplication extends Application {
     public static final int DEBUG_MODE = 2;
-    public static final String APP_KEY = "androidtest";
-    public static final String UPLOAD_URL = "http://192.168.10.91:8089";
-    private static final String SOCKET_URL = "ws://192.168.10.91:9091";
-    private static final String CONFIG_URL = "http://192.168.10.91:8089";
+    public static final String APP_KEY = "a217639dbb1f6a9c";
+    public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
+    private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
+    private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
 
     private boolean isDebug = true;
 

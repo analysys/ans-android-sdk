@@ -134,12 +134,11 @@ public class ViewCrawler {
     private void checkDlg() {
         if (mContainsDlgConfig || mMessageThreadHandler.isConnected()) {
             boolean isShowingDlg = false;
-            Set<Activity> allActivity = mEditState.getAllCopy();
-            for (final Activity activity : allActivity) {
+            Activity activity = ActivityLifecycleUtils.getCurrentActivity();
+            if (activity != null) {
                 List<ViewSnapshot.RootViewInfo> listView = UIHelper.getActivityDialogs(activity);
                 if (listView != null && !listView.isEmpty()) {
                     isShowingDlg = true;
-                    break;
                 }
             }
             if (mIsDlgShowing != isShowingDlg) {

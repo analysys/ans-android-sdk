@@ -3,6 +3,7 @@ package com.analysys;
 import android.content.Context;
 
 import com.analysys.process.AgentProcess;
+import com.analysys.process.ContextManager;
 import com.analysys.push.PushListener;
 import com.analysys.utils.Constants;
 
@@ -23,6 +24,7 @@ public class AnalysysAgent {
      * @param config 初始化配置信息
      */
     public static void init(Context context, AnalysysConfig config) {
+        ContextManager.setContext(context);
         AgentProcess.getInstance(context).init(config);
     }
 
