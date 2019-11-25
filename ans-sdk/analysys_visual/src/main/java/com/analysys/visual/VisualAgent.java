@@ -16,6 +16,8 @@ import com.analysys.visual.viewcrawler.VisualManager;
  */
 public class VisualAgent {
 
+    private static boolean sInited;
+
     /**
      * 设置基础
      */
@@ -24,13 +26,15 @@ public class VisualAgent {
                 Constants.WSS + url + Constants.WSS_PORT + getParams(context));
         InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL,
                 com.analysys.utils.Constants.HTTPS + url + Constants.HTTPS_PORT + "/configure");
+        if (!TextUtils.isEmpty(url)) {
+            init(context);
+        }
     }
 
     /**
      * 设置可视化websocket服务器地址
      */
     public void setVisitorDebugURL(Context context, String url) {
-        init(context);
         try {
             String getUrl = "";
             if (InternalAgent.isEmpty(context) || InternalAgent.isEmpty(url)) {
@@ -47,6 +51,11 @@ public class VisualAgent {
                 /** 拼接完成url地址，读取配置文件，获取反射路径，反射调用传入地址 */
                 InternalAgent.setString(context, Constants.SP_DEBUG_VISUAL_URL,
                         getUrl + getParams(context));
+
+                final String configUrl = InternalAgent.getString(context, Constants.SP_GET_STRATEGY_URL, "");
+                if(!TextUtils.isEmpty(configUrl)) {
+                    init(context);
+                }
             }
         } catch (Throwable e) {
         }
@@ -98,6 +107,11 @@ public class VisualAgent {
                 /** 拼接成完整的url，读取配置文件，获取反射路径，反射调用传入地址 */
                 InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL, getUrl +
                         "/configure");
+
+                final String debugUrl = InternalAgent.getString(context, Constants.SP_DEBUG_VISUAL_URL, "");
+                if(!TextUtils.isEmpty(debugUrl)) {
+                    init(context);
+                }
             }
         } catch (Throwable e) {
         }
@@ -106,7 +120,11 @@ public class VisualAgent {
     /**
      * 初始化可视化
      */
-    public void init(Context context) {
+    public synchronized void init(Context context) {
+        if (sInited) {
+            return;
+        }
+        sInited = true;
         initVisual(context);
         StrategyGet.getInstance(context).getVisualBindingConfig();
         InternalAgent.d("Visual init: success.");
