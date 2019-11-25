@@ -506,6 +506,22 @@ public class CommonUtils {
     }
 
     /**
+     * 带参数 static 反射
+     */
+    public static Object reflexStaticMethod(String classPath, String methodName, Class[] classes,
+                                     Object... objects) {
+        try {
+            Class<?> cl = Class.forName(classPath);
+            Method method = cl.getDeclaredMethod(methodName, classes);
+            //类中的成员变量为private,必须进行此操作
+            method.setAccessible(true);
+            return method.invoke(null, objects);
+        } catch (Throwable throwable) {
+        }
+        return null;
+    }
+
+    /**
      * 无参 反射
      */
     public static Object reflexUtils(String classPath, String methodName) {
