@@ -22,7 +22,7 @@ public class AnsApplication extends Application {
     private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
     private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
 
-    private boolean isDebug = true;
+    private boolean isDebug = false;
 
     @Override
     public void onCreate() {

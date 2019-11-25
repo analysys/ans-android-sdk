@@ -18,6 +18,9 @@ public class ContextManager {
     private static Context sAppContext;
 
     public static Context getContext() {
+        if (sAppContext == null) {
+            sAppContext = CommonUtils.getApplication();
+        }
         return sAppContext;
     }
 
