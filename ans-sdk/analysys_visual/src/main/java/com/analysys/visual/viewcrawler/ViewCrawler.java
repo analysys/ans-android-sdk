@@ -85,6 +85,7 @@ public class ViewCrawler {
     private final String WS_EVENTINFO_DELETE = "delete";
     //    path and self json
     private Map<String, JSONObject> mMemoryPathAndJson = null;
+    private final Handler mMainThreadHandler;
 
     private SensorHelper mSensorHelper;
     public ViewCrawler(Context context) {
@@ -102,14 +103,14 @@ public class ViewCrawler {
 
         mDynamicEventTracker = new DynamicEventTracker();
         mSensorHelper = new SensorHelper();
+        mMainThreadHandler = new Handler(Looper.getMainLooper());
     }
 
     public void startUpdates() {
         mMessageThreadHandler.start();
         applyPersistedUpdates();
 
-        mMessageThreadHandler.sendMessageDelayed(
-                mMessageThreadHandler.obtainMessage(MESSAGE_CHECK_DLG), CHECK_DLG_DELAY);
+        mMainThreadHandler.postDelayed(mCheckDlgRunnable, CHECK_DLG_DELAY);
     }
 
     public void applyPersistedUpdates() {
@@ -132,25 +133,25 @@ public class ViewCrawler {
     /**
      * 检测dialog显示
      */
-    private void checkDlg() {
-        if (mContainsDlgConfig || mMessageThreadHandler.isConnected()) {
-            boolean isShowingDlg = false;
-            Activity activity = ActivityLifecycleUtils.getCurrentActivity();
-            if (activity != null) {
-                List<ViewSnapshot.RootViewInfo> listView = UIHelper.getActivityDialogs(activity);
-                if (listView != null && !listView.isEmpty()) {
-                    isShowingDlg = true;
+    private Runnable mCheckDlgRunnable = new Runnable() {
+        public void run() {
+            if (mContainsDlgConfig || mMessageThreadHandler.isConnected()) {
+                boolean isShowingDlg = false;
+                Activity activity = ActivityLifecycleUtils.getCurrentActivity();
+                if (activity != null) {
+                    List<ViewSnapshot.RootViewInfo> listView = UIHelper.getActivityDialogs(activity);
+                    if (listView != null && !listView.isEmpty()) {
+                        isShowingDlg = true;
+                    }
+                }
+                if (mIsDlgShowing != isShowingDlg) {
+                    mIsDlgShowing = isShowingDlg;
+                    mMessageThreadHandler.applyEventBindings();
                 }
             }
-            if (mIsDlgShowing != isShowingDlg) {
-                mIsDlgShowing = isShowingDlg;
-                mMessageThreadHandler.applyEventBindings();
-            }
+            mMainThreadHandler.postDelayed(this, CHECK_DLG_DELAY);
         }
-
-        mMessageThreadHandler.sendMessageDelayed(
-                mMessageThreadHandler.obtainMessage(MESSAGE_CHECK_DLG), CHECK_DLG_DELAY);
-    }
+    };
 
     /**
      * 保存当前与历史绑定事件Presistent
@@ -353,10 +354,6 @@ public class ViewCrawler {
                     case MESSAGE_HANDLE_SEND_EVENT_SERVER:
                         //新加入逻辑,主动上发埋点事件至socketServer
                         handleEventInfoToServer((JSONObject) msg.obj);
-                        break;
-                    case MESSAGE_CHECK_DLG:
-                        //检查对话框
-                        checkDlg();
                         break;
                     default:
                         break;
