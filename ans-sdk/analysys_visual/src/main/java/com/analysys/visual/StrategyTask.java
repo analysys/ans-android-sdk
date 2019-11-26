@@ -3,7 +3,6 @@ package com.analysys.visual;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.analysys.process.ContextManager;
 import com.analysys.utils.InternalAgent;
 import com.analysys.visual.viewcrawler.VisualManager;
 
@@ -49,7 +48,7 @@ public class StrategyTask implements Runnable {
             URL url = new URL(mUrl);
             if (mUrl.startsWith("https")) {
                 cn = (HttpsURLConnection) url.openConnection();
-                ((HttpsURLConnection) cn).setSSLSocketFactory(InternalAgent.createSSL(ContextManager.getContext()));
+                ((HttpsURLConnection) cn).setSSLSocketFactory(InternalAgent.createSSL(mContext));
             } else {
                 cn = (HttpURLConnection) url.openConnection();
             }

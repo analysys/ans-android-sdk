@@ -17,7 +17,6 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.JsonWriter;
 
-import com.analysys.process.ContextManager;
 import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.InternalAgent;
 import com.analysys.visual.utils.Constants;
@@ -243,7 +242,7 @@ public class ViewCrawler {
                 mEmulatorConnector.start();
             } else if (!mIsSensorRegistered) {
                 final SensorManager sensorManager =
-                        (SensorManager) ContextManager.getContext().getSystemService(Context.SENSOR_SERVICE);
+                        (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
                 final Sensor accelerometer =
                         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
                 sensorManager.registerListener(mFlipGesture, accelerometer,
@@ -257,7 +256,7 @@ public class ViewCrawler {
             if (isInEmulator()) {
                 mEmulatorConnector.stop();
             } else if (mIsSensorRegistered) {
-                final SensorManager sensorManager = (SensorManager) ContextManager.getContext().getSystemService
+                final SensorManager sensorManager = (SensorManager) mContext.getSystemService
                         (Context.SENSOR_SERVICE);
                 sensorManager.unregisterListener(mFlipGesture);
                 mFlipGesture.reset();
