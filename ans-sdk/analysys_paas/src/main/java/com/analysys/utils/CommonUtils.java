@@ -21,6 +21,8 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import com.analysys.process.ContextManager;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -646,15 +648,18 @@ public class CommonUtils {
      * 获取 id 信息
      */
     public static String getIdFile(Context context, String key) {
-        String filePath = context.getFilesDir().getPath() + Constants.FILE_NAME;
         try {
+            if (context == null || context.getFilesDir() == null) {
+                return null;
+            }
+            String filePath = context.getFilesDir().getPath() + Constants.FILE_NAME;
             String info = readFile(filePath);
             if (!TextUtils.isEmpty(info)) {
                 JSONObject job = new JSONObject(info);
                 return job.optString(key);
             }
         } catch (Throwable throwable) {
-            writeFile(filePath, null);
+//            writeFile(filePath, null);
         }
         return null;
     }
