@@ -67,7 +67,7 @@ public class UIHelper {
         return ret;
     }
 
-    public static String getDialogName(Activity activity) {
+    private static String getDialogName(Activity activity) {
         return activity.getClass().getCanonicalName() + DIALOG_SUFFIX;
     }
 
