@@ -68,7 +68,7 @@ public class UIHelper {
     }
 
     private static String getDialogName(Activity activity) {
-        return activity.getClass().getCanonicalName() + DIALOG_SUFFIX;
+        return activity == null ? "" : activity.getClass().getCanonicalName() + DIALOG_SUFFIX;
     }
 
     public static List<ViewSnapshot.RootViewInfo> getCurrentWindowViews(Activity activity, String activityName) {
