@@ -15,6 +15,7 @@ import com.analysys.network.UploadManager;
 import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -58,7 +59,6 @@ public class AgentProcess {
     private Map<String, Object> properties;
 
     public static AgentProcess getInstance(Context context) {
-        ContextManager.setContext(context);
         return Holder.INSTANCE;
     }
 
@@ -67,6 +67,7 @@ public class AgentProcess {
      */
     public void init(final AnalysysConfig config) {
         final Context context = ContextManager.getContext();
+        ActivityLifecycleUtils.initLifecycle();
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
             @Override
@@ -1116,7 +1117,7 @@ public class AgentProcess {
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualBase != null) {
-                            setUrl(context, LifeCycleConfig.visualBase.optString(START), url);
+                            setVisualUrl(context, LifeCycleConfig.visualBase.optString(START), url);
                         }
                     }
                 } catch (Throwable throwable) {
@@ -1137,7 +1138,7 @@ public class AgentProcess {
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visual != null) {
-                            setUrl(context, LifeCycleConfig.visual.optString(START), url);
+                            setVisualUrl(context, LifeCycleConfig.visual.optString(START), url);
                         }
                     }
                 } catch (Throwable throwable) {
@@ -1158,7 +1159,7 @@ public class AgentProcess {
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualConfig != null) {
-                            setUrl(context,
+                            setVisualUrl(context,
                                     LifeCycleConfig.visualConfig.optString(START),
                                     url);
                         }
@@ -1461,10 +1462,9 @@ public class AgentProcess {
         return true;
     }
 
-
-    private void setUrl(Context context, String path, String url) {
+    private void setVisualUrl(Context context, String path, String url) {
         int index = path.lastIndexOf(".");
-        CommonUtils.reflexUtils(
+        CommonUtils.reflexStaticMethod(
                 path.substring(0, index),
                 path.substring(index + 1),
                 new Class[]{Context.class, String.class},
