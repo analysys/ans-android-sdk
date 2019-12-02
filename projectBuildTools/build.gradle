@@ -1,0 +1,41 @@
+// 这里的apply是为了让子模块使用
+apply from: './gradleBuildExt/demoBuild.gradle'
+buildscript {
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        jcenter { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'cn.com.analysys:android-gradle-plugin-allgro:1.0.0'
+    }
+    subprojects {
+        project.configurations.all {
+            resolutionStrategy.eachDependency { details ->
+                if (details.requested.group == 'com.android.support'
+                        && !details.requested.name.contains('multidex')) {
+                    details.useVersion "27.1.1"
+                }
+                if (details.requested.group == 'androidx.core'
+                        && !details.requested.name.contains('androidx')) {
+                    details.useVersion "1.0.1"
+                }
+            }
+        }
+    }
+}
+
+allprojects {
+    
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        jcenter { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://mvn.gt.igexin.com/nexus/content/repositories/releases/' }
+        google()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
