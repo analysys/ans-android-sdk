@@ -7,8 +7,8 @@ import android.widget.Toast;
 
 import com.analysys.AnalysysAgent;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,13 +20,13 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class HeatMapTestActivity extends AppCompatActivity {
 
-    private Set<String> mPages;
+    private List<String> mPages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heatmap_test);
-        mPages = new HashSet<>();
+        mPages = new ArrayList<>();
         mPages.add(MainActivity.class.getName());
         mPages.add(UserSettingActivity.class.getName());
     }
@@ -62,7 +62,7 @@ public class HeatMapTestActivity extends AppCompatActivity {
             // 设置热图黑名单
             AnalysysAgent.setHeatMapBlackListByPages(mPages);
         } else if (id == R.id.clearButton) {
-            Set<String> pages = new HashSet<>();
+            List<String> pages = new ArrayList<>();
             AnalysysAgent.setHeatMapBlackListByPages(pages);
             AnalysysAgent.setHeatMapWhiteListByPages(pages);
         } else if (id == R.id.SingleProcessButton) {
