@@ -8,7 +8,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.1'
-        classpath 'cn.com.analysys:android-gradle-plugin-allgro:1.0.0'
     }
     subprojects {
         project.configurations.all {

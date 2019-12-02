@@ -5,7 +5,7 @@ ext {
 
     sdkVer = '4.3.7'
 
-    gradle_base_sdk = { Project projectImp, version = sdkVer ->
+    gradle_base_sdk = { projectImp, version = sdkVer ->
 
         rootProject.ext.gradle_base(projectImp, 'com.android.library')
 

@@ -35,11 +35,6 @@ android {
         textReport false
         disable 'RestrictedApi'
     }
-
-    analysysConfig {
-        lambdaEnabled = true
-    }
-
 }
 
 
