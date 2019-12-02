@@ -201,7 +201,7 @@ public class AgentProcess {
                         return;
                     }
                     Map<String, Object> pageInfo = CommonUtils.deepCopy(pageDetail);
-                    pageInfo.put(Constants.EVENT_PAGE_NAME, pageName);
+                    pageInfo.put(Constants.PAGE_TITLE, pageName);
 
                     Map<String, Object> autoCollectPageInfo = new HashMap<>();
                     if (!pageInfo.containsKey(Constants.PAGE_URL)) {
@@ -235,7 +235,7 @@ public class AgentProcess {
                     }
                     Map<String, Object> pageInfo = CommonUtils.deepCopy(pageDetail);
                     if (!CommonUtils.isEmpty(pageName) && pageDetail != null) {
-                        pageDetail.put(Constants.EVENT_PAGE_NAME, pageName);
+                        pageDetail.put(Constants.PAGE_TITLE, pageName);
                     }
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_PAGE_VIEW,

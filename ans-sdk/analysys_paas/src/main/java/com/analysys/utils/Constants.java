@@ -42,8 +42,6 @@ public class Constants {
     public static final String PAGE_TITLE = "$title";
     public static final String PAGE_REFERRER = "$referrer";
 
-    public static final String EVENT_PAGE_NAME = "$pagename";
-
     public static final String TOUCH_PAGE_WIDTH = "$page_width";
     public static final String TOUCH_PAGE_HEIGHT = "$page_height";
     public static final String TOUCH_SCREEN_DPI = "$screen_dpi";
