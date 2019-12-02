@@ -1,0 +1,200 @@
+apply plugin: 'java'
+
+def sdkVer = '4.3.7'
+def formattedDate = new Date().format('MMddHHmm')
+
+def makeJarList = ['analysys_encryption': 'analysys_encrypt.jar',
+                   'analysys_push'      : 'analysys_push.jar',
+                   'analysys_visual'    : 'analysys_visual.jar',
+                   'analysys_paas'      : 'analysys_core.jar']
+
+def rootPath = "${project.projectDir}/sdkProjeckt"
+
+// 临时文件
+def buildPath = "${rootPath}/build"
+def buildZipCache = "${buildPath}/zipcache"
+def buildProguard = "${buildPath}/proguard_${sdkVer}_${formattedDate}"
+def subPList = []
+
+task cleanCache(type: Delete, group: "buildSDK") {
+    delete(rootPath)
+}
+
+task copySrc(dependsOn: 'cleanCache', group: "buildSDK") {
+    project.subprojects.each {
+        subP ->
+            dependsOn "${subP.name}:assembleRelease"
+            subPList.add(subP)
+    }
+
+    doLast {
+        subPList.each {
+            Project subP ->
+                def srcFile = file("${subP.buildDir}/outputs/aar/${subP.name}-release.aar")
+                def sdkName = makeJarList.get(subP.name)
+                if (sdkName.endsWith('aar')) {
+                    // 直接复制AAR
+                    copy {
+                        from srcFile
+                        into "${buildProguard}/libs4ProGuard"
+                        rename {
+                            it.replace("${subP.name}-release.aar", sdkName)
+                        }
+                    }
+                } else {
+                    // 需要打Jar的
+                    boolean hasAssets
+                    def dest = file("${buildPath}/buildJar/${subP.name}")
+                    def jarFile = file("${dest}/classes.jar")
+                    zipTree(srcFile).visit {
+                        FileTreeElement element ->
+                            if (element.path.startsWith('assets/')) {
+                                hasAssets = true
+                                element.copyTo(file("${dest}/${element.path}"))
+                            } else if (element.name == 'classes.jar') {
+                                element.copyTo(jarFile)
+                            }
+                    }
+                    if (hasAssets) {
+                        // 有Assets，复制中间产物
+                        zipTree(jarFile).visit {
+                            FileTreeElement eJar ->
+                                eJar.copyTo(file("${dest}/${eJar.path}"))
+                        }
+                        jarFile.delete()
+                    } else {
+                        // 无Assets，直接转换
+                        def dir = file("${buildProguard}/libs4ProGuard/")
+                        if (!dir.exists()||!dir.isDirectory()) {
+                            dir.delete()
+                        }
+                        dir.mkdirs()
+                        jarFile.renameTo(file("${buildProguard}/libs4ProGuard/${sdkName}"))
+                        delete(dest)
+                    }
+                }
+        }
+    }
+}
+
+// 生成jar
+task makeJar(dependsOn: 'copySrc', group: "buildSDK") {
+    // 创建混淆任务
+    subPList.each {
+        Project subP ->
+            def sdkName = makeJarList.get(subP.name)
+            def androidSDKDir = getProperties('local.properties').get('sdk.dir')
+            def srcJarDir = file("${buildProguard}/libs4ProGuard/${sdkName}")
+            def split = sdkName.split('\\.')
+            def newName = "${split[0]}_${sdkVer}_${formattedDate}.${split[1]}"
+            def destJarPath = "${buildZipCache}/libs/${newName}"
+            def proGuardConfig = "${subP.projectDir}/proguard-rules.pro"
+            def libs = "${androidSDKDir}/platforms/android-${rootProject.ext.anSdkVer}/android.jar"
+            def mappingOutPut = "${buildProguard}/mapping_${newName}.txt"
+            newProguardTask(subP.name, srcJarDir, destJarPath, proGuardConfig, libs, mappingOutPut).dependsOn(makeJar)
+    }
+
+    doFirst {
+        def jarDest = "${buildProguard}/libs4ProGuard"
+        def command = "if [ ! -d ${jarDest} ]; then\n mkdir -p ${jarDest}\n fi\n"
+        def jarBuildRoot = file("${buildPath}/buildJar")
+        jarBuildRoot.listFiles().each {
+            def jarBuildPath = "${jarBuildRoot}/${it.name}"
+            def jarName = makeJarList.get(it.name)
+            command += "cd ${jarBuildPath}\n"
+            command += "jar -cvf ${jarName} .\n"
+            command += "mv -f ${jarBuildPath}/${jarName} ${buildProguard}/libs4ProGuard\n"
+//            command += "rm -rf ${jarBuildPath}\n"
+        }
+        exec {
+            try {
+                println("executable 'bash' args '-c', $command")
+                executable 'bash' args '-c', command
+            } catch (ignored) {
+                println("the $command is execute failed.")
+            }
+        }
+    }
+
+    doLast {
+
+    }
+}
+
+
+def srcDemoProject = rootProject.findProject(':ans-demo:apidemo')
+def demoDestPath = "${buildZipCache}/analysys-android-paas"
+/** 拷贝 生成demo  */
+task makeDemo(group: "buildSDK") {
+
+    subPList.each {
+        Project subP ->
+            dependsOn("proGuardSDK-${subP.name}")
+    }
+
+    doLast {
+        // 复制project
+        copy {
+            into "${demoDestPath}"
+            from fileTree(dir: rootProject.projectDir,
+                    includes: ['gradle/**', 'repo/**', 'gradleBuildExt/**'],
+                    exclude: ['gradleBuildExt/sdkBuild.gradle'])
+            from file("${rootProject.projectDir}/.gitignore")
+            from file("${rootProject.projectDir}/.gitignore")
+            from file("${rootProject.projectDir}/gradle.properties")
+            from file("${rootProject.projectDir}/projectBuildTools")
+            from file("${rootProject.projectDir}/gradlew")
+            from file("${rootProject.projectDir}/gradlew.bat")
+            exclude('demo/**')
+        }
+
+        // 复制Module
+        copy {
+            into "${demoDestPath}/${srcDemoProject.name}"
+            from "${srcDemoProject.projectDir}"
+            from fileTree(dir: buildZipCache, includes: ['libs/**'])
+            from "${rootProject.projectDir}/projectBuildTools/demo"
+            exclude('*build', '*.iml')
+        }
+    }
+
+}
+
+task outPutSDK(type: Zip, dependsOn: 'makeDemo', group: "buildSDK") {
+    from buildZipCache
+    baseName = "analysys_paas_android_java_${sdkVer}_${formattedDate}"
+    destinationDir file(rootPath)
+
+
+    doLast {
+        delete("${buildProguard}/libs4ProGuard")
+        copy {
+            from fileTree(dir: buildPath, includes: ['proguard_**/**'], excludes: ['libs4ProGuard/**'])
+            from file("${buildPath}/${baseName}")
+            into rootPath
+        }
+        delete(buildPath, project.buildDir)
+    }
+}
+
+
+def newProguardTask(projectName, srcJarDir, destJarPath, proGuardConfig, libs, mappingOutPut) {
+    task "proGuardSDK-${projectName}"(type: proguard.gradle.ProGuardTask, dependsOn: 'copySrc', group: "buildSDK") {
+        injars(srcJarDir)
+        outjars(destJarPath)
+        configuration proGuardConfig
+        libraryjars(libs)
+        printmapping mappingOutPut
+        dontshrink
+    }
+}
+
+def getProperties(name) {
+    Properties localProperties = new Properties()
+    File file = project.rootProject.file(name)
+    if (file.exists()) {
+        //localProperties.load(file.newDataInputStream()) // 会导致中文乱码
+        localProperties.load(file.newReader("UTF-8")) // 解决 gradle properties 中文乱码
+    }
+    return localProperties
+}
