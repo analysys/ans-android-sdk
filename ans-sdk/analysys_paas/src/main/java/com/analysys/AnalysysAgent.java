@@ -7,7 +7,6 @@ import com.analysys.push.PushListener;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -58,7 +57,7 @@ public class AnalysysAgent {
      * 不采集页面热图
      * @param pages 忽略的页面集合
      */
-    public static void setHeatMapBlackListByPages(Set<String> pages){
+    public static void setHeatMapBlackListByPages(List<String> pages){
         AgentProcess.getInstance().setHeatMapBlackListByPages(pages);
     }
 
@@ -82,7 +81,7 @@ public class AnalysysAgent {
      * 采集热图页面百名单
      * @param pages 只采集的页面集合
      */
-    public static void setHeatMapWhiteListByPages(Set<String> pages){
+    public static void setHeatMapWhiteListByPages(List<String> pages){
         AgentProcess.getInstance().setHeatMapWhiteListByPages(pages);
     }
 

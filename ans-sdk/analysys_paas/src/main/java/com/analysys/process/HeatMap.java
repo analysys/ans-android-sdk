@@ -30,8 +30,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -45,7 +45,7 @@ public class HeatMap {
     public Map<String, Object> pageInfo = null;
     private Map<String, Object> clickInfo = null;
     private float rx = 0, ry = 0, x = 0, y = 0;
-    
+
     public static HeatMap getInstance() {
         return HeatMap.Holder.INSTANCE;
     }
@@ -336,17 +336,21 @@ public class HeatMap {
     /**
      * 热图黑名单
      */
-    void setHeatMapBlackListByPages(Set<String> pages) {
+    void setHeatMapBlackListByPages(List<String> pages) {
         mIgnoreByPages.clear();
-        mIgnoreByPages.addAll(pages);
+        if (pages != null) {
+            mIgnoreByPages.addAll(pages);
+        }
     }
 
     /**
      * 热图白名单
      */
-    void setHeatMapWhiteListByPages(Set<String> pages) {
+    void setHeatMapWhiteListByPages(List<String> pages) {
         mAutoByPages.clear();
-        mAutoByPages.addAll(pages);
+        if (pages != null) {
+            mAutoByPages.addAll(pages);
+        }
     }
 
     /**

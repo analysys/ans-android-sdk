@@ -1444,11 +1444,11 @@ public class AgentProcess {
                 context, url);
     }
 
-    public void setHeatMapBlackListByPages(Set<String> pages) {
+    public void setHeatMapBlackListByPages(List<String> pages) {
         HeatMap.getInstance().setHeatMapBlackListByPages(pages);
     }
 
-    public void setHeatMapWhiteListByPages(Set<String> pages) {
+    public void setHeatMapWhiteListByPages(List<String> pages) {
         HeatMap.getInstance().setHeatMapWhiteListByPages(pages);
     }
 
