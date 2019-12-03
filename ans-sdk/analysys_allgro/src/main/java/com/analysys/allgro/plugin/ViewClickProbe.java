@@ -418,15 +418,13 @@ class ViewClickProbe extends ASMHookAdapter {
     }
 
     private void autoTrackClick(Object pageObj, Map<String, Object> elementInfo, boolean hasTrackClickAnn) {
-        // page
-        // 获取页面相关信息
         if (pageObj != null) {
+            // 获取页面相关信息
             elementInfo.putAll(AllegroUtils.getPageInfo(pageObj));
             // 去除此字段
             elementInfo.remove(Constants.PARENT_URL);
         }
-        // 控件元素信息
-        AgentProcess.getInstance().track(Constants.USER_CLICK, elementInfo);
+        AgentProcess.getInstance().autoTrackViewClick(elementInfo);
     }
 
 
