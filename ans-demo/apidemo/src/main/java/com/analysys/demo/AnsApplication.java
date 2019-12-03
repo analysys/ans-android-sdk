@@ -19,8 +19,9 @@ public class AnsApplication extends Application {
     public static final int DEBUG_MODE = 2;
     public static final String APP_KEY = "a217639dbb1f6a9c";
     public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
-    private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
-    private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
+    private static final String SOCKET_URL = "ws://arkpaastest.analysys.cn:9091";
+    private static final String CONFIG_URL = "http://arkpaastest.analysys.cn:8089";
+
 
     private boolean isDebug = true;
 
@@ -36,10 +37,8 @@ public class AnsApplication extends Application {
         initAnalsysy();
 
         // 尝试初始化对应模块
-        switch (BuildConfig.Build_Type) {
-            case "compatibility":
-                // 尝试初始化三方兼容模块
-                ARouter.getInstance().build("/compatibilityDemo/api").navigation();
+        if ("compatibility".equals(BuildConfig.Build_Type)) {// 尝试初始化三方兼容模块
+            ARouter.getInstance().build("/compatibilityDemo/api").navigation();
         }
     }
 
@@ -64,10 +63,10 @@ public class AnsApplication extends Application {
         config.setMaxDiffTimeInterval(5 * 60);
         // 开启渠道归因
         config.setAutoInstallation(true);
+        // 开启热图数据采集
+        config.setAutoHeatMap(false);
         // 初始化
         AnalysysAgent.init(this, config);
-        // 开启热图数据采集
-        AnalysysAgent.setAutoHeatMap(false);
         // 设置数据上传/更新地址
         AnalysysAgent.setUploadURL(this, UPLOAD_URL);
         // 设置 WebSocket 连接 Url

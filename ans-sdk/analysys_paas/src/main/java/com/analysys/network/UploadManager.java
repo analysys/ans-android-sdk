@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
+import androidx.annotation.NonNull;
+
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
  * @Description: 上传管理
@@ -91,7 +93,7 @@ public class UploadManager {
     }
 
     private void dbCacheCheck() {
-        long maxCount = AgentProcess.getInstance(mContext).getMaxCacheSize();
+        long maxCount = AgentProcess.getInstance().getMaxCacheSize();
         long count = TableAllInfo.getInstance(mContext).selectCount();
         if (maxCount <= count) {
             TableAllInfo.getInstance(mContext).delete(Constants.DELETE_COUNT);
@@ -145,7 +147,7 @@ public class UploadManager {
         }
 
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(@NonNull Message msg) {
             try {
                 String url = CommonUtils.getUrl(mContext);
                 if (!CommonUtils.isEmpty(url)) {
@@ -158,7 +160,7 @@ public class UploadManager {
                 } else {
                     LogPrompt.showErrLog(LogPrompt.URL_ERR);
                 }
-            } catch (Throwable throwable) {
+            } catch (Throwable ignored) {
             }
         }
     }
@@ -280,7 +282,7 @@ public class UploadManager {
                 returnInfo = RequestUtils.postRequestHttps(mContext, url, dataInfo, spv, headInfo);
             }
             policyAnalysis(analysisStrategy(returnInfo));
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
 
         }
     }
@@ -304,7 +306,7 @@ public class UploadManager {
                     }
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -337,8 +339,11 @@ public class UploadManager {
                 return null;
             }
             String unzip = CommonUtils.messageUnzip(policy);
-            LogPrompt.showReturnCode(unzip);
-            return new JSONObject(unzip);
+            if (!TextUtils.isEmpty(unzip)) {
+                LogPrompt.showReturnCode(unzip);
+                return new JSONObject(unzip);
+            }
+            return new JSONObject(policy);
         } catch (Throwable e) {
             try {
                 return new JSONObject(policy);
@@ -367,8 +372,7 @@ public class UploadManager {
                         String serviceHash = SharedUtil.getString(mContext,
                                 Constants.SP_SERVICE_HASH, null);
                         if (CommonUtils.isEmpty(serviceHash)
-                                || !serviceHash.equals(
-                                policyJson.optString(Constants.SERVICE_HASH))) {
+                                || (policyJson != null && !serviceHash.equals(policyJson.optString(Constants.SERVICE_HASH)))) {
                             PolicyManager.analysisStrategy(mContext, policyJson);
                         }
                     }
@@ -381,7 +385,7 @@ public class UploadManager {
         } catch (Throwable throwable) {
             try {
                 reUpload();
-            } catch (Throwable t) {
+            } catch (Throwable ignored) {
             }
         }
     }

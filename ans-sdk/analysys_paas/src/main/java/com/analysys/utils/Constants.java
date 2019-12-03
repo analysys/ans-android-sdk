@@ -246,7 +246,6 @@ public class Constants {
     public static String SP_REFER = "referrer";
 
     public static boolean isAutoProfile = true;
-    public static boolean autoHeatMap = false;
     public static int encryptType = 0;
     public static boolean autoInstallation = false;
     public static Map<String, Object> utm = null;
