@@ -1,4 +1,5 @@
 rootProject.ext.gradle_base_demo this, 'com.android.application'
+apply plugin: 'com.analysys.android.plugin'
 
 android {
     defaultConfig {
@@ -34,6 +35,10 @@ android {
         textOutput "stdout"
         textReport false
         disable 'RestrictedApi'
+    }
+
+    analysysConfig {
+        lambdaEnabled = true
     }
 }
 

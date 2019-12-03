@@ -1,4 +1,6 @@
+// 插件
+include 'buildSrc'
 //demo
 include 'ans-demo:apidemo', 'ans-demo:visualDemo', 'ans-demo:compatibilityDemo'
 //sdk
-include 'ans-sdk:analysys_paas', 'ans-sdk:analysys_encryption', 'ans-sdk:analysys_push', 'ans-sdk:analysys_visual'
+include 'ans-sdk:analysys_paas', 'ans-sdk:analysys_encryption', 'ans-sdk:analysys_push', 'ans-sdk:analysys_visual', 'ans-sdk:analysys_allgro'
