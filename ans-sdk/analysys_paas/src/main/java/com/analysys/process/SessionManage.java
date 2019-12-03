@@ -2,8 +2,6 @@ package com.analysys.process;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
-
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 
@@ -147,7 +145,7 @@ public class SessionManage {
         return getString(m);
     }
 
-    private String getString(@Nullable byte[] b) {
+    private String getString(byte[] b) {
         if (b != null) {
             StringBuilder buf = new StringBuilder();
             for (int value : b) {
