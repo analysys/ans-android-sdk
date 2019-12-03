@@ -7,6 +7,7 @@ import android.view.View;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.analysys.ANSAutoPageTracker;
 import com.analysys.AnalysysAgent;
+import com.analysys.demo.allgroTest.AllgroTestActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements ANSAutoPageTracke
         } else if (id == R.id.TestHeatMapButton) {
             // 跳转可视化模块
             startActivity(new Intent(MainActivity.this, HeatMapTestActivity.class));
+        } else if (id == R.id.TestAllgroButton) {
+            // 跳转全埋点模块
+            startActivity(new Intent(MainActivity.this, AllgroTestActivity.class));
         }
     }
 

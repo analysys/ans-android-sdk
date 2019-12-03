@@ -1,4 +1,5 @@
 rootProject.ext.gradle_base_demo this, 'com.android.application'
+apply plugin: 'com.analysys.android.plugin'
 
 android {
     defaultConfig {
@@ -51,6 +52,7 @@ android {
 
 dependencies {
     if ("api" == Build_Type.toString()) {
+        implementation project(':ans-sdk:analysys_allgro')
         implementation project(':ans-sdk:analysys_visual')
         implementation project(':ans-sdk:analysys_encryption')
         implementation project(':ans-sdk:analysys_paas')

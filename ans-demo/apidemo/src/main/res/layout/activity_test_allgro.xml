@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="pageInfo"
+            type="com.analysys.demo.allgroTest.AllgroTestActivity" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="250dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="我是全埋点主页面(Activity)" />
+
+
+                <Button
+                    android:id="@+id/pvSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{pageInfo.isPvEnable?`关闭页面上报`:`打开页面上报`}" />
+
+                <Button
+                    android:id="@+id/fragmentPvSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{pageInfo.isFragmentPvEnable?`关闭Fragment页面上报`:`打开Fragment页面上报`}" />
+
+                <Button
+                    android:id="@+id/clickTrackSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{pageInfo.isAutoClickEnable?`关闭点击上报`:`打开点击上报`}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{String.format(`\nActivity PageView 上报默认开启（当前：%s）\nFragment PageView 上报默认关闭（当前：%s）\n全埋点点击 上报默认关闭（当前：%s）`,pageInfo.isPvEnable,pageInfo.isFragmentPvEnable,pageInfo.isAutoClickEnable)}" />
+            </LinearLayout>
+
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/colorAccent"
+                android:text="Fragment1" />
+
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/colorPrimary"
+                android:text="Fragment2" />
+
+            <Button
+                android:id="@+id/btn3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:onClick="@{pageInfo::onViewClick}"
+                android:background="@mipmap/ic_launcher"
+                android:text="Fragment3" />
+        </LinearLayout>
+
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8">
+
+        </androidx.viewpager.widget.ViewPager>
+
+
+    </LinearLayout>
+</layout>
