@@ -34,7 +34,7 @@ public class SystemIds {
     /**
      * 解析id
      */
-    void parserId() {
+    public void parserId() {
         // 值执行一次
         if (isParser) return;
         isParser = true;

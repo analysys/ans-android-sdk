@@ -293,7 +293,7 @@ class PageViewProbe extends ASMHookAdapter {
             String pageName = page.getClass().getName();
             if (instance.isThisPageInPageViewBlackList(pageName)) {
                 return false;
-            } else if (instance.hasAutoClickWhiteList()) {
+            } else if (instance.hasAutoPageViewWhiteList()) {
                 return instance.isThisPageInPageViewWhiteList(pageName);
             }
             return true;

@@ -1,10 +1,14 @@
 package com.analysys.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+
+import androidx.annotation.Nullable;
 
 /**
  * Description:静态工具箱门面类
@@ -50,6 +54,20 @@ public class AnalysysUtil {
                 }
             }
         } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    // -------- 弱引用保存当前AC ---------------------
+    private static WeakReference<Activity> mActivity;
+
+    public static void onActivityCreated(Activity activity) {
+        mActivity = new WeakReference<>(activity);
+    }
+
+    public static synchronized @Nullable Activity getCurActivity() {
+        if (mActivity != null) {
+            return mActivity.get();
         }
         return null;
     }

@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +57,7 @@ public class AgentProcess {
     private Application mApp = null;
     private String mTitle = "", mUrl = "";
     private Map<String, Object> properties;
-    
+
     private AnalysysConfig mConfig = new AnalysysConfig();
 
     public static AgentProcess getInstance() {
@@ -68,23 +67,25 @@ public class AgentProcess {
     /**
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
-    public void init(final Context context, final AnalysysConfig config) {
+    public void init(Context context, AnalysysConfig config) {
         if (config != null) {
             mConfig = config;
         }
+        AnalysysUtil.init(context);
         ActivityLifecycleUtils.initLifecycle();
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (context != null) {
-                        TemplateManage.initMould(context);
-                        saveKey(context, mConfig.getAppKey());
-                        saveChannel(context, mConfig.getChannel());
-                        if (CommonUtils.isMainProcess(context)) {
+                    Context cx = AnalysysUtil.getContext();
+                    if (cx != null) {
+                        TemplateManage.initMould(cx);
+                        saveKey(cx, mConfig.getAppKey());
+                        saveChannel(cx, mConfig.getChannel());
+                        if (CommonUtils.isMainProcess(cx)) {
                             // 同时设置 UploadUrl/WebSocketUrl/ConfigUrl
-                            setBaseUrl(context, mConfig.getBaseUrl());
+                            setBaseUrl(cx, mConfig.getBaseUrl());
                             // 设置首次启动是否发送
                             Constants.isAutoProfile = mConfig.isAutoProfile();
                             // 设置加密类型
@@ -92,7 +93,7 @@ public class AgentProcess {
                             // 设置渠道归因是否开启
                             Constants.autoInstallation = mConfig.isAutoInstallation();
                             // 重置PV计数器值
-                            CommonUtils.resetCount(context.getFilesDir().getAbsolutePath());
+                            CommonUtils.resetCount(cx.getFilesDir().getAbsolutePath());
                             long MaxDiffTimeInterval = mConfig.getMaxDiffTimeInterval();
                             if (0 <= MaxDiffTimeInterval) {
                                 // 用户忽略最大时间差值
@@ -104,7 +105,7 @@ public class AgentProcess {
 //                        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
 //                            SystemIds.getInstance().parserId();
 //                        }
-                        LifeCycleConfig.initUploadConfig(context);
+                        LifeCycleConfig.initUploadConfig(cx);
                         LogPrompt.showInitLog(true);
                     } else {
                         LogPrompt.showInitLog(false);
@@ -114,6 +115,11 @@ public class AgentProcess {
             }
         });
     }
+
+    public AnalysysConfig getConfig() {
+        return mConfig;
+    }
+
 
     /**
      * debug 信息处理
@@ -282,6 +288,23 @@ public class AgentProcess {
     }
 
     /**
+     * 点击自动上报
+     *
+     * @param clickInfo 点击上报信息
+     */
+    public void autoTrackViewClick(final Map<String, Object> clickInfo) {
+        try {
+            Context context = AnalysysUtil.getContext();
+            if (context != null) {
+                JSONObject eventData = DataAssemble.getInstance(context).getEventData(Constants.API_USER_CLICK, Constants.USER_CLICK, null, clickInfo);
+                trackEvent(context, Constants.API_USER_CLICK, Constants.USER_CLICK, eventData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 多个事件信息处理
      */
     public void track(final String eventName, final Map<String, Object> eventDetail) {
@@ -405,7 +428,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         if (!CheckUtils.checkIdLength(aliasId)) {
                             LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
@@ -429,7 +452,7 @@ public class AgentProcess {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -915,87 +938,6 @@ public class AgentProcess {
         });
     }
 
-
-    /**
-     * 是否自动采集
-     */
-    public void automaticCollection(final boolean isAuto) {
-        ANSThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                Context context = AnalysysUtil.getContext();
-                if (context != null) {
-                    SharedUtil.setBoolean(context, Constants.SP_IS_COLLECTION, isAuto);
-                }
-            }
-        });
-    }
-
-    /**
-     * 获取自动采集开关状态
-     */
-    public boolean getAutomaticCollection() {
-        Context context = AnalysysUtil.getContext();
-        if (context != null) {
-            return SharedUtil.getBoolean(
-                    context, Constants.SP_IS_COLLECTION, true);
-        }
-        return true;
-    }
-
-    /**
-     * 获取忽略自动采集的页面
-     */
-    public List<String> getIgnoredAutomaticCollection() {
-        Context context = AnalysysUtil.getContext();
-        if (context != null) {
-            String activities = SharedUtil.getString(
-                    context, Constants.SP_IGNORED_COLLECTION, null);
-            if (!CommonUtils.isEmpty(activities)) {
-                return CommonUtils.toList(activities);
-            }
-        }
-        return new ArrayList<>();
-    }
-
-    /**
-     * 忽略多个页面自动采集
-     */
-    public void setIgnoredAutomaticCollection(final List<String> activitiesName) {
-        ANSThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Context context = AnalysysUtil.getContext();
-                    if (context == null) {
-                        return;
-                    }
-                    if (CommonUtils.isEmpty(activitiesName)) {
-                        SharedUtil.remove(context, Constants.SP_IGNORED_COLLECTION);
-                        return;
-                    }
-                    String activities = SharedUtil.getString(context,
-                            Constants.SP_IGNORED_COLLECTION, null);
-                    if (CommonUtils.isEmpty(activities)) {
-                        SharedUtil.setString(
-                                context, Constants.SP_IGNORED_COLLECTION,
-                                CommonUtils.toString(activitiesName));
-                    } else {
-                        Set<String> pageNames = CommonUtils.toSet(activities);
-                        if (pageNames == null) {
-                            pageNames = new HashSet<>();
-                        }
-                        pageNames.addAll(activitiesName);
-                        SharedUtil.setString(context,
-                                Constants.SP_IGNORED_COLLECTION,
-                                CommonUtils.toString(pageNames));
-                    }
-
-                } catch (Throwable ignored) {
-                }
-            }
-        });
-    }
 
     /**
      * 用户调用上传接口
@@ -1490,8 +1432,196 @@ public class AgentProcess {
         public static final AgentProcess INSTANCE = new AgentProcess();
     }
 
-    public AnalysysConfig getConfig() {
-        return mConfig;
+    // -------- 全埋点-页面采集 ----------
+
+    private HashSet<Integer> mPageViewBlackListByPages = new HashSet<>();
+    private HashSet<Integer> mPageViewWhiteListByPages = new HashSet<>();
+
+    public void setPageViewBlackListByPages(Set<String> pages) {
+        mPageViewBlackListByPages.clear();
+        for (String page : pages) {
+            if (!TextUtils.isEmpty(page)) {
+                mPageViewBlackListByPages.add(page.hashCode());
+            }
+        }
+    }
+
+    public void setPageViewWhiteListByPages(Set<String> pages) {
+        mPageViewWhiteListByPages.clear();
+        for (String page : pages) {
+            if (!TextUtils.isEmpty(page)) {
+                mPageViewWhiteListByPages.add(page.hashCode());
+            }
+        }
+    }
+
+    /**
+     * 当前页面是忽略采集
+     */
+    public boolean isThisPageInPageViewBlackList(String pages) {
+        return mPageViewBlackListByPages.contains(pages.hashCode());
+    }
+
+    /**
+     * 是否只采集当前页面
+     */
+    public boolean isThisPageInPageViewWhiteList(String pages) {
+        return mPageViewWhiteListByPages.contains(pages.hashCode());
+    }
+
+    /**
+     * 判断是否有点击上报白名单
+     */
+    public boolean hasAutoPageViewWhiteList() {
+        return !mPageViewWhiteListByPages.isEmpty();
+    }
+
+    // --------------全埋点-点击上报-------------
+    // 页面级黑白名单
+    private HashSet<Integer> mIgnoreByPages = new HashSet<>();
+    private HashSet<Integer> mAutoByPages = new HashSet<>();
+
+
+    // 控件类型级黑白名单
+    private HashSet<Integer> mIgnoreByViewTypes = new HashSet<>();
+    private HashSet<Integer> mAutoByByViewTypes = new HashSet<>();
+
+
+    // 控件类型级黑白名单
+    private HashSet<Integer> mIgnoreByView = new HashSet<>();
+    private HashSet<Integer> mAutoByView = new HashSet<>();
+
+    /**
+     * 设置页面级黑名单
+     */
+    public void setAutoClickBlackListByPages(Set<String> pages) {
+        mIgnoreByPages.clear();
+        for (String page : pages) {
+            if (TextUtils.isEmpty(page)) {
+                mIgnoreByPages.add(page.hashCode());
+            }
+        }
+    }
+
+    /**
+     * 判断页面是否在点击上报黑名单
+     */
+    public boolean isThisPageInAutoClickBlackList(String page) {
+        return TextUtils.isEmpty(page) && mIgnoreByPages.contains(page.hashCode());
+    }
+
+
+    /**
+     * 设置元素类型级黑名单
+     */
+    public void setAutoClickBlackListByElementTypes(Set<Class<?>> viewTypes) {
+        mIgnoreByViewTypes.clear();
+        for (Class<?> viewType : viewTypes) {
+            String viewTypeStr = viewType.getName();
+            if (TextUtils.isEmpty(viewTypeStr)) {
+                mIgnoreByViewTypes.add(viewTypeStr.hashCode());
+            }
+        }
+    }
+
+    /**
+     * 判断页面是否在点击上报黑名单
+     */
+    public boolean isThisElementTypeInAutoClickBlackList(Class<?> viewType) {
+        if (viewType != null) {
+            String name = viewType.getName();
+            return TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
+        }
+        return false;
+    }
+
+
+    /**
+     * 设置元素类型级黑名单
+     */
+    public void setAutoClickBlackListByElement(Object element) {
+        mIgnoreByView.add(element.hashCode());
+    }
+
+    /**
+     * 判断元素对象是否在点击上报黑名单
+     */
+    public boolean isThisElementInAutoClickBlackList(Object element) {
+        if (element != null) {
+            String name = element.getClass().getName();
+            return TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
+        }
+        return false;
+    }
+
+
+    /**
+     * 设置页面级白名单
+     */
+    public void setAutoClickWhiteListByPages(Set<String> pages) {
+        mAutoByPages.clear();
+        for (String page : pages) {
+            if (TextUtils.isEmpty(page)) {
+                mAutoByPages.add(page.hashCode());
+            }
+        }
+    }
+
+    /**
+     * 判断页面是否在点击上报白名单
+     */
+    public boolean isThisPageInAutoClickWhiteList(String page) {
+        return TextUtils.isEmpty(page) && mAutoByPages.contains(page.hashCode());
+    }
+
+    /**
+     * 设置元素类型级白名单
+     */
+    public void setAutoClickWhiteListByElementTypes(Set<Class<?>> viewTypes) {
+        mAutoByByViewTypes.clear();
+        for (Class<?> viewType : viewTypes) {
+            String viewTypeStr = viewType.getName();
+            if (TextUtils.isEmpty(viewTypeStr)) {
+                mAutoByByViewTypes.add(viewTypeStr.hashCode());
+            }
+        }
+    }
+
+    /**
+     * 判断元素类型是否在点击上报黑名单
+     */
+    public boolean isThisElementTypeInAutoClickWhiteList(Class<?> viewType) {
+        if (viewType != null) {
+            String name = viewType.getName();
+            return TextUtils.isEmpty(name) && mAutoByByViewTypes.contains(name.hashCode());
+        }
+        return false;
+    }
+
+    /**
+     * 设置元素类型级白名单
+     */
+    public void setAutoClickWhiteListByElement(Object element) {
+        mAutoByView.add(element.hashCode());
+    }
+
+    /**
+     * 判断元素对象是否在点击上报黑名单
+     */
+    public boolean isThisElementInAutoClickWhiteList(Object element) {
+        if (element != null) {
+            String name = element.getClass().getName();
+            return TextUtils.isEmpty(name) && mAutoByView.contains(name.hashCode());
+        }
+        return false;
+    }
+
+
+    /**
+     * 判断是否有点击上报白名单
+     */
+    public boolean hasAutoClickWhiteList() {
+        return !mAutoByView.isEmpty() || !mAutoByByViewTypes.isEmpty() || !mAutoByPages.isEmpty();
     }
 
 //    /**

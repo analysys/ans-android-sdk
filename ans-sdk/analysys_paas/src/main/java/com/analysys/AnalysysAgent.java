@@ -4,7 +4,10 @@ import android.content.Context;
 
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
+import com.analysys.utils.Constants;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +25,7 @@ public class AnalysysAgent {
      * @param config 初始化配置信息
      */
     public static void init(Context context, AnalysysConfig config) {
-        AgentProcess.getInstance().init(context,config);
+        AgentProcess.getInstance().init(context, config);
     }
 
     /**
@@ -31,7 +34,7 @@ public class AnalysysAgent {
      * @return 配置信息
      */
     public static AnalysysConfig getConfig() {
-       return AgentProcess.getInstance().getConfig();
+        return AgentProcess.getInstance().getConfig();
     }
 
 
@@ -57,7 +60,7 @@ public class AnalysysAgent {
      * 不采集页面热图
      * @param pages 忽略的页面集合
      */
-    public static void setHeatMapBlackListByPages(List<String> pages){
+    public static void setHeatMapBlackListByPages(List<String> pages) {
         AgentProcess.getInstance().setHeatMapBlackListByPages(pages);
     }
 
@@ -166,7 +169,7 @@ public class AnalysysAgent {
     }
 
     public static void alias(Context context, String aliasId) {
-        AgentProcess.getInstance(context).alias(aliasId);
+        AgentProcess.getInstance().alias(aliasId);
     }
 
     /**
@@ -424,37 +427,6 @@ public class AnalysysAgent {
     }
 
     /**
-     * 自动采集页面信息
-     *
-     * @param isAuto 默认为true
-     */
-    public static void setAutomaticCollection(Context context, boolean isAuto) {
-        AgentProcess.getInstance().automaticCollection(isAuto);
-    }
-
-    /**
-     * 获取自动采集页面信息开关状态
-     */
-    public static boolean getAutomaticCollection(Context context) {
-        return AgentProcess.getInstance().getAutomaticCollection();
-    }
-
-    /**
-     * 忽略部分页面自动采集
-     */
-    public static void setIgnoredAutomaticCollectionActivities(Context context,
-                                                               List<String> activitiesName) {
-        AgentProcess.getInstance().setIgnoredAutomaticCollection(activitiesName);
-    }
-
-    /**
-     * 获取忽略自动采集的页面
-     */
-    public static List<String> getIgnoredAutomaticCollection(Context context) {
-        return AgentProcess.getInstance().getIgnoredAutomaticCollection();
-    }
-
-    /**
      * 获取预置属性
      */
     public static Map<String, Object> getPresetProperties(Context context) {
@@ -543,6 +515,49 @@ public class AnalysysAgent {
     @Deprecated
     public static void setAutoHeatMap(boolean autoTrack) {
         AgentProcess.getInstance().getConfig().setAutoHeatMap(autoTrack);
+    }
+
+    /**
+     * 自动采集页面信息
+     * is old PLZ call {@link AnalysysConfig#setAutoTrackPageView(boolean)}
+     *
+     * @param isAuto 默认为true
+     */
+    @Deprecated
+    public static void setAutomaticCollection(Context context, boolean isAuto) {
+        AgentProcess.getInstance().getConfig().setAutoTrackPageView(isAuto);
+    }
+
+    /**
+     * 获取自动采集页面信息开关状态
+     * is old PLZ call {@link AnalysysConfig#isAutoTrackPageView()} ()}
+     */
+    @Deprecated
+    public static boolean getAutomaticCollection(Context context) {
+        return AgentProcess.getInstance().getConfig().isAutoTrackPageView();
+    }
+
+
+    private static List<String> IgnoredAcName = new ArrayList<>();
+
+    /**
+     * 忽略部分页面自动采集
+     */
+    @Deprecated
+    public static void setIgnoredAutomaticCollectionActivities(Context context, List<String> activitiesName) {
+        IgnoredAcName = activitiesName;
+        if (activitiesName != null) {
+            AgentProcess.getInstance().setPageViewBlackListByPages(new HashSet<>(activitiesName));
+        }
+    }
+
+    /**
+     * 获取忽略自动采集的页面
+     * return empty ,PLZ call
+     */
+    @Deprecated
+    public static List<String> getIgnoredAutomaticCollection(Context context) {
+        return IgnoredAcName;
     }
 }
 
