@@ -4,7 +4,7 @@ apply plugin: 'com.analysys.android.plugin'
 android {
     defaultConfig {
 
-        buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
+        buildConfigField("String", "Build_Type", "${Build_Type}")
         applicationId "com.analysys.demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
