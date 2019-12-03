@@ -22,6 +22,13 @@ public class AnsApplication extends Application {
     private static final String SOCKET_URL = "ws://arkpaastest.analysys.cn:9091";
     private static final String CONFIG_URL = "http://arkpaastest.analysys.cn:8089";
 
+    private static class Holder {
+        public static final AnsApplication instance = new AnsApplication();
+    }
+
+    public static AnsApplication getInstance() {
+        return Holder.instance;
+    }
 
     private boolean isDebug = true;
 

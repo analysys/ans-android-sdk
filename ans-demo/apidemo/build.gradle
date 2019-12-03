@@ -48,6 +48,9 @@ android {
         disable 'RestrictedApi'
     }
 
+    analysysConfig {
+        lambdaEnabled = true
+    }
 }
 
 dependencies {
