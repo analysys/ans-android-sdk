@@ -7,6 +7,9 @@ import android.webkit.WebView;
 import com.analysys.AnalysysAgent;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.ContextManager;
+import com.analysys.utils.CommonUtils;
+import com.analysys.utils.Constants;
+import com.analysys.utils.SharedUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -68,7 +71,26 @@ public class HybridBridge {
             if (array != null && array.length() > 0) {
                 String key = array.optString(0);
                 Object value = array.opt(1);
-                AnalysysAgent.registerSuperProperty(context, key, value);
+
+
+                try{
+                    String sharedProperty = SharedUtil.getString(
+                            context, Constants.SP_SUPER_PROPERTY, null);
+
+
+                    if (!CommonUtils.isEmpty(sharedProperty)) {
+                        JSONObject propertyInfo = new JSONObject(sharedProperty);
+                        array.put(sharedProperty);
+
+                    }
+                    AnalysysAgent.registerSuperProperty(context, key, value);
+                }catch (Exception e){
+
+                }
+
+
+
+
             }
         }
     }
@@ -80,6 +102,7 @@ public class HybridBridge {
                 JSONObject obj = array.optJSONObject(0);
                 if (obj != null && obj.length() > 0) {
                     Map<String, Object> map = convertToMap(obj);
+
                     AnalysysAgent.registerSuperProperties(context, map);
                 }
             }
