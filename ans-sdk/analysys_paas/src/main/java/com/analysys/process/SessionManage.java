@@ -8,8 +8,6 @@ import com.analysys.utils.Constants;
 import java.security.MessageDigest;
 import java.util.Random;
 
-import androidx.annotation.Nullable;
-
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
  * @Description: TODO

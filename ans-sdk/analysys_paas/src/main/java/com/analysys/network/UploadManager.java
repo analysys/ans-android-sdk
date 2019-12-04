@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
-import androidx.annotation.NonNull;
+
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -147,7 +147,7 @@ public class UploadManager {
         }
 
         @Override
-        public void handleMessage(@NonNull Message msg) {
+        public void handleMessage(Message msg) {
             try {
                 String url = CommonUtils.getUrl(mContext);
                 if (!CommonUtils.isEmpty(url)) {
