@@ -3,7 +3,7 @@ apply from: './gradleBuildExt/baseBuild.gradle'
 
 ext {
 
-    sdkVer = '4.3.7'
+    sdkVer = '4.3.7.2'
 
     gradle_base_sdk = { projectImp, version = sdkVer ->
 
