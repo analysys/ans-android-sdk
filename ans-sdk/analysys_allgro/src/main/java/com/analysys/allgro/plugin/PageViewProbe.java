@@ -11,6 +11,8 @@ import android.widget.Spinner;
 
 import com.analysys.AnalysysConfig;
 import com.analysys.allgro.AllegroUtils;
+import com.analysys.allgro.BuglyUtils;
+import com.analysys.allgro.BuildConfig;
 import com.analysys.allgro.R;
 import com.analysys.process.AgentProcess;
 import com.analysys.utils.AnalysysUtil;
@@ -50,7 +52,10 @@ class PageViewProbe extends ASMHookAdapter {
             if (rootView instanceof ViewGroup) {
                 traverseView(fragmentName, (ViewGroup) rootView);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
     }
 
@@ -82,7 +87,9 @@ class PageViewProbe extends ASMHookAdapter {
                 }
             }
         } catch (Exception e) {
-            //ignored
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
     }
 
@@ -159,7 +166,9 @@ class PageViewProbe extends ASMHookAdapter {
             Method getUserVisibleHintMethod = fragment.getClass().getMethod("getUserVisibleHint");
             return (boolean) getUserVisibleHintMethod.invoke(fragment);
         } catch (Exception e) {
-            //ignored
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
         return false;
     }
@@ -169,7 +178,9 @@ class PageViewProbe extends ASMHookAdapter {
             Method isHiddenMethod = fragment.getClass().getMethod("isHidden");
             return !((boolean) isHiddenMethod.invoke(fragment));
         } catch (Exception e) {
-            //ignored
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
         return true;
     }
@@ -180,7 +191,9 @@ class PageViewProbe extends ASMHookAdapter {
             Method isResumedMethod = fragment.getClass().getMethod("isResumed");
             return (boolean) isResumedMethod.invoke(fragment);
         } catch (Exception e) {
-            //ignored
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
         return false;
     }
@@ -195,19 +208,16 @@ class PageViewProbe extends ASMHookAdapter {
             Class<?> fragment = null;
             try {
                 fragment = Class.forName("android.app.Fragment");
-            } catch (Exception e) {
-                //ignored
+            } catch (Exception ignored) {
             }
             try {
                 supportFragmentClass = Class.forName("android.support.v4.app.Fragment");
-            } catch (Exception e) {
-                //ignored
+            } catch (Exception ignored) {
             }
 
             try {
                 androidXFragmentClass = Class.forName("androidx.fragment.app.Fragment");
-            } catch (Exception e) {
-                //ignored
+            } catch (Exception ignored) {
             }
 
             if (supportFragmentClass == null && androidXFragmentClass == null && fragment == null) {
@@ -220,7 +230,9 @@ class PageViewProbe extends ASMHookAdapter {
                 return false;
             }
         } catch (Exception e) {
-            //ignored
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
         return true;
     }
@@ -248,7 +260,10 @@ class PageViewProbe extends ASMHookAdapter {
             // 上报PV
             AgentProcess.getInstance().autoCollectPageView(pageInfo);
 
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
     }
 
@@ -274,7 +289,10 @@ class PageViewProbe extends ASMHookAdapter {
                     traverseView(fragmentName, (ViewGroup) child);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            if (BuildConfig.ENABLE_BUGLY) {
+                BuglyUtils.commitError(e);
+            }
         }
     }
 

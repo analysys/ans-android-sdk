@@ -1,1 +1,7 @@
 rootProject.ext.gradle_base_sdk this
+
+android {
+    defaultConfig {
+        buildConfigField("boolean", "ENABLE_BUGLY", true.toString())
+    }
+}
