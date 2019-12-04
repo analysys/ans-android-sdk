@@ -72,25 +72,21 @@ public class HybridBridge {
                 String key = array.optString(0);
                 Object value = array.opt(1);
 
-
                 try{
                     String sharedProperty = SharedUtil.getString(
                             context, Constants.SP_SUPER_PROPERTY, null);
 
-
                     if (!CommonUtils.isEmpty(sharedProperty)) {
                         JSONObject propertyInfo = new JSONObject(sharedProperty);
-                        array.put(sharedProperty);
-
+                        if (propertyInfo.has(key)) {
+                            return;
+                        }
                     }
-                    AnalysysAgent.registerSuperProperty(context, key, value);
                 }catch (Exception e){
 
                 }
 
-
-
-
+                AnalysysAgent.registerSuperProperty(context, key, value);
             }
         }
     }
@@ -99,7 +95,25 @@ public class HybridBridge {
     private void registerSuperProperties(Context context, JSONArray array) {
         if (context != null) {
             if (array != null && array.length() > 0) {
+
                 JSONObject obj = array.optJSONObject(0);
+                if (obj == null || obj.length() == 0) {
+                    return;
+                }
+
+                try{
+                    String sharedProperty = SharedUtil.getString(
+                            context, Constants.SP_SUPER_PROPERTY, null);
+
+                    if (!CommonUtils.isEmpty(sharedProperty)) {
+                        JSONObject propertyInfo = new JSONObject(sharedProperty);
+
+                        CommonUtils.mergeJson(propertyInfo,obj);
+                    }
+                }catch (Exception e){
+
+                }
+
                 if (obj != null && obj.length() > 0) {
                     Map<String, Object> map = convertToMap(obj);
 
