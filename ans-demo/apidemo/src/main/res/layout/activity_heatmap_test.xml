@@ -50,20 +50,6 @@
                 tools:ignore="ButtonStyle,HardcodedText" />
         </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <Button
-                android:id="@+id/addButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onClick"
-                android:text="首页和用户设置页进白名单"
-                tools:ignore="ButtonStyle,HardcodedText" />
-            
-        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
@@ -92,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="onClick"
-                android:text="清空黑白名单"
+                android:text="清空黑名单"
                 android:textAllCaps="false"
                 tools:ignore="HardcodedText" />
 

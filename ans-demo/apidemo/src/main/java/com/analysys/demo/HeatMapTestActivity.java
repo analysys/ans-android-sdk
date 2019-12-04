@@ -55,9 +55,6 @@ public class HeatMapTestActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             }, 2000);
-        } else if (id == R.id.addButton) {
-            // 设置热图白名单
-            AnalysysAgent.setHeatMapWhiteListByPages(mPages);
         } else if (id == R.id.ignoreButton) {
             // 设置热图黑名单
             AnalysysAgent.setHeatMapBlackListByPages(mPages);
