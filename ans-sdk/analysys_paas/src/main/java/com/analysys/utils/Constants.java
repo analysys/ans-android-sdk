@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Constants {
 
-    public static final String DEV_SDK_VERSION = "4.3.7";
+    public static final String DEV_SDK_VERSION = "4.3.7.2";
 
     public static final String PAGE_VIEW = "$pageview";
     public static final String STARTUP = "$startup";
