@@ -19,6 +19,7 @@ import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 import com.analysys.utils.InternalAgent;
 import com.analysys.utils.LogPrompt;
 import com.analysys.utils.NumberFormat;
@@ -67,6 +68,12 @@ public class AgentProcess {
      */
     public void init(final AnalysysConfig config) {
         final Context context = ContextManager.getContext();
+        CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
+            @Override
+            public void onAppCrash(Throwable e) {
+                CrashHandler.getInstance().reportException(context,e,CrashHandler.CrashType.crash_auto);
+            }
+        });
         ActivityLifecycleUtils.initLifecycle();
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
@@ -307,6 +314,8 @@ public class AgentProcess {
             }
         });
     }
+
+
 
     private void updateLastOperateTime(Context context) {
         // 判断 session 是否需要重置
