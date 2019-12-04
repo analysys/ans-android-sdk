@@ -34,7 +34,8 @@
       "$session_id",
       "$is_first_time",
       "$is_from_background",
-      "$is_time_calibrated"
+      "$is_time_calibrated",
+      "$start_source"
     ]
   },
   "$end": {

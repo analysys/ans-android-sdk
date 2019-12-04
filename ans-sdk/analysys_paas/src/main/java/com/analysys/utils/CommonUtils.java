@@ -21,6 +21,8 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import com.analysys.process.ContextManager;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -506,6 +508,22 @@ public class CommonUtils {
     }
 
     /**
+     * 带参数 static 反射
+     */
+    public static Object reflexStaticMethod(String classPath, String methodName, Class[] classes,
+                                     Object... objects) {
+        try {
+            Class<?> cl = Class.forName(classPath);
+            Method method = cl.getDeclaredMethod(methodName, classes);
+            //类中的成员变量为private,必须进行此操作
+            method.setAccessible(true);
+            return method.invoke(null, objects);
+        } catch (Throwable throwable) {
+        }
+        return null;
+    }
+
+    /**
      * 无参 反射
      */
     public static Object reflexUtils(String classPath, String methodName) {
@@ -630,15 +648,18 @@ public class CommonUtils {
      * 获取 id 信息
      */
     public static String getIdFile(Context context, String key) {
-        String filePath = context.getFilesDir().getPath() + Constants.FILE_NAME;
         try {
+            if (context == null || context.getFilesDir() == null) {
+                return null;
+            }
+            String filePath = context.getFilesDir().getPath() + Constants.FILE_NAME;
             String info = readFile(filePath);
             if (!TextUtils.isEmpty(info)) {
                 JSONObject job = new JSONObject(info);
                 return job.optString(key);
             }
         } catch (Throwable throwable) {
-            writeFile(filePath, null);
+//            writeFile(filePath, null);
         }
         return null;
     }
@@ -1271,5 +1292,21 @@ public class CommonUtils {
             return System.currentTimeMillis() + Constants.diffTime;
         }
         return System.currentTimeMillis();
+    }
+
+    /**
+     * 获取应用启动来源
+     */
+    public static String getLaunchSource() {
+        switch (Constants.sourceNum) {
+            case 1:
+                return "icon";
+            case 2:
+                return "msg";
+            case 3:
+                return "url";
+            default:
+                return "0";
+        }
     }
 }

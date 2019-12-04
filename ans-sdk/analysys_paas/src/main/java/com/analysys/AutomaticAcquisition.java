@@ -88,14 +88,14 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         if (Constants.autoHeatMap) {
             initHeatMap(new WeakReference<>(activity));
         }
-        if (context == null) {
-            context = activity.getApplicationContext();
-        }
     }
 
     @Override
     public void onActivityStarted(@NonNull final Activity activity) {
         ANSLog.e("");
+        if (context == null) {
+            context = activity.getApplicationContext();
+        }
         appStart(new WeakReference<>(activity));
     }
 

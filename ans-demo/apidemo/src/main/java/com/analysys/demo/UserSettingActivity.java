@@ -5,13 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.analysys.AnalysysAgent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -33,8 +33,8 @@ public class UserSettingActivity extends AppCompatActivity {
 
     public void onClick(View view) {
         int viewId = view.getId();
-        if (viewId == R.id.alias) {//一班同学升学时，调换班级到三班，
-            AnalysysAgent.alias(mContext, "sanban", "yiban");
+        if (viewId == R.id.alias) {//设置aliasId，
+            AnalysysAgent.alias(mContext, "s4af4a7g90af5ad");
         } else if (viewId == R.id.identify) {//淘宝店铺使用该功能时，只关注访客用户或店铺会员，不关注设备信息
             AnalysysAgent.identify(mContext, "identifyId");
             Log.i(tag, "不产生事件");
@@ -44,10 +44,6 @@ public class UserSettingActivity extends AppCompatActivity {
         } else if (viewId == R.id.getDistinctId) {
             String id = AnalysysAgent.getDistinctId(mContext);
             Log.i(tag, " Distinct id ：" + id);
-
-            // 设置不做自动采集
-            AnalysysAgent.setAutomaticCollection(mContext, false);
-            Log.i(tag, "不产生事件");
         } else if (viewId == R.id.automaticCollection) {// 设置不做自动采集
             AnalysysAgent.setAutomaticCollection(mContext, false);
             Log.i(tag, "不产生事件");

@@ -3,6 +3,7 @@ package com.analysys;
 import android.content.Context;
 
 import com.analysys.process.AgentProcess;
+import com.analysys.process.ContextManager;
 import com.analysys.push.PushListener;
 import com.analysys.utils.Constants;
 import com.analysys.utils.CrashHandler;
@@ -24,6 +25,7 @@ public class AnalysysAgent {
      * @param config 初始化配置信息
      */
     public static void init(Context context, AnalysysConfig config) {
+        ContextManager.setContext(context);
         AgentProcess.getInstance(context).init(config);
     }
 
@@ -109,8 +111,13 @@ public class AnalysysAgent {
      * @param originalId 可以是现在使用也可以是历史使用的id,不局限于本地正使用的distinctId,
      * 若为空则使用本地的distinctId,长度大于0且小于255字符
      */
+    @Deprecated
     public static void alias(Context context, String aliasId, String originalId) {
         AgentProcess.getInstance(context).alias(aliasId, originalId);
+    }
+
+    public static void alias(Context context, String aliasId) {
+        AgentProcess.getInstance(context).alias(aliasId);
     }
 
     /**
@@ -179,6 +186,18 @@ public class AnalysysAgent {
     public static void pageView(Context context, String pageName, Map<String, Object> pageInfo) {
         AgentProcess.getInstance(context).pageView(context, pageName, pageInfo);
     }
+
+    /**
+     * 应用启动来源，
+     * 参数为 1. icon启动 默认值为icon启动
+     * 参数为 2. msg 启动
+     * 参数为 3. deepLink启动
+     * 参数为 5. 其他方式启动
+     */
+    public static void launchSource(int source) {
+        Constants.sourceNum = source;
+    }
+
 
     /**
      * 注册单个通用属性

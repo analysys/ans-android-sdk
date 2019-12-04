@@ -176,6 +176,11 @@
       "valueType": 0,
       "value": "com.analysys.utils.InternalAgent.isCalibrated",
       "required": true
+    },
+    "$start_source": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getLaunchSource",
+      "required": true
     }
   }
 }

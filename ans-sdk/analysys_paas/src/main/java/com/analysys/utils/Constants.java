@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Constants {
 
-    public static final String DEV_SDK_VERSION = "4.3.7";
+    public static final String DEV_SDK_VERSION = "4.3.7.2";
 
     public static final String PAGE_VIEW = "$pageview";
     public static final String STARTUP = "$startup";
@@ -43,8 +43,6 @@ public class Constants {
     public static final String PAGE_URL = "$url";
     public static final String PAGE_TITLE = "$title";
     public static final String PAGE_REFERRER = "$referrer";
-
-    public static final String EVENT_PAGE_NAME = "$pagename";
 
     public static final String TOUCH_PAGE_WIDTH = "$page_width";
     public static final String TOUCH_PAGE_HEIGHT = "$page_height";
@@ -268,5 +266,7 @@ public class Constants {
     public static long diffTime = 0;
     // 网络时间获取成功
     public static boolean isCalibration = false;
+    // 应用启动来源
+    public static int sourceNum = 1;
 }
 
