@@ -1,6 +1,7 @@
 package com.analysys;
 
 import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -134,6 +135,15 @@ public class AnalysysConfig {
     public long getMaxDiffTimeInterval() {
         return diffTime;
     }
+
+    /**
+     * 是否允许配置crash采集
+     * @param crashEnable
+     */
+    public void setEnableException(boolean crashEnable) {
+        CrashHandler.getInstance().setEnableCatch(crashEnable);
+    }
+
 
     /**
      * 热图 总开关

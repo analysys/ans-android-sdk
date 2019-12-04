@@ -70,6 +70,8 @@ public class AnsApplication extends Application {
         config.setMaxDiffTimeInterval(5 * 60);
         // 开启渠道归因
         config.setAutoInstallation(true);
+
+        config.setEnableException(true);
         // 开启热图数据采集
         config.setAutoHeatMap(false);
         // 初始化

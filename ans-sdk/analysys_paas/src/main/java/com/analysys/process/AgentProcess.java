@@ -20,6 +20,7 @@ import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 import com.analysys.utils.InternalAgent;
 import com.analysys.utils.LogPrompt;
 import com.analysys.utils.NumberFormat;
@@ -67,7 +68,13 @@ public class AgentProcess {
     /**
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
-    public void init(Context context, AnalysysConfig config) {
+    public void init(final Context context, AnalysysConfig config) {
+        CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
+            @Override
+            public void onAppCrash(Throwable e) {
+                CrashHandler.getInstance().reportException(context,e,CrashHandler.CrashType.crash_auto);
+            }
+        });
         if (config != null) {
             mConfig = config;
         }

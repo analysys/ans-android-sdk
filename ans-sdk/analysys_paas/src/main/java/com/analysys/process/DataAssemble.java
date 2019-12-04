@@ -117,7 +117,9 @@ public class DataAssemble {
                 while (keys.hasNext()) {
                     key = keys.next();
                     if (key != null) {
-                        xContextMap.put(key, superProperty.opt(key));
+                        if(!xContextMap.containsKey(key)){
+                            xContextMap.put(key, superProperty.opt(key));
+                        }
                     }
                 }
             }

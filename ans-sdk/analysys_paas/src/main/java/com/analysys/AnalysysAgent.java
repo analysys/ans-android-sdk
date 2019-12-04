@@ -5,6 +5,7 @@ import android.content.Context;
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
 import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -558,6 +559,15 @@ public class AnalysysAgent {
     @Deprecated
     public static List<String> getIgnoredAutomaticCollection(Context context) {
         return IgnoredAcName;
+    }
+
+    /**
+     * 上报异常
+     * @param context
+     * @param throwable
+     */
+    public static void reportException(Context context, Throwable throwable){
+        CrashHandler.getInstance().reportException(context,throwable,CrashHandler.CrashType.crash_report);
     }
 }
 
