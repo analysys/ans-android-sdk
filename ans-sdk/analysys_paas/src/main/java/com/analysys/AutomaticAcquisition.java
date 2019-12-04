@@ -33,8 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
  * @Description: 自动采集页面信息
@@ -63,7 +61,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         mWorkThread.start();
         mHandler = new Handler(mWorkThread.getLooper()) {
             @Override
-            public void handleMessage(@NonNull Message msg) {
+            public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case TRACK_APP_END:
                         // 上报数据
@@ -84,14 +82,14 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityCreated(@NonNull final Activity activity, Bundle savedInstanceState) {
+    public void onActivityCreated(final Activity activity, Bundle savedInstanceState) {
         if (Constants.autoHeatMap) {
             initHeatMap(new WeakReference<>(activity));
         }
     }
 
     @Override
-    public void onActivityStarted(@NonNull final Activity activity) {
+    public void onActivityStarted(final Activity activity) {
         ANSLog.e("");
         if (context == null) {
             context = activity.getApplicationContext();
@@ -100,14 +98,14 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityResumed(@NonNull Activity activity) {
+    public void onActivityResumed(Activity activity) {
         if (Constants.autoHeatMap) {
             checkLayoutListener(new WeakReference<>(activity), true);
         }
     }
 
     @Override
-    public void onActivityPaused(@NonNull final Activity activity) {
+    public void onActivityPaused(final Activity activity) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -120,16 +118,16 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityStopped(@NonNull Activity activity) {
+    public void onActivityStopped(Activity activity) {
         activityStop(new WeakReference<>(activity));
     }
 
     @Override
-    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
     }
 
     @Override
-    public void onActivityDestroyed(@NonNull Activity activity) {
+    public void onActivityDestroyed(Activity activity) {
     }
 
     private void initHeatMap(final WeakReference<Activity> wa) {
