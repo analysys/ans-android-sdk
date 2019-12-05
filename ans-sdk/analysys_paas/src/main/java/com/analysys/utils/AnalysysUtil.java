@@ -8,8 +8,6 @@ import android.content.Context;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 
-import androidx.annotation.Nullable;
-
 /**
  * Description:静态工具箱门面类
  * Author: fengzeyuan
@@ -65,7 +63,7 @@ public class AnalysysUtil {
         mActivity = new WeakReference<>(activity);
     }
 
-    public static synchronized @Nullable Activity getCurActivity() {
+    public static synchronized Activity getCurActivity() {
         if (mActivity != null) {
             return mActivity.get();
         }
