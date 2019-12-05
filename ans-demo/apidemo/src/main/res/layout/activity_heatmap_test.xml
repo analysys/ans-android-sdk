@@ -27,63 +27,18 @@
         android:padding="1dp"
         android:stretchColumns="2">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <Button
-                android:id="@+id/profileButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onClick"
-                android:text="用户属性测试"
-                tools:ignore="ButtonStyle,HardcodedText" />
-
-            <Button
-                android:id="@+id/propertyButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onClick"
-                android:text="通用属性测试"
-                tools:ignore="ButtonStyle,HardcodedText" />
-        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/eventButton"
+                android:id="@+id/ignoreButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="onClick"
-                android:text="事件测试"
-                tools:ignore="ButtonStyle,HardcodedText" />
-
-            <Button
-                android:id="@+id/userButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onClick"
-                android:text="用户设置"
-                tools:ignore="ButtonStyle,HardcodedText" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <Button
-                android:id="@+id/webViewButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onClick"
-                android:text="WebView测试"
+                android:text="首页和用户设置页进近黑名单"
                 android:textAllCaps="false"
                 tools:ignore="HardcodedText" />
 
@@ -95,12 +50,12 @@
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/visualDemoButton"
+                android:id="@+id/clearButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="onClick"
-                android:text="可视化demo入口"
+                android:text="清空黑名单"
                 android:textAllCaps="false"
                 tools:ignore="HardcodedText" />
 
@@ -112,12 +67,12 @@
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/TestHeatMapButton"
+                android:id="@+id/SingleProcessButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="onClick"
-                android:text="热图测试入口"
+                android:text="独立进程测试"
                 android:textAllCaps="false"
                 tools:ignore="HardcodedText" />
 

@@ -4,14 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.analysys.process.AgentProcess;
-import com.analysys.process.ContextManager;
-import com.analysys.process.DataAssemble;
 
-import org.json.JSONObject;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 
 /**
@@ -126,7 +119,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             crashMap.put(Constants.CRASH_DATA, Log.getStackTraceString(ex));
             crashMap.put(Constants.CRASH_TYPE, type);
 
-            AgentProcess.getInstance(context).track(Constants.APP_CRASH_DATA, crashMap);
+            AgentProcess.getInstance().track(Constants.APP_CRASH_DATA, crashMap);
 
         }
     }
