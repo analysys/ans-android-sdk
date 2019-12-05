@@ -38,8 +38,6 @@ ext {
         }
 
         projectImp.dependencies {
-            // 三方依赖
-            implementation 'androidx.appcompat:appcompat:1.0.2'
 
             if (projectImp.name != 'analysys_paas') {
                 implementation project(':ans-sdk:analysys_paas')
