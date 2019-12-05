@@ -1,9 +1,5 @@
 package com.analysys.process;
 
-import android.content.Context;
-
-import androidx.test.InstrumentationRegistry;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,16 +11,15 @@ import org.junit.Test;
  * @Author: Wang-X-C
  */
 public class SystemIdsTest {
-    Context mContext = InstrumentationRegistry.getContext();
 
     @Test
     public void getInstance() {
-        Assert.assertNotNull(SystemIds.getInstance(mContext));
+        Assert.assertNotNull(SystemIds.getInstance());
     }
 
     @Test
     public void parserId() {
-        SystemIds.getInstance(mContext).parserId();
+        SystemIds.getInstance().parserId();
     }
 
     @Test
@@ -44,6 +39,6 @@ public class SystemIdsTest {
 
     @Test
     public void isRegister() {
-        Assert.assertFalse(SystemIds.getInstance(mContext).isRegister());
+        Assert.assertFalse(SystemIds.getInstance().isRegister());
     }
 }

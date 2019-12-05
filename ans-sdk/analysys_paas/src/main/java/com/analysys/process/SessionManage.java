@@ -84,7 +84,7 @@ public class SessionManage {
             }
         }
         // 其次判断是不是同一天，要不要更新session
-        if (!CommonUtils.getDay(mContext).equals(startDay)) {
+        if (!CommonUtils.getDay().equals(startDay)) {
             setStartDay();
             return true;
         }
@@ -95,7 +95,7 @@ public class SessionManage {
      * 存储页面的开始日期
      */
     private void setStartDay() {
-        startDay = CommonUtils.getDay(mContext);
+        startDay = CommonUtils.getDay();
         CommonUtils.setIdFile(mContext, Constants.SP_START_DAY, startDay);
     }
 

@@ -20,6 +20,9 @@ public class AnalysysConfig {
     private boolean calibration = Constants.isTimeCheck;
     private long diffTime = Constants.ignoreDiffTime;
 
+    private boolean autoHeatMap = false;
+
+
     /**
      * 获取 App key
      */
@@ -138,5 +141,13 @@ public class AnalysysConfig {
         CrashHandler.getInstance().setEnableCatch(crashEnable);
     }
 
+
+    public void setAutoHeatMap(boolean autoTrack) {
+        autoHeatMap = autoTrack;
+    }
+
+    public boolean isAutoHeatMap() {
+        return autoHeatMap;
+    }
 }
 

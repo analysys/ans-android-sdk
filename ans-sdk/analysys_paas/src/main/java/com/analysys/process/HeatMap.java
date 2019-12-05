@@ -29,6 +29,8 @@ import org.json.JSONException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,24 +42,23 @@ import java.util.Map;
  */
 public class HeatMap {
 
-    public Map<String, Object> pageInfo = null, clickInfo = null;
+    public Map<String, Object> pageInfo = null;
+    private Map<String, Object> clickInfo = null;
     private float rx = 0, ry = 0, x = 0, y = 0;
-    private Context mContext = null;
 
-    public static HeatMap getInstance(Context context) {
-        if (Holder.INSTANCE.mContext == null && context != null) {
-            Holder.INSTANCE.mContext = context.getApplicationContext();
-        }
+    public static HeatMap getInstance() {
         return HeatMap.Holder.INSTANCE;
+    }
+
+    private HeatMap() {
+        SystemIds.getInstance().parserId();
     }
 
     /**
      * 初始化页面宽高分辨率等信息
-     *
-     * @param activity
      */
-    public Map<String, Object> initPageInfo(Activity activity)throws Exception {
-        pageInfo = new HashMap<String, Object>();
+    public void initPageInfo(Activity activity) {
+        pageInfo = new HashMap<>();
         if (activity != null) {
             pageInfo.put(Constants.PAGE_URL, activity.getClass().getName());
             DisplayMetrics metrics = new DisplayMetrics();
@@ -76,12 +77,11 @@ public class HeatMap {
             }
             pageInfo.put(Constants.TOUCH_SCREEN_SCALE, scale);
         }
-        return pageInfo;
     }
 
     /***
      * 递归调用解析view
-     * @param decorView
+     * @param decorView 根节点view
      */
     public void hookDecorViewClick(View decorView) throws Exception {
         if (decorView instanceof ViewGroup) {
@@ -133,7 +133,7 @@ public class HeatMap {
 
     }
 
-    private void setCoordinate(final View v, final MotionEvent event) throws Exception {
+    private void setCoordinate(final View v, final MotionEvent event) {
         if (isTouch(event)) {
             x = event.getX();
             y = event.getY();
@@ -143,7 +143,7 @@ public class HeatMap {
                 public void run() {
                     try {
                         if (clickInfo == null) {
-                            clickInfo = new HashMap<String, Object>();
+                            clickInfo = new HashMap<>();
                         } else {
                             clickInfo.clear();
                         }
@@ -152,9 +152,9 @@ public class HeatMap {
                         if (isAddPath) {
                             setClickContent(v);
                             clickInfo.putAll(pageInfo);
-                            AgentProcess.getInstance(mContext).pageTouchInfo(clickInfo);
+                            AgentProcess.getInstance().pageTouchInfo(clickInfo);
                         }
-                    } catch (Throwable throwable) {
+                    } catch (Throwable ignored) {
                     }
                 }
             });
@@ -206,7 +206,7 @@ public class HeatMap {
     }
 
     private boolean setPath(View v) throws JSONException {
-        String path = PathGeneral.getInstance().general(mContext, v);
+        String path = PathGeneral.getInstance().general(v);
         if (!TextUtils.isEmpty(path) && !CommonUtils.isEmpty(new JSONArray(path))) {
             clickInfo.put(Constants.TOUCH_ELEMENT_PATH, path.replaceAll(" ", ""));
             return true;
@@ -218,13 +218,13 @@ public class HeatMap {
         Class<?> compatClass = null;
         try {
             compatClass = Class.forName("android.support.v7.widget.SwitchCompat");
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
 
         }
         if (compatClass == null) {
             try {
                 compatClass = Class.forName("androidx.appcompat.widget.SwitchCompat");
-            } catch (Throwable t) {
+            } catch (Throwable ignored) {
 
             }
         }
@@ -281,7 +281,7 @@ public class HeatMap {
     private class HookTouchListener implements View.OnTouchListener {
         private View.OnTouchListener onTouchListener;
 
-        public HookTouchListener(View.OnTouchListener onTouchListener) {
+        private HookTouchListener(View.OnTouchListener onTouchListener) {
             this.onTouchListener = onTouchListener;
         }
 
@@ -290,8 +290,11 @@ public class HeatMap {
 //            Log.v("sanbo", Log.getStackTraceString(new Exception(v.hashCode() + "")));
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 try {
-                    setCoordinate(v, event);
-                } catch (Throwable throwable) {
+                    // 黑白名单判断
+                    if (isTackHeatMap(v)) {
+                        setCoordinate(v, event);
+                    }
+                } catch (Throwable ignored) {
                 }
             }
 //            boolean x1 = patch(v, event);
@@ -310,7 +313,7 @@ public class HeatMap {
     /**
      * 根据堆栈查看是否循环递归
      *
-     * @param ste
+     * @param ste 方法调用栈
      * @return true 递归
      */
     private boolean isLoop(StackTraceElement[] ste) {
@@ -318,91 +321,89 @@ public class HeatMap {
             String methodPath = ste[2].getClassName() + "." + ste[2].getMethodName();
             String methodPath2 = ste[3].getClassName() + "." + ste[3].getMethodName();
 //            Log.i("sanbo", methodPath + "<----->" + methodPath2);
-            if (TextUtils.equals(methodPath, methodPath2)) {
-                return true;
-            }
+            return TextUtils.equals(methodPath, methodPath2);
         }
         return false;
     }
 
-    //        private Boolean patch(View v, MotionEvent event) {
-//            // 获取是否递归调用
-//            boolean isLoop = isLoop(Thread.currentThread().getStackTrace());
-//            Log.i("sanbo", v.hashCode() + "------[ " + getAction(event) + " ] isLoop:" + isLoop
-//            + "----onTouchListener： " + onTouchListener);
-//            if (isLoop) {
-//                // 处理递归调用的情况.
-//                boolean isTouchProcessed = false;
-//                // 不管是否递归，都需要处理回调函数。不然影响功能
-//                if (onTouchListener != null) {
-//                    isTouchProcessed = onTouchListener.onTouch(v, event);
-//                }
-//                //如果有点击回调函数，则不拦截，如果没有回调函数，则拦截。
-//                boolean hasClickCallback = hasClickCallback(v);
-//                Log.w("sanbo", v.hashCode() + "------[ " + getAction(event) + " ]  onTouch
-//                结果===>" + isTouchProcessed + "-------callback: " + hasClickCallback);
-//                if (hasClickCallback) {
-//                    return false;
-//                } else {
-//                    return true;
-//                }
-//            } else {
-//                //不递归的情况,回调
-//                if (onTouchListener != null) {
-//                    return onTouchListener.onTouch(v, event);
-//                }
-//            }
-//            return null;
-//        }
 
-//    private void printLog(View view, Object touchListenerObj) {
-//        String nameForId = SystemIds.getInstance(view.getContext()).nameForId(view.getId());
-//        if ("onTouch1".equals(nameForId)) {
-//            Log.d("sanbo", String.format("nameForId=%s,touchListenerObj instanceof
-//            HookTouchListener:%s", nameForId, (touchListenerObj instanceof HookTouchListener)));
-//        }
-//    }
+    // --------------------- 黑白名单 ---------------------------------
 
-    //    private String getAction(MotionEvent event) {
-//
-//        int action = event.getAction();
-//        String type;
-//        switch (action) {
-//            case MotionEvent.ACTION_DOWN:
-//                type = "DOWN";
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                type = "MOVE";
-//                break;
-//            case MotionEvent.ACTION_UP:
-//                type = "UP";
-//                break;
-//
-//            default:
-//                type = String.valueOf(action);
-//                break;
-//        }
-//        return type;
-//    }
+    // 黑白名单
+    private HashSet<String> mIgnoreByPages = new HashSet<>();
+    private HashSet<String> mAutoByPages = new HashSet<>();
 
-//    private boolean hasClickCallback(View v) {
-//
-//        try {
-//            Class viewClass = Class.forName("android.view.View");
-//            Method getListenerInfoMethod = viewClass.getDeclaredMethod("getListenerInfo");
-//            if (!getListenerInfoMethod.isAccessible()) {
-//                getListenerInfoMethod.setAccessible(true);
-//            }
-//            Class mListenerInfoClass = Class.forName("android.view.View$ListenerInfo");
-//            Field mOnClickListener = mListenerInfoClass.getDeclaredField("mOnClickListener");
-//            Field mOnLongClickListener = mListenerInfoClass.getDeclaredField
-//            ("mOnLongClickListener");
-//            if (mOnClickListener != null || mOnLongClickListener != null) {
-//                return true;
-//            }
-//        } catch (Throwable e) {
-//        }
-//        return false;
-//    }
+    /**
+     * 热图黑名单
+     */
+    void setHeatMapBlackListByPages(List<String> pages) {
+        mIgnoreByPages.clear();
+        if (pages != null) {
+            mIgnoreByPages.addAll(pages);
+        }
+    }
+
+    /**
+     * 热图白名单
+     */
+    void setHeatMapWhiteListByPages(List<String> pages) {
+        mAutoByPages.clear();
+        if (pages != null) {
+            mAutoByPages.addAll(pages);
+        }
+    }
+
+    /**
+     * 判断是否上报热图信息
+     */
+    private boolean isTackHeatMap(View v) {
+        if (isInIgnoreList(v)) {
+            // 命中黑名单
+            return false;
+        } else if (hasAutoList()) {
+            // 存在白名单
+            return isInAutoList(v); // 命中白名单
+        }
+        return true;
+    }
+
+    /**
+     * 判断是否存在黑名单
+     *
+     * @return 是否存在黑名单
+     */
+    private boolean hasAutoList() {
+        return !mAutoByPages.isEmpty();
+    }
+
+    /**
+     * 判断是否命中黑名单
+     *
+     * @return 是否命中白名单
+     */
+    private boolean isInIgnoreList(View v) {
+        Context context = v.getContext();
+        if (context instanceof Activity) {
+            String pageName = context.getClass().getName();
+            return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否命中白名单
+     *
+     * @return 是否命中白名单
+     */
+    private boolean isInAutoList(View v) {
+        Context context = v.getContext();
+        if (context instanceof Activity) {
+            String pageName = context.getClass().getName();
+            return !TextUtils.isEmpty(pageName) && mAutoByPages.contains(pageName);
+        }
+        return false;
+    }
+
+    // --------------------- 黑白名单 ---------------------------------
 
 }

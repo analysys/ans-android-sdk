@@ -21,8 +21,6 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-import com.analysys.process.ContextManager;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,7 +83,7 @@ public class CommonUtils {
             if (!TextUtils.isEmpty(type)) {
                 return appInfo.metaData.getString(type);
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -100,7 +98,7 @@ public class CommonUtils {
             if (!TextUtils.isEmpty(type)) {
                 return appInfo.metaData.getBoolean(type);
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return true;
     }
@@ -108,11 +106,11 @@ public class CommonUtils {
     /**
      * 获取当前时间,格式 yyyy-MM-dd hh:mm:ss.SSS
      */
-    public static String getTime(Context context) {
+    public static String getTime() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        Date date = new Date(getCalibrationTimeMillis(context));
+        Date date = new Date(getCalibrationTimeMillis(AnalysysUtil.getContext()));
         return simpleDateFormat.format(date);
     }
 
@@ -242,7 +240,7 @@ public class CommonUtils {
                     Constants.PLATFORM + "|" + appId + "|" + sdkVersion + "|" + policyVersion +
                             "|" + appVersion;
             return new String(Base64.encode(spv.getBytes(), Base64.DEFAULT));
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -275,7 +273,7 @@ public class CommonUtils {
         String firstTime = SharedUtil.getString(context,
                 Constants.SP_FIRST_START_TIME, Constants.EMPTY);
         if (isEmpty(firstTime)) {
-            firstTime = getTime(context);
+            firstTime = getTime();
             SharedUtil.setString(context, Constants.SP_FIRST_START_TIME, firstTime);
         }
         return firstTime;
@@ -284,7 +282,7 @@ public class CommonUtils {
     /**
      * 获取当前日期,格式 yyyy/MM/dd
      */
-    public static String getDay(Context context) {
+    public static String getDay() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
@@ -328,7 +326,7 @@ public class CommonUtils {
             } else {
                 return false;
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return true;
     }
@@ -404,7 +402,7 @@ public class CommonUtils {
                 Method method = clazz.getMethod("checkSelfPermission", String.class);
                 int rest = (Integer) method.invoke(context, permission);
                 result = rest == PackageManager.PERMISSION_GRANTED;
-            } catch (Throwable throwable) {
+            } catch (Exception throwable) {
                 result = false;
             }
         } else {
@@ -423,7 +421,7 @@ public class CommonUtils {
     public static String getAppKey(Context context) {
         try {
             return SharedUtil.getString(context, Constants.SP_APP_KEY, null);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -480,12 +478,9 @@ public class CommonUtils {
                 sb.append(line);
             }
             reader.close();
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         } finally {
-            try {
-                is.close();
-            } catch (Throwable throwable) {
-            }
+            CloseUtils.closeItQuietly(is);
         }
         return String.valueOf(sb);
     }
@@ -502,7 +497,7 @@ public class CommonUtils {
             method.setAccessible(true);
             Object object = cl.newInstance();
             return method.invoke(object, objects);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -534,7 +529,7 @@ public class CommonUtils {
             method.setAccessible(true);
             Object object = cl.newInstance();
             return method.invoke(object);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -568,7 +563,7 @@ public class CommonUtils {
             } else {
                 json.put(key, value);
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -600,7 +595,7 @@ public class CommonUtils {
                 byte[] bytes = new byte[size];
                 inputStream.read(bytes);
                 return new String(bytes);
-            } catch (Throwable throwable) {
+            } catch (Throwable ignored) {
             } finally {
                 CloseUtils.closeItQuietly(inputStream);
             }
@@ -639,7 +634,7 @@ public class CommonUtils {
                 }
                 writeFile(filePath, String.valueOf(job));
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
 
         }
     }
@@ -670,7 +665,7 @@ public class CommonUtils {
     public static void writeCount(String path, String content) {
         try {
             writeFile(path + Constants.COUNT_FILE_NAME, content);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -720,20 +715,10 @@ public class CommonUtils {
                     fileLock.release();
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         } finally {
-            if (randomAccessFile != null) {
-                try {
-                    randomAccessFile.close();
-                } catch (Throwable throwable) {
-                }
-            }
-            if (fileChannel != null) {
-                try {
-                    fileChannel.close();
-                } catch (Throwable throwable) {
-                }
-            }
+            CloseUtils.closeItQuietly(randomAccessFile);
+            CloseUtils.closeItQuietly(fileChannel);
         }
     }
 
@@ -762,20 +747,10 @@ public class CommonUtils {
                     return new String(buf, "utf-8");
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         } finally {
-            if (fileChannel != null) {
-                try {
-                    fileChannel.close();
-                } catch (Throwable throwable) {
-                }
-            }
-            if (randomAccessFile != null) {
-                try {
-                    randomAccessFile.close();
-                } catch (Throwable throwable) {
-                }
-            }
+            CloseUtils.closeItQuietly(fileChannel);
+            CloseUtils.closeItQuietly(randomAccessFile);
         }
         return null;
     }
@@ -811,7 +786,7 @@ public class CommonUtils {
                     SharedUtil.setString(context, Constants.SP_CHANNEL, channel);
                 }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return channel;
     }
@@ -886,14 +861,16 @@ public class CommonUtils {
         if (checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
             TelephonyManager mTelephonyMgr = (TelephonyManager)
                     context.getSystemService(Context.TELEPHONY_SERVICE);
-            String imsi = mTelephonyMgr.getSubscriberId();
-            if (!isEmpty(imsi)) {
-                if (imsi.startsWith("46000") || imsi.startsWith("46002")) {
-                    return "中国移动";
-                } else if (imsi.startsWith("46001")) {
-                    return "中国联通";
-                } else if (imsi.startsWith("46003")) {
-                    return "中国电信";
+            if (mTelephonyMgr != null) {
+                String imsi = mTelephonyMgr.getSubscriberId();
+                if (!isEmpty(imsi)) {
+                    if (imsi.startsWith("46000") || imsi.startsWith("46002")) {
+                        return "中国移动";
+                    } else if (imsi.startsWith("46001")) {
+                        return "中国联通";
+                    } else if (imsi.startsWith("46003")) {
+                        return "中国电信";
+                    }
                 }
             }
         }
@@ -904,7 +881,7 @@ public class CommonUtils {
      * 获取屏幕宽度
      */
     public static Object getScreenWidth(Context context) {
-        int width;
+        int width = -1;
         if (context instanceof Activity) {
             Activity activity = (Activity) context;
             DisplayMetrics metrics = new DisplayMetrics();
@@ -912,14 +889,16 @@ public class CommonUtils {
             width = metrics.widthPixels;
         } else {
             WindowManager wm = (WindowManager) (context.getSystemService(Context.WINDOW_SERVICE));
-            DisplayMetrics dm = new DisplayMetrics();
-            wm.getDefaultDisplay().getMetrics(dm);
+            if (wm != null) {
+                DisplayMetrics dm = new DisplayMetrics();
+                wm.getDefaultDisplay().getMetrics(dm);
+                width = dm.widthPixels;
+            }
+        }
+        if (width == -1) {
+            DisplayMetrics dm = context.getResources().getDisplayMetrics();
             width = dm.widthPixels;
         }
-//        if (width == -1) {
-//            DisplayMetrics dm = context.getResources().getDisplayMetrics();
-//            width = dm.widthPixels;
-//        }
         return width;
     }
 
@@ -928,7 +907,7 @@ public class CommonUtils {
      * 如果context是Activity获取的是物理的屏幕尺寸 如果不是获取的是Activity的尺寸
      */
     public static Object getScreenHeight(Context context) {
-        int height;
+        int height = -1;
         if (context instanceof Activity) {
             Activity activity = (Activity) context;
             DisplayMetrics metrics = new DisplayMetrics();
@@ -937,13 +916,15 @@ public class CommonUtils {
         } else {
             WindowManager wm = (WindowManager) (context.getSystemService(Context.WINDOW_SERVICE));
             DisplayMetrics dm = new DisplayMetrics();
-            wm.getDefaultDisplay().getMetrics(dm);
+            if (wm != null) {
+                wm.getDefaultDisplay().getMetrics(dm);
+                height = dm.heightPixels;
+            }
+        }
+        if (height == -1) {
+            DisplayMetrics dm = context.getResources().getDisplayMetrics();
             height = dm.heightPixels;
         }
-//        if (height == -1) {
-//            DisplayMetrics dm = context.getResources().getDisplayMetrics();
-//            height = dm.heightPixels;
-//        }
         return height;
     }
 
@@ -951,7 +932,7 @@ public class CommonUtils {
      * 是否首日访问
      */
     public static Object isFirstDay(Context context) {
-        String nowTime = getDay(context);
+        String nowTime = getDay();
         String firstDay = SharedUtil.getString(context, Constants.DEV_IS_FIRST_DAY, null);
         if (isEmpty(firstDay)) {
             SharedUtil.setString(context, Constants.DEV_IS_FIRST_DAY, nowTime);
@@ -992,9 +973,11 @@ public class CommonUtils {
             if (checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
                 TelephonyManager telephonyMgr =
                         (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-                return telephonyMgr.getDeviceId();
+                if (telephonyMgr != null) {
+                    return telephonyMgr.getDeviceId();
+                }
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return Constants.EMPTY;
     }
@@ -1011,7 +994,7 @@ public class CommonUtils {
             } else {
                 return getMacByJavaAPI();
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return Constants.EMPTY;
     }
@@ -1125,7 +1108,7 @@ public class CommonUtils {
                             && !isEmpty(new JSONObject(baseData))) {
                         return baseData;
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignored) {
                 }
                 // 当前版本解密
                 int length = data.length();
@@ -1135,7 +1118,7 @@ public class CommonUtils {
                 String dd = String.valueOf(new StringBuffer(subB + subA).reverse());
                 return new String(Base64.decode(dd, Base64.NO_WRAP));
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -1151,7 +1134,7 @@ public class CommonUtils {
             if (app != null) {
                 return (Application) app;
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -1239,7 +1222,7 @@ public class CommonUtils {
                     }
             }, null);
             return sslContext.getSocketFactory();
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -1273,7 +1256,7 @@ public class CommonUtils {
                 sslContext.init(null, trustManagers, null);
                 return sslContext.getSocketFactory();
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
