@@ -142,7 +142,7 @@ public class ActivityLifecycleUtils {
     public static void initLifecycle() {
         sInited = true;
         Context context = AnalysysUtil.getContext();
-        if(context instanceof Application){
+        if (context instanceof Application) {
             ((Application) context).registerActivityLifecycleCallbacks(sCalback);
         }
     }

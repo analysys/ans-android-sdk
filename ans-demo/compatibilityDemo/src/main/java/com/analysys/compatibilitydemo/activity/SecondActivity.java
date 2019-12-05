@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.analysys.AnalysysAgent;
 import com.analysys.compatibilitydemo.R;
 
 
@@ -20,15 +21,15 @@ public class SecondActivity extends AppCompatActivity {
         setContentView(R.layout.activity_second);
 
         textView = (TextView) findViewById(R.id.textView);
-        try {
-            Intent intent = getIntent();
-            Uri uri = intent.getData();
-            String host = uri.getHost();
-            String path = uri.getPath();
-            String key = uri.getQuery();
-            textView.setText("host:" + host + ",path:" + path + ",key:" + key);
-        } catch (Exception e) {
-
+        Intent intent = getIntent();
+        Uri uri = intent.getData();
+        String host = uri.getHost();
+        String path = uri.getPath();
+        String key = uri.getQuery();
+        textView.setText("host:" + host + ",path:" + path + ",key:" + key);
+        if (uri != null) {
+            // 判断如果是deepLink启动，设置启动来源为 3
+            AnalysysAgent.launchSource(3);
         }
     }
 

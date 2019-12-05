@@ -58,7 +58,7 @@ public class AgentProcess {
     private Application mApp = null;
     private String mTitle = "", mUrl = "";
     private Map<String, Object> properties;
-
+    
     private AnalysysConfig mConfig = new AnalysysConfig();
 
     public static AgentProcess getInstance() {
@@ -68,7 +68,8 @@ public class AgentProcess {
     /**
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
-    public void init(final Context context, AnalysysConfig config) {
+    public void init(final Context context, final AnalysysConfig config) {
+        AnalysysUtil.init(context);
         CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
             @Override
             public void onAppCrash(Throwable e) {
@@ -78,7 +79,6 @@ public class AgentProcess {
         if (config != null) {
             mConfig = config;
         }
-        AnalysysUtil.init(context);
         ActivityLifecycleUtils.initLifecycle();
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
@@ -122,11 +122,6 @@ public class AgentProcess {
             }
         });
     }
-
-    public AnalysysConfig getConfig() {
-        return mConfig;
-    }
-
 
     /**
      * debug 信息处理
@@ -424,7 +419,7 @@ public class AgentProcess {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable throwable) {
                 }
             }
         });

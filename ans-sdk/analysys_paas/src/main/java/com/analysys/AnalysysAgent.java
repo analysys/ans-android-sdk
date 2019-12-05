@@ -29,16 +29,6 @@ public class AnalysysAgent {
         AgentProcess.getInstance().init(context, config);
     }
 
-    /**
-     * 初始化接口
-     *
-     * @return 配置信息
-     */
-    public static AnalysysConfig getConfig() {
-        return AgentProcess.getInstance().getConfig();
-    }
-
-
 
     /**
      * 不采集页面热图
@@ -53,7 +43,7 @@ public class AnalysysAgent {
      * 采集热图页面百名单
      * @param pages 只采集的页面集合
      */
-    public static void setHeatMapWhiteListByPages(List<String> pages){
+    public static void setHeatMapWhiteListByPages(List<String> pages) {
         AgentProcess.getInstance().setHeatMapWhiteListByPages(pages);
     }
 
@@ -566,8 +556,8 @@ public class AnalysysAgent {
      * @param context
      * @param throwable
      */
-    public static void reportException(Context context, Throwable throwable){
-        CrashHandler.getInstance().reportException(context,throwable,CrashHandler.CrashType.crash_report);
+    public static void reportException(Context context, Throwable throwable) {
+        CrashHandler.getInstance().reportException(context, throwable, CrashHandler.CrashType.crash_report);
     }
 }
 
