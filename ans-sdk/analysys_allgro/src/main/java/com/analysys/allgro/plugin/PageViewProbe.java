@@ -22,8 +22,6 @@ import com.analysys.utils.Constants;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import androidx.annotation.Nullable;
-
 /**
  * @author fengzeyuan
  */
@@ -35,7 +33,7 @@ class PageViewProbe extends ASMHookAdapter {
     /**
      * fragmentViewCreated 探针
      */
-    public void onFragmentViewCreated(Object object, View rootView, @Nullable Bundle savedInstanceState, boolean hasTrackPvAnn) {
+    public void onFragmentViewCreated(Object object, View rootView, Bundle savedInstanceState, boolean hasTrackPvAnn) {
         try {
             if (!AgentProcess.getInstance().getConfig().isAutoTrackClick()) {
                 return;

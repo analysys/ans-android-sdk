@@ -10,7 +10,6 @@ import android.widget.RadioGroup;
 
 import com.analysys.process.SystemIds;
 
-import androidx.annotation.Nullable;
 
 /**
  * Description:
@@ -25,7 +24,7 @@ public class ASMHookAdapter implements ASMHookInterface {
     }
 
     @Override
-    public void onFragmentViewCreated(Object object, View rootView, @Nullable Bundle savedInstanceState, boolean hasTrackPvAnn) {
+    public void onFragmentViewCreated(Object object, View rootView, Bundle savedInstanceState, boolean hasTrackPvAnn) {
         
     }
 

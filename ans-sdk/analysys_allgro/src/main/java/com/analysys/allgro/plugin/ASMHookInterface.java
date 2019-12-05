@@ -8,8 +8,6 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.RadioGroup;
 
-import androidx.annotation.Nullable;
-
 /**
  * Description:
  * Author: fengzeyuan
@@ -22,7 +20,7 @@ public interface ASMHookInterface {
     /**
      * fragmentViewCreated 探针
      */
-    void onFragmentViewCreated(Object object, View rootView, @Nullable Bundle savedInstanceState, boolean hasTrackPvAnn);
+    void onFragmentViewCreated(Object object, View rootView, Bundle savedInstanceState, boolean hasTrackPvAnn);
 
     /**
      * fragmentResume 探针

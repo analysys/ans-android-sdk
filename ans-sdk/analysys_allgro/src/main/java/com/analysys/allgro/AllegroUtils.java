@@ -39,9 +39,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.AnyRes;
-import androidx.annotation.NonNull;
-
 /**
  * Description:全埋点使用到的相关工具代码
  * Author: fengzeyuan
@@ -66,7 +63,7 @@ public class AllegroUtils {
         return idString;
     }
 
-    public static String getIdResourceName(@AnyRes int id) {
+    public static String getIdResourceName(int id) {
         String idString = "";
         try {
             if (id != View.NO_ID) {
@@ -696,7 +693,7 @@ public class AllegroUtils {
         return getCurAc();
     }
 
-    public static Activity getActivityFromDialog(@NonNull Dialog dialog) {
+    public static Activity getActivityFromDialog(Dialog dialog) {
         Activity ac = AllegroUtils.getActivityFromContext(dialog.getContext());
         if (ac == null) {
             ac = dialog.getOwnerActivity();
@@ -741,7 +738,7 @@ public class AllegroUtils {
     /**
      * 通过View获取Dialog
      */
-    private static Dialog getDialogFromView(@NonNull View v) {
+    private static Dialog getDialogFromView(View v) {
         Object result = callMethod(v, "getWindow");
         if (result instanceof Window) {
             Window window = (Window) result;

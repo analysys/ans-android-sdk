@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import androidx.annotation.Nullable;
 
 /**
  * Description:
@@ -49,7 +48,7 @@ public class ASMProbeHelp implements ASMHookInterface {
     // ------------------------ Fragment ---------------------------------------
 
     @Override
-    public void onFragmentViewCreated(Object object, View rootView, @Nullable Bundle savedInstanceState, boolean hasTrackPvAnn) {
+    public void onFragmentViewCreated(Object object, View rootView, Bundle savedInstanceState, boolean hasTrackPvAnn) {
 //        Log.d("javen",String.format("call onFragmentViewCreated in %s ",object.getClass().getSimpleName()));
         for (ASMHookInterface observer : mObservers) {
             observer.onFragmentViewCreated(object, rootView, savedInstanceState, hasTrackPvAnn);
