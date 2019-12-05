@@ -81,7 +81,7 @@ public class AgentProcess {
         }
         AnalysysUtil.init(context);
         ActivityLifecycleUtils.initLifecycle();
-        registerLifecycleCallbacks(context);
+        ActivityLifecycleUtils.addCallback(new AutomaticAcquisition());
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -1253,20 +1253,6 @@ public class AgentProcess {
             setVisitorBaseURL(baseUrl);
             saveUploadUrl(context,
                     Constants.HTTPS + baseUrl + Constants.HTTPS_PORT + "/up");
-        }
-    }
-
-    /**
-     * Activity 回调注册
-     */
-    private void registerLifecycleCallbacks(Context context) {
-        if (Build.VERSION.SDK_INT >= 14) {
-            if (CommonUtils.isEmpty(mApp)) {
-                mApp = (Application) context.getApplicationContext();
-                mApp.registerActivityLifecycleCallbacks(new AutomaticAcquisition());
-            }
-        } else {
-            appStart(false, System.currentTimeMillis());
         }
     }
 
