@@ -16,9 +16,11 @@ import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
 import com.analysys.utils.AnalysysUtil;
+import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 import com.analysys.utils.InternalAgent;
 import com.analysys.utils.LogPrompt;
 import com.analysys.utils.NumberFormat;
@@ -68,6 +70,12 @@ public class AgentProcess {
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
     public void init(final Context context, final AnalysysConfig config) {
+        CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
+            @Override
+            public void onAppCrash(Throwable e) {
+                CrashHandler.getInstance().reportException(context,e,CrashHandler.CrashType.crash_auto);
+            }
+        });
         if (config != null) {
             mConfig = config;
         }
@@ -205,7 +213,7 @@ public class AgentProcess {
                         return;
                     }
                     Map<String, Object> pageInfo = CommonUtils.deepCopy(pageDetail);
-                    pageInfo.put(Constants.EVENT_PAGE_NAME, pageName);
+                    pageInfo.put(Constants.PAGE_TITLE, pageName);
 
                     Map<String, Object> autoCollectPageInfo = new HashMap<>();
                     if (!pageInfo.containsKey(Constants.PAGE_URL)) {
@@ -239,7 +247,7 @@ public class AgentProcess {
                     }
                     Map<String, Object> pageInfo = CommonUtils.deepCopy(pageDetail);
                     if (!CommonUtils.isEmpty(pageName) && pageDetail != null) {
-                        pageDetail.put(Constants.EVENT_PAGE_NAME, pageName);
+                        pageDetail.put(Constants.PAGE_TITLE, pageName);
                     }
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                             Constants.API_PAGE_VIEW,
@@ -393,12 +401,46 @@ public class AgentProcess {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable throwable) {
                 }
             }
         });
     }
 
+    public void alias(final String aliasId) {
+        ANSThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Context context = ContextManager.getContext();
+                    if (context != null) {
+                        if (!CheckUtils.checkIdLength(aliasId)) {
+                            LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
+                            return;
+                        }
+                        String original = CommonUtils.getDistinctId(context);
+                        SharedUtil.setString(context, Constants.SP_ORIGINAL_ID, original);
+                        CommonUtils.setIdFile(context, Constants.SP_ALIAS_ID, aliasId);
+                        SharedUtil.setInt(context, Constants.SP_IS_LOGIN, 1);
+
+                        Map<String, Object> aliasMap = new HashMap<>();
+                        aliasMap.put(Constants.ORIGINAL_ID, original);
+
+                        JSONObject eventData = DataAssemble.getInstance(context).getEventData(
+                                Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
+
+                        if (!CommonUtils.isEmpty(eventData)) {
+                            trackEvent(context, Constants.API_ALIAS, Constants.ALIAS, eventData);
+                            sendProfileSetOnce(context, 0);
+                        } else {
+                            LogPrompt.showLog(Constants.API_ALIAS, false);
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        });
+    }
 
     /**
      * profile set 键值对
@@ -1089,7 +1131,7 @@ public class AgentProcess {
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualBase != null) {
-                            setUrl(context, LifeCycleConfig.visualBase.optString(START), url);
+                            setVisualUrl(context, LifeCycleConfig.visualBase.optString(START), url);
                         }
                     }
                 } catch (Throwable ignored) {
@@ -1110,7 +1152,7 @@ public class AgentProcess {
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visual != null) {
-                            setUrl(context, LifeCycleConfig.visual.optString(START), url);
+                            setVisualUrl(context, LifeCycleConfig.visual.optString(START), url);
                         }
                     }
                 } catch (Throwable ignored) {
@@ -1131,7 +1173,7 @@ public class AgentProcess {
                     if (context != null) {
                         LifeCycleConfig.initVisualConfig(context);
                         if (LifeCycleConfig.visualConfig != null) {
-                            setUrl(context,
+                            setVisualUrl(context,
                                     LifeCycleConfig.visualConfig.optString(START),
                                     url);
                         }
@@ -1434,10 +1476,9 @@ public class AgentProcess {
         return true;
     }
 
-
-    private void setUrl(Context context, String path, String url) {
+    private void setVisualUrl(Context context, String path, String url) {
         int index = path.lastIndexOf(".");
-        CommonUtils.reflexUtils(
+        CommonUtils.reflexStaticMethod(
                 path.substring(0, index),
                 path.substring(index + 1),
                 new Class[]{Context.class, String.class},

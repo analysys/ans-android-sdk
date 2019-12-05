@@ -3,7 +3,7 @@ apply from: './gradleBuildExt/baseBuild.gradle'
 
 ext {
 
-    sdkVer = '4.3.7'
+    sdkVer = '4.3.7.2'
 
     gradle_base_sdk = { projectImp, version = sdkVer ->
 
@@ -39,7 +39,7 @@ ext {
 
         projectImp.dependencies {
 
-            if (projectImp.name != 'analysys_paas') {
+            if (projectImp.getParent().name == 'ans-sdk' && projectImp.name != 'analysys_paas') {
                 implementation project(':ans-sdk:analysys_paas')
             }
 
@@ -51,7 +51,7 @@ ext {
     }
 
     /** 获取东八区时间 */
-    time= new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC +8"))
+    time = new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC +8"))
 }
 
 

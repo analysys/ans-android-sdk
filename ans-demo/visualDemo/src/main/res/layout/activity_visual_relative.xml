@@ -45,7 +45,7 @@
 
                 android:onClick="onClick">
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/cccRelativeLayout"
                     android:layout_width="100dp"
                     android:layout_height="120dp"
@@ -64,7 +64,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </AbsoluteLayout>
         </LinearLayout>
 

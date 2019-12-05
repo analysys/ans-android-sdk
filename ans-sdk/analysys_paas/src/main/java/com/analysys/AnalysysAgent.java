@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
+import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -150,8 +152,13 @@ public class AnalysysAgent {
      * @param originalId 可以是现在使用也可以是历史使用的id,不局限于本地正使用的distinctId,
      * 若为空则使用本地的distinctId,长度大于0且小于255字符
      */
+    @Deprecated
     public static void alias(Context context, String aliasId, String originalId) {
         AgentProcess.getInstance().alias(aliasId, originalId);
+    }
+
+    public static void alias(Context context, String aliasId) {
+        AgentProcess.getInstance(context).alias(aliasId);
     }
 
     /**
@@ -220,6 +227,18 @@ public class AnalysysAgent {
     public static void pageView(Context context, String pageName, Map<String, Object> pageInfo) {
         AgentProcess.getInstance().pageView(context, pageName, pageInfo);
     }
+
+    /**
+     * 应用启动来源，
+     * 参数为 1. icon启动 默认值为icon启动
+     * 参数为 2. msg 启动
+     * 参数为 3. deepLink启动
+     * 参数为 5. 其他方式启动
+     */
+    public static void launchSource(int source) {
+        Constants.sourceNum = source;
+    }
+
 
     /**
      * 注册单个通用属性
@@ -516,6 +535,15 @@ public class AnalysysAgent {
     @Deprecated
     public static void setAutoHeatMap(boolean autoTrack) {
         AgentProcess.getInstance().getConfig().setAutoHeatMap(autoTrack);
+    }
+
+    /**
+     * 上报异常
+     * @param context
+     * @param throwable
+     */
+    public static void reportException(Context context, Throwable throwable){
+        CrashHandler.getInstance().reportException(context,throwable,CrashHandler.CrashType.crash_report);
     }
 }
 

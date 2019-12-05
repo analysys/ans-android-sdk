@@ -19,9 +19,8 @@ public class AnsApplication extends Application {
     public static final int DEBUG_MODE = 2;
     public static final String APP_KEY = "a217639dbb1f6a9c";
     public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
-    private static final String SOCKET_URL = "ws://arkpaastest.analysys.cn:9091";
-    private static final String CONFIG_URL = "http://arkpaastest.analysys.cn:8089";
-
+    private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
+    private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
 
     private boolean isDebug = true;
 
@@ -65,6 +64,8 @@ public class AnsApplication extends Application {
         config.setAutoInstallation(true);
         // 热图数据采集（默认关闭）
         config.setAutoHeatMap(false);
+
+        config.setEnableException(true);
         // 初始化
         AnalysysAgent.init(this, config);
         // 设置数据上传/更新地址

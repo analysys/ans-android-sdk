@@ -152,6 +152,15 @@
 -keep class com.analysys.push.** {
  *;
  }
+-keep class com.analysys.utils.ActivityLifecycleUtils$BaseLifecycleCallback {
+ *;
+ }
+-keep class com.analysys.utils.ActivityLifecycleUtils {
+ *;
+ }
+-keep class com.analysys.utils.ANSThreadPool {
+ *;
+ }
 -keep class com.analysys.push.ThirdPushManager$* {
      <methods>;
  }

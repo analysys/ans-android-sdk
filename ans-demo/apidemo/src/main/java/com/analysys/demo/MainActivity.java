@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.analysys.ANSAutoPageTracker;
+import com.analysys.AnalysysAgent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,13 @@ public class MainActivity extends AppCompatActivity implements ANSAutoPageTracke
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            // 判断如果是deepLink启动，设置启动来源为 3
+            AnalysysAgent.launchSource(3);
+        }
+
+
     }
 
     public void onClick(View view) {

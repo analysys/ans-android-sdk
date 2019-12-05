@@ -201,6 +201,13 @@ public class InternalAgent {
     }
 
     /**
+     * 获取应用启动来源
+     */
+    public static String getLaunchSource(Context context) {
+        return CommonUtils.getLaunchSource();
+    }
+
+    /**
      * 获取original id
      */
     public static Object getOriginalId(Context context) {
