@@ -1244,7 +1244,7 @@ public class AgentProcess {
      */
     private void setBaseUrl(Context context, String baseUrl) throws Exception {
         if (!CommonUtils.isEmpty(baseUrl)) {
-            setVisitorBaseURL(Constants.HTTPS + baseUrl + Constants.HTTPS_PORT);
+            setVisitorBaseURL(baseUrl);
             saveUploadUrl(context,
                     Constants.HTTPS + baseUrl + Constants.HTTPS_PORT + "/up");
         }
