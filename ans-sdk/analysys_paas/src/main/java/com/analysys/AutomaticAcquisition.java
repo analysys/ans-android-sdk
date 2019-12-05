@@ -82,7 +82,13 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
 
     @Override
     public void onActivityCreated(final Activity activity, Bundle savedInstanceState) {
-        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
+        AnalysysConfig config = AgentProcess.getInstance().getConfig();
+        
+        if (config.isAutoTrackClick()) {
+            AnalysysUtil.onActivityCreated(activity);
+        }
+
+        if (config.isAutoHeatMap()) {
             initHeatMap(new WeakReference<>(activity));
         }
     }
