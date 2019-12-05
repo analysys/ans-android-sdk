@@ -3,7 +3,6 @@ package com.analysys.demo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import com.analysys.AnalysysAgent;
 
@@ -33,29 +32,7 @@ public class HeatMapTestActivity extends AppCompatActivity {
 
     public void onClick(View view) {
         int id = view.getId();
-        if (id == R.id.openButton) {
-            AnalysysAgent.getConfig().setAutoHeatMap(true);
-            Toast.makeText(this, "重启后生效", Toast.LENGTH_LONG).show();
-            view.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = new Intent(HeatMapTestActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                }
-            }, 2000);
-        } else if (id == R.id.closeButton) {
-            AnalysysAgent.getConfig().setAutoHeatMap(false);
-            Toast.makeText(this, "重启后生效", Toast.LENGTH_LONG).show();
-            view.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = new Intent(HeatMapTestActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                }
-            }, 2000);
-        } else if (id == R.id.ignoreButton) {
+        if (id == R.id.ignoreButton) {
             // 设置热图黑名单
             AnalysysAgent.setHeatMapBlackListByPages(mPages);
         } else if (id == R.id.clearButton) {

@@ -25,16 +25,6 @@ public class AnalysysAgent {
         AgentProcess.getInstance().init(context,config);
     }
 
-    /**
-     * 初始化接口
-     *
-     * @return 配置信息
-     */
-    public static AnalysysConfig getConfig() {
-       return AgentProcess.getInstance().getConfig();
-    }
-
-
 
 
     //    /**

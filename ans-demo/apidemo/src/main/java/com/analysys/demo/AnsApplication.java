@@ -63,7 +63,7 @@ public class AnsApplication extends Application {
         config.setMaxDiffTimeInterval(5 * 60);
         // 开启渠道归因
         config.setAutoInstallation(true);
-        // 开启热图数据采集
+        // 热图数据采集（默认关闭）
         config.setAutoHeatMap(false);
         // 初始化
         AnalysysAgent.init(this, config);
