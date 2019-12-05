@@ -20,7 +20,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="300dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -29,29 +29,6 @@
                     android:layout_gravity="center_horizontal"
                     android:text="我是全埋点主页面(Activity)" />
 
-
-                <Button
-                    android:id="@+id/pvSwitch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{pageInfo.isPvEnable?`关闭页面上报`:`打开页面上报`}" />
-
-                <Button
-                    android:id="@+id/fragmentPvSwitch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{pageInfo.isFragmentPvEnable?`关闭Fragment页面上报`:`打开Fragment页面上报`}" />
-
-                <Button
-                    android:id="@+id/clickTrackSwitch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{pageInfo.isAutoClickEnable?`关闭点击上报`:`打开点击上报`}" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{String.format(`\nActivity PageView 上报默认开启（当前：%s）\nFragment PageView 上报默认关闭（当前：%s）\n全埋点点击 上报默认关闭（当前：%s）`,pageInfo.isPvEnable,pageInfo.isFragmentPvEnable,pageInfo.isAutoClickEnable)}" />
             </LinearLayout>
 
         </ScrollView>
@@ -82,8 +59,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:onClick="@{pageInfo::onViewClick}"
                 android:background="@mipmap/ic_launcher"
+                android:onClick="@{pageInfo::onViewClick}"
                 android:text="Fragment3" />
         </LinearLayout>
 

@@ -1640,6 +1640,10 @@ public class AgentProcess {
         return !mAutoByView.isEmpty() || !mAutoByByViewTypes.isEmpty() || !mAutoByPages.isEmpty();
     }
 
+    public AnalysysConfig getConfig() {
+        return mConfig;
+    }
+
 //    /**
 //     * 设置远程调试
 //     */

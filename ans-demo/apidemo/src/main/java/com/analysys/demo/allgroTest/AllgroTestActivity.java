@@ -3,9 +3,6 @@ package com.analysys.demo.allgroTest;
 import android.os.Bundle;
 import android.view.View;
 
-import com.analysys.AnalysysAgent;
-import com.analysys.AnalysysConfig;
-import com.analysys.allgro.annotations.AnalysysIgnoreTrackClick;
 import com.analysys.demo.R;
 import com.analysys.demo.allgroTest.fragment.FragmentOne;
 import com.analysys.demo.allgroTest.fragment.FragmentThree;
@@ -25,10 +22,6 @@ public class AllgroTestActivity extends AppCompatActivity implements ViewPager.O
 
     private ActivityTestAllgroBinding mDataBinding;
 
-    private boolean isPvEnable;
-    private boolean isFragmentPvEnable;
-
-    private boolean isAutoClickEnable;
 
     //参数列表需要获取一个Fragment管理器 getSupportFragmentManager
     private FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
@@ -52,7 +45,6 @@ public class AllgroTestActivity extends AppCompatActivity implements ViewPager.O
             return 3;//这里返回的值是我们已知的Fragment数量
         }
     };
-    private AnalysysConfig mConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,40 +59,6 @@ public class AllgroTestActivity extends AppCompatActivity implements ViewPager.O
         mDataBinding.btn2.setOnClickListener(this);
         mDataBinding.btn3.setOnClickListener(this);
 
-        mDataBinding.pvSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            @AnalysysIgnoreTrackClick
-            public void onClick(View v) {
-                isPvEnable = !isPvEnable;
-                mConfig.setAutoTrackPageView(isPvEnable);
-                mDataBinding.setPageInfo(AllgroTestActivity.this);
-            }
-        });
-
-        mDataBinding.fragmentPvSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            @AnalysysIgnoreTrackClick
-            public void onClick(View v) {
-                isFragmentPvEnable = !isFragmentPvEnable;
-                mConfig.setAutoTrackFragmentPageView(isFragmentPvEnable);
-                mDataBinding.setPageInfo(AllgroTestActivity.this);
-            }
-        });
-
-        mDataBinding.clickTrackSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            @AnalysysIgnoreTrackClick
-            public void onClick(View v) {
-                isAutoClickEnable = !isAutoClickEnable;
-                mConfig.setAutoTrackClick(isAutoClickEnable);
-                mDataBinding.setPageInfo(AllgroTestActivity.this);
-            }
-        });
-
-        mConfig = AnalysysAgent.getConfig();
-        isPvEnable = mConfig.isAutoTrackPageView();
-        isFragmentPvEnable = mConfig.isAutoTrackFragmentPageView();
-        isAutoClickEnable = mConfig.isAutoTrackClick();
         mDataBinding.setPageInfo(this);
     }
 
@@ -157,15 +115,4 @@ public class AllgroTestActivity extends AppCompatActivity implements ViewPager.O
         mDataBinding.viewPager.setCurrentItem(2, true);
     }
 
-    public boolean isPvEnable() {
-        return isPvEnable;
-    }
-
-    public boolean isFragmentPvEnable() {
-        return isFragmentPvEnable;
-    }
-
-    public boolean isAutoClickEnable() {
-        return isAutoClickEnable;
-    }
 }
