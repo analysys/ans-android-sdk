@@ -3,7 +3,9 @@ package com.analysys.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.analysys.utils.CommonUtils;
+import com.analysys.utils.ExceptionUtil;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -13,44 +15,69 @@ import com.analysys.utils.CommonUtils;
  * @Author: WXC
  */
 class DBManage {
-
+    private AtomicInteger mOpenCounter = new AtomicInteger();
     private DBHelper dbHelper;
-    private Context mContext;
     private SQLiteDatabase db;
 
-    public static synchronized DBManage getInstance(Context context) {
-        Holder.INSTANCE.initContext(context);
+    public static DBManage getInstance(Context context) {
         Holder.INSTANCE.initDatabaseHelper(context);
         return Holder.INSTANCE;
     }
 
-    public synchronized SQLiteDatabase openDB() {
-        db = dbHelper.getWritableDatabase();
+    public SQLiteDatabase openDB(Context context) {
+
+        try {
+            if (mOpenCounter.incrementAndGet() == 1) {
+                checkDb(context);
+            }
+        } catch (Exception e) {
+            ExceptionUtil.exceptionThrow(e);
+        }
+
         return db;
     }
 
-    public synchronized void closeDB() {
-        try {
-            if (!CommonUtils.isEmpty(db)) {
-                db.close();
+    public void closeDB() {
+        if (mOpenCounter.decrementAndGet() == 0) {
+            try {
+                if (db != null) {
+                    db.close();
+                }
+            } catch (Exception e) {
+                ExceptionUtil.exceptionThrow(e);
+            } finally {
+                db = null;
             }
-        } finally {
-            db = null;
         }
     }
 
-    private void initContext(Context context) {
-        if (CommonUtils.isEmpty(mContext)) {
-            if (!CommonUtils.isEmpty(context)) {
-                mContext = context;
+    /**
+     * DB重置
+     */
+    public void resetDB() {
+        dbHelper = null;
+        db = null;
+    }
+
+    /**
+     * 校验DB是否为null，并对db赋值
+     */
+    private void checkDb(Context mContext) {
+
+        if (dbHelper == null) {
+            if (mContext != null) {
+                dbHelper = new DBHelper(mContext);
             }
         }
+
+        if (db == null && dbHelper != null) {
+            db = dbHelper.getWritableDatabase();
+        }
     }
+
 
     private void initDatabaseHelper(Context context) {
-        if (CommonUtils.isEmpty(dbHelper)) {
-            dbHelper = new DBHelper(context);
-        }
+        checkDb(context);
     }
 
     private static class Holder {

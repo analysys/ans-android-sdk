@@ -21,6 +21,8 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import com.analysys.AnalysysAgent;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -420,7 +422,11 @@ public class CommonUtils {
      */
     public static String getAppKey(Context context) {
         try {
-            return SharedUtil.getString(context, Constants.SP_APP_KEY, null);
+            String appkey = AnalysysAgent.getConfig().getAppKey();
+            if (appkey == null) {
+                appkey = SharedUtil.getString(context, Constants.SP_APP_KEY, null);
+            }
+            return appkey;
         } catch (Throwable ignored) {
         }
         return null;

@@ -9,10 +9,13 @@ package com.analysys.database;
  */
 class DBConfig {
 
-    public static class TableAllInfo {
-        public static final String TABLE_NAME = " e_fz ";
+    static final class TableAllInfo {
+        static final String DBNAME = "analysys.data";
+        static final int VERSION = 1;
+
+        static final String TABLE_NAME = " e_fz ";
         //建表
-        public static final String CREATE_TABLE = "create table if not exists " +
+        static final String CREATE_TABLE = "create table if not exists " +
                 TABLE_NAME + " (" +
                 Column.ID + Types.ID + "," +
                 Column.INFO + Types.INFO + "," +
@@ -24,35 +27,35 @@ class DBConfig {
                 Column.RESERVE_C + Types.RESERVE_C + "  )";
 
         // 列名
-        public static class Column {
-            public static final String ID = "id";
-            public static final String INFO = "a";
-            public static final String SIGN = "b";
-            public static final String TYPE = "c";
-            public static final String INSERT_DATE = "d";
-            public static final String RESERVE_A = "r_a";
-            public static final String RESERVE_B = "r_b";
-            public static final String RESERVE_C = "r_c";
+        static class Column {
+            static final String ID = "id";
+            static final String INFO = "a";
+            static final String SIGN = "b";
+            static final String TYPE = "c";
+            static final String INSERT_DATE = "d";
+            static final String RESERVE_A = "r_a";
+            static final String RESERVE_B = "r_b";
+            static final String RESERVE_C = "r_c";
         }
 
         // 类型
-        public static class Types {
-            public static final String ID = " Integer Primary Key Autoincrement ";
-            public static final String INFO = " text ";
-            public static final String SIGN = " int not null ";
-            public static final String TYPE = " varchar(50) not null ";
-            public static final String INSERT_DATE = " varchar(50) not null ";
-            public static final String RESERVE_A = " text ";
-            public static final String RESERVE_B = " text ";
-            public static final String RESERVE_C = " text ";
+        static class Types {
+            static final String ID = " Integer Primary Key Autoincrement ";
+            static final String INFO = " text ";
+            static final String SIGN = " int not null ";
+            static final String TYPE = " varchar(50) not null ";
+            static final String INSERT_DATE = " varchar(50) not null ";
+            static final String RESERVE_A = " text ";
+            static final String RESERVE_B = " text ";
+            static final String RESERVE_C = " text ";
         }
     }
 
     /**
      * 存储数据状态。
      */
-    public static class Status {
-        public static final int FLAG_SAVE = 0;
-        public static final int FLAG_UPLOADING = -1;
+    final static class Status {
+        static final int FLAG_SAVE = 0;
+        static final int FLAG_UPLOADING = -1;
     }
 }
