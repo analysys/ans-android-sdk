@@ -548,9 +548,7 @@ public class AnalysysAgent {
      */
     @Deprecated
     public static void setIgnoredAutomaticCollectionActivities(Context context, List<String> activitiesName) {
-        if (activitiesName != null) {
-            IgnoredAcName = activitiesName;
-        }
+        IgnoredAcName = activitiesName;
         AgentProcess.getInstance().setPageViewBlackListByPages(activitiesName);
     }
 
