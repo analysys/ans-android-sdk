@@ -2,9 +2,8 @@ package com.analysys.utils;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
-
-import com.analysys.process.ContextManager;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -142,7 +141,10 @@ public class ActivityLifecycleUtils {
 
     public static void initLifecycle() {
         sInited = true;
-        ((Application) ContextManager.getContext()).registerActivityLifecycleCallbacks(sCalback);
+        Context context = AnalysysUtil.getContext();
+        if (context instanceof Application) {
+            ((Application) context).registerActivityLifecycleCallbacks(sCalback);
+        }
     }
 
     public static Activity getCurrentActivity() {

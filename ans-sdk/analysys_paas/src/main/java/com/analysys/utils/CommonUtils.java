@@ -21,8 +21,6 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-import com.analysys.process.ContextManager;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

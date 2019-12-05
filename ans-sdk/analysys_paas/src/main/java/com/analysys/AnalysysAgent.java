@@ -24,7 +24,7 @@ public class AnalysysAgent {
      * @param config 初始化配置信息
      */
     public static void init(Context context, AnalysysConfig config) {
-        AgentProcess.getInstance().init(context,config);
+        AgentProcess.getInstance().init(context, config);
     }
 
 
@@ -49,7 +49,7 @@ public class AnalysysAgent {
      * 不采集页面热图
      * @param pages 忽略的页面集合
      */
-    public static void setHeatMapBlackListByPages(List<String> pages){
+    public static void setHeatMapBlackListByPages(List<String> pages) {
         AgentProcess.getInstance().setHeatMapBlackListByPages(pages);
     }
 
@@ -73,7 +73,7 @@ public class AnalysysAgent {
      * 采集热图页面百名单
      * @param pages 只采集的页面集合
      */
-    public static void setHeatMapWhiteListByPages(List<String> pages){
+    public static void setHeatMapWhiteListByPages(List<String> pages) {
         AgentProcess.getInstance().setHeatMapWhiteListByPages(pages);
     }
 
@@ -158,7 +158,7 @@ public class AnalysysAgent {
     }
 
     public static void alias(Context context, String aliasId) {
-        AgentProcess.getInstance(context).alias(aliasId);
+        AgentProcess.getInstance().alias(aliasId);
     }
 
     /**
@@ -542,8 +542,8 @@ public class AnalysysAgent {
      * @param context
      * @param throwable
      */
-    public static void reportException(Context context, Throwable throwable){
-        CrashHandler.getInstance().reportException(context,throwable,CrashHandler.CrashType.crash_report);
+    public static void reportException(Context context, Throwable throwable) {
+        CrashHandler.getInstance().reportException(context, throwable, CrashHandler.CrashType.crash_report);
     }
 }
 

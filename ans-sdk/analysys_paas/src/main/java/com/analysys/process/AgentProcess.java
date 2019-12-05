@@ -15,8 +15,8 @@ import com.analysys.network.UploadManager;
 import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
-import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -80,6 +80,7 @@ public class AgentProcess {
             mConfig = config;
         }
         AnalysysUtil.init(context);
+        ActivityLifecycleUtils.initLifecycle();
         registerLifecycleCallbacks(context);
         ANSThreadPool.execute(new Runnable() {
             @Override
@@ -412,7 +413,7 @@ public class AgentProcess {
             @Override
             public void run() {
                 try {
-                    Context context = ContextManager.getContext();
+                    Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         if (!CheckUtils.checkIdLength(aliasId)) {
                             LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
