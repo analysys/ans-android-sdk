@@ -72,7 +72,7 @@ public class AgentProcess {
         CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
             @Override
             public void onAppCrash(Throwable e) {
-                CrashHandler.getInstance().reportException(context,e,CrashHandler.CrashType.crash_auto);
+                CrashHandler.getInstance().reportException(context, e, CrashHandler.CrashType.crash_auto);
             }
         });
         if (config != null) {
@@ -1444,20 +1444,24 @@ public class AgentProcess {
     private HashSet<Integer> mPageViewBlackListByPages = new HashSet<>();
     private HashSet<Integer> mPageViewWhiteListByPages = new HashSet<>();
 
-    public void setPageViewBlackListByPages(Set<String> pages) {
+    public void setPageViewBlackListByPages(List<String> pages) {
         mPageViewBlackListByPages.clear();
-        for (String page : pages) {
-            if (!TextUtils.isEmpty(page)) {
-                mPageViewBlackListByPages.add(page.hashCode());
+        if (pages != null) {
+            for (String page : pages) {
+                if (!TextUtils.isEmpty(page)) {
+                    mPageViewBlackListByPages.add(page.hashCode());
+                }
             }
         }
     }
 
     public void setPageViewWhiteListByPages(Set<String> pages) {
         mPageViewWhiteListByPages.clear();
-        for (String page : pages) {
-            if (!TextUtils.isEmpty(page)) {
-                mPageViewWhiteListByPages.add(page.hashCode());
+        if (pages != null) {
+            for (String page : pages) {
+                if (!TextUtils.isEmpty(page)) {
+                    mPageViewWhiteListByPages.add(page.hashCode());
+                }
             }
         }
     }
@@ -1501,11 +1505,13 @@ public class AgentProcess {
     /**
      * 设置页面级黑名单
      */
-    public void setAutoClickBlackListByPages(Set<String> pages) {
+    public void setAutoClickBlackListByPages(List<String> pages) {
         mIgnoreByPages.clear();
-        for (String page : pages) {
-            if (TextUtils.isEmpty(page)) {
-                mIgnoreByPages.add(page.hashCode());
+        if (pages != null) {
+            for (String page : pages) {
+                if (TextUtils.isEmpty(page)) {
+                    mIgnoreByPages.add(page.hashCode());
+                }
             }
         }
     }
@@ -1521,12 +1527,14 @@ public class AgentProcess {
     /**
      * 设置元素类型级黑名单
      */
-    public void setAutoClickBlackListByElementTypes(Set<Class<?>> viewTypes) {
+    public void setAutoClickBlackListByElementTypes(List<Class<?>> viewTypes) {
         mIgnoreByViewTypes.clear();
-        for (Class<?> viewType : viewTypes) {
-            String viewTypeStr = viewType.getName();
-            if (TextUtils.isEmpty(viewTypeStr)) {
-                mIgnoreByViewTypes.add(viewTypeStr.hashCode());
+        if (viewTypes != null) {
+            for (Class<?> viewType : viewTypes) {
+                String viewTypeStr = viewType.getName();
+                if (TextUtils.isEmpty(viewTypeStr)) {
+                    mIgnoreByViewTypes.add(viewTypeStr.hashCode());
+                }
             }
         }
     }
@@ -1547,7 +1555,9 @@ public class AgentProcess {
      * 设置元素类型级黑名单
      */
     public void setAutoClickBlackListByElement(Object element) {
-        mIgnoreByView.add(element.hashCode());
+        if (element != null) {
+            mIgnoreByView.add(element.hashCode());
+        }
     }
 
     /**
@@ -1586,10 +1596,12 @@ public class AgentProcess {
      */
     public void setAutoClickWhiteListByElementTypes(Set<Class<?>> viewTypes) {
         mAutoByByViewTypes.clear();
-        for (Class<?> viewType : viewTypes) {
-            String viewTypeStr = viewType.getName();
-            if (TextUtils.isEmpty(viewTypeStr)) {
-                mAutoByByViewTypes.add(viewTypeStr.hashCode());
+        if (viewTypes != null) {
+            for (Class<?> viewType : viewTypes) {
+                String viewTypeStr = viewType.getName();
+                if (TextUtils.isEmpty(viewTypeStr)) {
+                    mAutoByByViewTypes.add(viewTypeStr.hashCode());
+                }
             }
         }
     }
@@ -1609,7 +1621,9 @@ public class AgentProcess {
      * 设置元素类型级白名单
      */
     public void setAutoClickWhiteListByElement(Object element) {
-        mAutoByView.add(element.hashCode());
+        if (element != null) {
+            mAutoByView.add(element.hashCode());
+        }
     }
 
     /**
