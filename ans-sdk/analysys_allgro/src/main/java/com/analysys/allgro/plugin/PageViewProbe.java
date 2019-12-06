@@ -33,6 +33,7 @@ class PageViewProbe extends ASMHookAdapter {
     /**
      * fragmentViewCreated 探针
      */
+    @Override
     public void onFragmentViewCreated(Object object, View rootView, Bundle savedInstanceState, boolean hasTrackPvAnn) {
         try {
             if (!AgentProcess.getInstance().getConfig().isAutoTrackClick()) {
@@ -62,6 +63,7 @@ class PageViewProbe extends ASMHookAdapter {
      *
      * @param object fragment 实例
      */
+    @Override
     public void trackFragmentResume(Object object, boolean hasTrackPvAnn) {
 
         try {
@@ -93,6 +95,7 @@ class PageViewProbe extends ASMHookAdapter {
     /**
      * SetUserVisibleHint 探针
      */
+    @Override
     public void trackFragmentSetUserVisibleHint(Object object, boolean isVisibleToUser, boolean hasTrackPvAnn) {
 
         try {
@@ -133,6 +136,7 @@ class PageViewProbe extends ASMHookAdapter {
     /**
      * Fragment OnHiddenChanged 探针
      */
+    @Override
     public void trackOnHiddenChanged(Object object, boolean hidden, boolean hasTrackPvAnn) {
 
         try {
