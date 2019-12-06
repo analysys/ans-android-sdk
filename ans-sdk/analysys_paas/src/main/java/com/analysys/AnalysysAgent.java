@@ -1,12 +1,14 @@
 package com.analysys;
 
 import android.content.Context;
+import android.view.View;
 
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
 import com.analysys.utils.Constants;
 import com.analysys.utils.CrashHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,23 +30,6 @@ public class AnalysysAgent {
     }
 
 
-
-    //    /**
-//     * 不采集当前View热图
-//     * @param v 
-//     */
-//    public static void setAutoHeatMapIgnoreByView(View v){
-//        
-//    }
-//
-//    /**
-//     * 不采集一类View热图
-//     * @param viewTypes 
-//     */
-//    public static void setAutoHeatMapIgnoreByViewTypes(Set<Class<? extends View>> viewTypes){
-//
-//    }
-
     /**
      * 不采集页面热图
      * @param pages 忽略的页面集合
@@ -53,21 +38,6 @@ public class AnalysysAgent {
         AgentProcess.getInstance().setHeatMapBlackListByPages(pages);
     }
 
-//    /**
-//     * 只采集当前View热图
-//     * @param v
-//     */
-//    public static void setAutoHeatMapByView(View v){
-//
-//    }
-//
-//    /**
-//     * 只采集一类View热图
-//     * @param viewTypes
-//     */
-//    public static void setAutoHeatMapByViewTypes(Set<Class<? extends View>> viewTypes){
-//
-//    }
 
     /**
      * 采集热图页面百名单
@@ -76,6 +46,44 @@ public class AnalysysAgent {
     public static void setHeatMapWhiteListByPages(List<String> pages) {
         AgentProcess.getInstance().setHeatMapWhiteListByPages(pages);
     }
+
+
+
+    /**
+     * PageView自动上报-设置页面级黑名单
+     * @param pages 页面名称列表
+     */
+    public static void setPageViewBlackListByPages(List<String> pages) {
+        AgentProcess.getInstance().setPageViewBlackListByPages(pages);
+    }
+    
+
+    /**
+     * 点击自动上报-设置页面级黑名单
+     * @param pages 页面名称列表
+     */
+    public static void setAutoClickBlackListByPages(List<String> pages) {
+        AgentProcess.getInstance().setAutoClickBlackListByPages(pages);
+    }
+
+
+    /**
+     * 点击自动上报-设置元素类型级黑名单
+     * @param viewTypes 控件元素类列表
+     */
+    public static void setAutoClickBlackListByElementTypes(List<Class<? extends View>> viewTypes) {
+        AgentProcess.getInstance().setAutoClickBlackListByElementTypes(viewTypes);
+    }
+
+
+    /**
+     * 点击自动上报-设置元素类型级黑名单
+     * @param element 控件元素对象
+     */
+    public static void setAutoClickBlackListByElement(View element) {
+        AgentProcess.getInstance().setAutoClickBlackListByElement(element);
+    }
+
 
     /**
      * debug 模式
@@ -416,37 +424,6 @@ public class AnalysysAgent {
     }
 
     /**
-     * 自动采集页面信息
-     *
-     * @param isAuto 默认为true
-     */
-    public static void setAutomaticCollection(Context context, boolean isAuto) {
-        AgentProcess.getInstance().automaticCollection(isAuto);
-    }
-
-    /**
-     * 获取自动采集页面信息开关状态
-     */
-    public static boolean getAutomaticCollection(Context context) {
-        return AgentProcess.getInstance().getAutomaticCollection();
-    }
-
-    /**
-     * 忽略部分页面自动采集
-     */
-    public static void setIgnoredAutomaticCollectionActivities(Context context,
-                                                               List<String> activitiesName) {
-        AgentProcess.getInstance().setIgnoredAutomaticCollection(activitiesName);
-    }
-
-    /**
-     * 获取忽略自动采集的页面
-     */
-    public static List<String> getIgnoredAutomaticCollection(Context context) {
-        return AgentProcess.getInstance().getIgnoredAutomaticCollection();
-    }
-
-    /**
      * 获取预置属性
      */
     public static Map<String, Object> getPresetProperties(Context context) {
@@ -535,6 +512,47 @@ public class AnalysysAgent {
     @Deprecated
     public static void setAutoHeatMap(boolean autoTrack) {
         AgentProcess.getInstance().getConfig().setAutoHeatMap(autoTrack);
+    }
+
+    /**
+     * 自动采集页面信息
+     * is old PLZ call {@link AnalysysConfig#setAutoTrackPageView(boolean)}
+     *
+     * @param isAuto 默认为true
+     */
+    @Deprecated
+    public static void setAutomaticCollection(Context context, boolean isAuto) {
+        AgentProcess.getInstance().getConfig().setAutoTrackPageView(isAuto);
+    }
+
+    /**
+     * 获取自动采集页面信息开关状态
+     * is old PLZ call {@link AnalysysConfig#isAutoTrackPageView()} ()}
+     */
+    @Deprecated
+    public static boolean getAutomaticCollection(Context context) {
+        return AgentProcess.getInstance().getConfig().isAutoTrackPageView();
+    }
+
+
+    private static List<String> IgnoredAcName = new ArrayList<>();
+
+    /**
+     * 忽略部分页面自动采集
+     */
+    @Deprecated
+    public static void setIgnoredAutomaticCollectionActivities(Context context, List<String> activitiesName) {
+        IgnoredAcName = activitiesName;
+        AgentProcess.getInstance().setPageViewBlackListByPages(activitiesName);
+    }
+
+    /**
+     * 获取忽略自动采集的页面
+     * return empty ,PLZ call
+     */
+    @Deprecated
+    public static List<String> getIgnoredAutomaticCollection(Context context) {
+        return IgnoredAcName;
     }
 
     /**

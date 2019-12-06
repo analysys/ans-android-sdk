@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#fff">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:text="第一个子页面（Fragment）\n正常cass"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/fraOne_btn1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="按钮点击上报（正常随大开关）" />
+</LinearLayout>

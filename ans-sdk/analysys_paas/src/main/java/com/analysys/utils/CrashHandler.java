@@ -98,7 +98,8 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
     /**
      * 异常上报
-      * @param context
+     *
+     * @param context
      * @param ex
      */
     public void reportException(Context context, Throwable ex, int type) {

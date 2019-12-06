@@ -21,6 +21,7 @@ public class Constants {
     public static final String ORIGINAL_ID = "$original_id";
     public static final String TRACK = "$track";
     public static final String APP_CLICK = "$app_click";
+    public static final String USER_CLICK = "$user_click";
     public static final String FIRST_INSTALL = "$first_installation";
     public static final String APP_CRASH_DATA = "$app_crash";
 
@@ -43,9 +44,10 @@ public class Constants {
     public static final String PAGE_URL = "$url";
     public static final String PAGE_TITLE = "$title";
     public static final String PAGE_REFERRER = "$referrer";
+    public static final String PARENT_URL = "$parent_url";
 
-    public static final String TOUCH_PAGE_WIDTH = "$page_width";
-    public static final String TOUCH_PAGE_HEIGHT = "$page_height";
+    public static final String PAGE_WIDTH = "$page_width";
+    public static final String PAGE_HEIGHT = "$page_height";
     public static final String TOUCH_SCREEN_DPI = "$screen_dpi";
     public static final String TOUCH_SCREEN_SCALE = "$screen_scale";
     public static final String TOUCH_CLICK_X = "$click_x";
@@ -53,11 +55,13 @@ public class Constants {
     public static final String TOUCH_ELEMENT_X = "$element_x";
     public static final String TOUCH_ELEMENT_Y = "$element_y";
 
-    public static final String TOUCH_ELEMENT_PATH = "$element_path";
+    public static final String ELEMENT_PATH = "$element_path";
 
     public static final String TOUCH_ELEMENT_CLICKABLE = "$element_clickable";
-    public static final String TOUCH_ELEMENT_TYPE = "$element_type";
-    public static final String TOUCH_ELEMENT_CONTENT = "$element_content";
+    public static final String ELEMENT_TYPE = "$element_type";
+    public static final String ELEMENT_CONTENT = "$element_content";
+    public static final String ELEMENT_POSITION = "$element_position";
+    public static final String ELEMENT_ID = "$element_id";
 
     public static final String X_CONTEXT = "xcontext";
     public static final String APP_ID = "appid";
@@ -91,8 +95,6 @@ public class Constants {
     public static final String SP_SERVICE_HASH = "serviceHash";
     public static final String SP_FAILURE_TIME = "failureTime";
     public static final String SP_FAILURE_COUNT = "failureCount";
-    public static final String SP_IS_COLLECTION = "isCollection";
-    public static final String SP_IGNORED_COLLECTION = "ignoredCollection";
     public static final String SP_IS_LOGIN = "isLogin";
     public static final String SP_REQUEST_VERSION = "requestVersion";
     public static final String SP_SESSION_ID = "getSessionId";
@@ -202,6 +204,7 @@ public class Constants {
     public static final String API_APP_START = "appStart";
     public static final String API_APP_END = "appEnd";
     public static final String API_APP_CLICK = "appClick";
+    public static final String API_USER_CLICK = "userClick";
     public static final String API_FIRST_INSTALL = "firstInstallation";
     public static final String API_CRAHS_DATA = "app_crash";
 
