@@ -19,6 +19,8 @@ import com.analysys.allgro.AllegroUtils;
 import com.analysys.process.AgentProcess;
 import com.analysys.utils.Constants;
 
+import org.json.JSONException;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -413,7 +415,7 @@ class ViewClickProbe extends ASMHookAdapter {
         }
     }
 
-    private void autoTrackClick(Object pageObj, Map<String, Object> elementInfo, boolean hasTrackClickAnn) {
+    private void autoTrackClick(Object pageObj, Map<String, Object> elementInfo, boolean hasTrackClickAnn) throws JSONException {
         if (pageObj != null) {
             // 获取页面相关信息
             elementInfo.putAll(AllegroUtils.getPageInfo(pageObj));

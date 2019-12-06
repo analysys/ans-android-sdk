@@ -27,6 +27,7 @@ import com.analysys.utils.LogPrompt;
 import com.analysys.utils.NumberFormat;
 import com.analysys.utils.SharedUtil;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
@@ -295,15 +296,11 @@ public class AgentProcess {
      *
      * @param clickInfo 点击上报信息
      */
-    public void autoTrackViewClick(final Map<String, Object> clickInfo) {
-        try {
-            Context context = AnalysysUtil.getContext();
-            if (context != null) {
-                JSONObject eventData = DataAssemble.getInstance(context).getEventData(Constants.API_USER_CLICK, Constants.USER_CLICK, null, clickInfo);
-                trackEvent(context, Constants.API_USER_CLICK, Constants.USER_CLICK, eventData);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void autoTrackViewClick(final Map<String, Object> clickInfo) throws JSONException {
+        Context context = AnalysysUtil.getContext();
+        if (context != null) {
+            JSONObject eventData = DataAssemble.getInstance(context).getEventData(Constants.API_USER_CLICK, Constants.USER_CLICK, null, clickInfo);
+            trackEvent(context, Constants.API_USER_CLICK, Constants.USER_CLICK, eventData);
         }
     }
 
