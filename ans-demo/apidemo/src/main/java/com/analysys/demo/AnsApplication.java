@@ -21,20 +21,19 @@ public class AnsApplication extends Application {
     public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
     private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
     private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
+    private static  AnsApplication instance;
+
 
     private boolean isDebug = true;
 
-    private static class Holder {
-        public static final AnsApplication instance = new AnsApplication();
-    }
-
     public static AnsApplication getInstance() {
-        return Holder.instance;
+        return instance;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         // 设置严苛模式
         strictMode();
         // 初始化ARouter
