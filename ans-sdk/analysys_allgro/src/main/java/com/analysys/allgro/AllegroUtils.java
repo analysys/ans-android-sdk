@@ -721,13 +721,13 @@ public class AllegroUtils {
     private static Activity getActivityFromContext(Context context) {
         if (context != null) {
             if (context instanceof Activity) {
-                return  (Activity) context;
+                return (Activity) context;
             } else if (context instanceof ContextWrapper) {
                 while (!(context instanceof Activity) && context instanceof ContextWrapper) {
                     context = ((ContextWrapper) context).getBaseContext();
                 }
                 if (context instanceof Activity) {
-                    return  (Activity) context;
+                    return (Activity) context;
                 }
             }
         }
@@ -817,5 +817,14 @@ public class AllegroUtils {
         return null;
     }
 
+    /**
+     * 上报捕获的异常
+     * @param e 
+     */
+    public static void reportCatchException(Exception e) {
+        if (BuildConfig.ENABLE_BUGLY) {
+            BuglyUtils.commitError(e);
+        }
+    }
 }
 

@@ -11,8 +11,6 @@ import android.widget.Spinner;
 
 import com.analysys.AnalysysConfig;
 import com.analysys.allgro.AllegroUtils;
-import com.analysys.allgro.BuglyUtils;
-import com.analysys.allgro.BuildConfig;
 import com.analysys.allgro.R;
 import com.analysys.process.AgentProcess;
 import com.analysys.utils.AnalysysUtil;
@@ -52,9 +50,7 @@ class PageViewProbe extends ASMHookAdapter {
                 traverseView(fragmentName, (ViewGroup) rootView);
             }
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -86,9 +82,7 @@ class PageViewProbe extends ASMHookAdapter {
                 }
             }
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -127,9 +121,7 @@ class PageViewProbe extends ASMHookAdapter {
                 }
             }
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -168,9 +160,7 @@ class PageViewProbe extends ASMHookAdapter {
                 }
             }
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 

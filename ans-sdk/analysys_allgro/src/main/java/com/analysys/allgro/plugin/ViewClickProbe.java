@@ -16,8 +16,6 @@ import android.widget.RatingBar;
 import android.widget.TabHost;
 
 import com.analysys.allgro.AllegroUtils;
-import com.analysys.allgro.BuglyUtils;
-import com.analysys.allgro.BuildConfig;
 import com.analysys.process.AgentProcess;
 import com.analysys.utils.Constants;
 
@@ -41,9 +39,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             trackMenuItem(null, menuItem, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -75,9 +71,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -139,9 +133,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -164,9 +156,7 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_CONTENT, tabName);
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -279,9 +269,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             autoTrackClick(dialog, elementInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -298,9 +286,7 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_CONTENT, isOpen ? "Open" : "Close");
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -326,9 +312,7 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_POSITION, parent.indexOfChild(childView) + "");
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -353,9 +337,7 @@ class ViewClickProbe extends ASMHookAdapter {
             viewInfo.put(Constants.ELEMENT_POSITION, position + "");
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -380,9 +362,7 @@ class ViewClickProbe extends ASMHookAdapter {
             viewInfo.put(Constants.ELEMENT_POSITION, groupPosition + ":" + childPosition);
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -406,9 +386,7 @@ class ViewClickProbe extends ASMHookAdapter {
             viewInfo.put(Constants.ELEMENT_POSITION, groupPosition);
             trackListView(parent, v, groupPosition, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
@@ -431,9 +409,7 @@ class ViewClickProbe extends ASMHookAdapter {
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Exception e) {
-            if (BuildConfig.ENABLE_BUGLY) {
-                BuglyUtils.commitError(e);
-            }
+            AllegroUtils.reportCatchException(e);
         }
     }
 
