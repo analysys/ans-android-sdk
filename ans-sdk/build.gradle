@@ -6,6 +6,7 @@ def formattedDate = new Date().format('MMddHHmm')
 def makeJarList = ['analysys_encryption': 'analysys_encrypt.jar',
                    'analysys_push'      : 'analysys_push.jar',
                    'analysys_visual'    : 'analysys_visual.jar',
+                   'analysys_allgro'    : 'analysys_allgro.aar',
                    'analysys_paas'      : 'analysys_core.jar']
 
 def rootPath = "${project.projectDir}/sdkProjeckt"

@@ -118,6 +118,25 @@
       "$session_id"
     ]
   },
+  "$user_click": {
+    "xcontext": [
+      "$channel",
+      "$time_zone",
+      "$manufacturer",
+      "$app_version",
+      "$model",
+      "$os",
+      "$os_version",
+      "$network",
+      "$screen_width",
+      "$screen_height",
+      "$carrier_name",
+      "$brand",
+      "$language",
+      "$is_first_day",
+      "$session_id"
+    ]
+  },
   "$first_installation": {
     "xcontext": [
       "$channel",

@@ -400,10 +400,12 @@ public class CommonUtils {
             try {
                 Class<?> clazz = Class.forName("android.content.Context");
                 Method method = clazz.getMethod("checkSelfPermission", String.class);
-                int rest = (Integer) method.invoke(context, permission);
-                result = rest == PackageManager.PERMISSION_GRANTED;
-            } catch (Exception throwable) {
-                result = false;
+                Object invoke = method.invoke(context, permission);
+                if (invoke instanceof Integer) {
+                    int rest = (Integer) invoke;
+                    result = rest == PackageManager.PERMISSION_GRANTED;
+                }
+            } catch (Exception ignored) {
             }
         } else {
             PackageManager pm = context.getPackageManager();
@@ -506,14 +508,14 @@ public class CommonUtils {
      * 带参数 static 反射
      */
     public static Object reflexStaticMethod(String classPath, String methodName, Class[] classes,
-                                     Object... objects) {
+                                            Object... objects) {
         try {
             Class<?> cl = Class.forName(classPath);
             Method method = cl.getDeclaredMethod(methodName, classes);
             //类中的成员变量为private,必须进行此操作
             method.setAccessible(true);
             return method.invoke(null, objects);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -1000,12 +1002,13 @@ public class CommonUtils {
     }
 
     private static String getMacBySystemInterface(Context context) {
-        if (context != null) {
-            WifiManager wifi = (WifiManager) context.getApplicationContext()
-                    .getSystemService(Context.WIFI_SERVICE);
-            if (checkPermission(context, Manifest.permission.ACCESS_WIFI_STATE)) {
+        if (context != null && checkPermission(context, Manifest.permission.ACCESS_WIFI_STATE)) {
+            WifiManager wifi = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wifi != null) {
                 WifiInfo info = wifi.getConnectionInfo();
-                return info.getMacAddress();
+                if (info != null) {
+                    return info.getMacAddress();
+                }
             }
         }
         return Constants.EMPTY;

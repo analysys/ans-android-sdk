@@ -21,12 +21,19 @@ public class AnsApplication extends Application {
     public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
     private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
     private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
+    private static  AnsApplication instance;
+
 
     private boolean isDebug = true;
+
+    public static AnsApplication getInstance() {
+        return instance;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         // 设置严苛模式
         strictMode();
         // 初始化ARouter
@@ -64,6 +71,12 @@ public class AnsApplication extends Application {
         config.setAutoInstallation(true);
         // 热图数据采集（默认关闭）
         config.setAutoHeatMap(false);
+        // pageView自动上报总开关（默认开启）
+        config.setAutoTrackPageView(true);
+        // fragment-pageView自动上报开关（默认关闭）
+        config.setAutoTrackFragmentPageView(false);
+        // 点击自动上报开关（默认关闭）
+        config.setAutoTrackClick(false);
 
         config.setEnableException(true);
         // 初始化
