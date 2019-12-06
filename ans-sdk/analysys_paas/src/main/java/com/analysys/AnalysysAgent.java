@@ -51,32 +51,36 @@ public class AnalysysAgent {
 
     /**
      * PageView自动上报-设置页面级黑名单
+     * @param pages 页面名称列表
      */
-    public void setPageViewBlackListByPages(List<String> pages) {
+    public static void setPageViewBlackListByPages(List<String> pages) {
         AgentProcess.getInstance().setPageViewBlackListByPages(pages);
     }
     
 
     /**
      * 点击自动上报-设置页面级黑名单
+     * @param pages 页面名称列表
      */
-    public void setAutoClickBlackListByPages(List<String> pages) {
+    public static void setAutoClickBlackListByPages(List<String> pages) {
         AgentProcess.getInstance().setAutoClickBlackListByPages(pages);
     }
 
 
     /**
      * 点击自动上报-设置元素类型级黑名单
+     * @param viewTypes 控件元素类列表
      */
-    public void setAutoClickBlackListByElementTypes(List<Class<?>> viewTypes) {
+    public static void setAutoClickBlackListByElementTypes(List<Class<? extends View>> viewTypes) {
         AgentProcess.getInstance().setAutoClickBlackListByElementTypes(viewTypes);
     }
 
 
     /**
      * 点击自动上报-设置元素类型级黑名单
+     * @param element 控件元素对象
      */
-    public void setAutoClickBlackListByElement(View element) {
+    public static void setAutoClickBlackListByElement(View element) {
         AgentProcess.getInstance().setAutoClickBlackListByElement(element);
     }
 

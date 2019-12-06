@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 import com.analysys.AnalysysConfig;
 import com.analysys.AutomaticAcquisition;
@@ -1522,7 +1523,7 @@ public class AgentProcess {
     /**
      * 设置元素类型级黑名单
      */
-    public void setAutoClickBlackListByElementTypes(List<Class<?>> viewTypes) {
+    public void setAutoClickBlackListByElementTypes(List<Class<? extends View>> viewTypes) {
         mIgnoreByViewTypes.clear();
         if (viewTypes != null) {
             for (Class<?> viewType : viewTypes) {
