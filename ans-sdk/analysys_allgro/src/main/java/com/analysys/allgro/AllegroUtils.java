@@ -819,11 +819,17 @@ public class AllegroUtils {
 
     /**
      * 上报捕获的异常
-     * @param e 
+     * @param throwable 
      */
-    public static void reportCatchException(Exception e) {
+    public static void reportCatchException(Exception throwable) {
         if (BuildConfig.ENABLE_BUGLY) {
-            BuglyUtils.commitError(e);
+            try {
+                Class clazz = Class.forName("com.tencent.bugly.crashreport.CrashReport");
+                Method postCatchedException = clazz.getMethod("postCatchedException", Throwable.class);
+                postCatchedException.invoke(null, throwable);
+            } catch (Throwable e) {
+
+            }
         }
     }
 }
