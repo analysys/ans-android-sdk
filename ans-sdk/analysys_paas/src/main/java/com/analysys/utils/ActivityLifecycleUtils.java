@@ -9,27 +9,17 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @Copyright © 2019 Analysys Inc. All rights reserved.
+ * @Description: activity生命周期utils类
+ * @Create: 2019-12-05 17:43
+ * @author: hcq
+ */
 public class ActivityLifecycleUtils {
 
-    private static boolean sInited;
     private static WeakReference<Activity> sCurrentActivityRef;
-    private static ActivityInfo sCurrentActivityInfo = new ActivityInfo();
 
-    private static Set<BaseLifecycleCallback> sAllCallbacks = new HashSet<>();
-
-    public static class ActivityInfo {
-        public String simpleName;
-        public String name;
-        public String canonicalName;
-        public Class<?> clz;
-
-        void clear() {
-            simpleName = null;
-            name = null;
-            canonicalName = null;
-            clz = null;
-        }
-    }
+    private static final Set<BaseLifecycleCallback> sAllCallbacks = new HashSet<>();
 
     public static abstract class BaseLifecycleCallback implements Application.ActivityLifecycleCallbacks {
         @Override
@@ -62,30 +52,37 @@ public class ActivityLifecycleUtils {
     }
 
     public static void addCallback(BaseLifecycleCallback callback) {
-        if (!sInited) {
-            throw new RuntimeException("call ActivityLifecycleUtils.initLifecycle first");
+        synchronized (sAllCallbacks) {
+            sAllCallbacks.add(callback);
         }
-        sAllCallbacks.add(callback);
     }
 
     public static void removeCallback(BaseLifecycleCallback callback) {
-        if (!sInited) {
-            throw new RuntimeException("call ActivityLifecycleUtils.initLifecycle first");
+        synchronized (sAllCallbacks) {
+            sAllCallbacks.remove(callback);
         }
-        sAllCallbacks.remove(callback);
+    }
+
+    private static BaseLifecycleCallback[] getCallbacks() {
+        synchronized (sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = new BaseLifecycleCallback[sAllCallbacks.size()];
+            return sAllCallbacks.toArray(callbacks);
+        }
     }
 
     private static Application.ActivityLifecycleCallbacks sCalback = new Application.ActivityLifecycleCallbacks() {
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-            for (BaseLifecycleCallback callback : sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = getCallbacks();
+            for (BaseLifecycleCallback callback : callbacks) {
                 callback.onActivityCreated(activity, savedInstanceState);
             }
         }
 
         @Override
         public void onActivityStarted(Activity activity) {
-            for (BaseLifecycleCallback callback : sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = getCallbacks();
+            for (BaseLifecycleCallback callback : callbacks) {
                 callback.onActivityStarted(activity);
             }
         }
@@ -94,13 +91,8 @@ public class ActivityLifecycleUtils {
         public void onActivityResumed(Activity activity) {
             sCurrentActivityRef = new WeakReference<>(activity);
 
-            Class<?> clz = activity.getClass();
-            sCurrentActivityInfo.simpleName = clz.getSimpleName();
-            sCurrentActivityInfo.name = clz.getName();
-            sCurrentActivityInfo.canonicalName = clz.getCanonicalName();
-            sCurrentActivityInfo.clz = clz;
-
-            for (BaseLifecycleCallback callback : sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = getCallbacks();
+            for (BaseLifecycleCallback callback : callbacks) {
                 callback.onActivityResumed(activity);
             }
         }
@@ -110,37 +102,39 @@ public class ActivityLifecycleUtils {
             if (sCurrentActivityRef != null) {
                 sCurrentActivityRef.clear();
             }
-            sCurrentActivityInfo.clear();
 
-            for (BaseLifecycleCallback callback : sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = getCallbacks();
+            for (BaseLifecycleCallback callback : callbacks) {
                 callback.onActivityPaused(activity);
             }
         }
 
         @Override
         public void onActivityStopped(Activity activity) {
-            for (BaseLifecycleCallback callback : sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = getCallbacks();
+            for (BaseLifecycleCallback callback : callbacks) {
                 callback.onActivityStopped(activity);
             }
         }
 
         @Override
         public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-            for (BaseLifecycleCallback callback : sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = getCallbacks();
+            for (BaseLifecycleCallback callback : callbacks) {
                 callback.onActivitySaveInstanceState(activity, outState);
             }
         }
 
         @Override
         public void onActivityDestroyed(Activity activity) {
-            for (BaseLifecycleCallback callback : sAllCallbacks) {
+            BaseLifecycleCallback[] callbacks = getCallbacks();
+            for (BaseLifecycleCallback callback : callbacks) {
                 callback.onActivityDestroyed(activity);
             }
         }
     };
 
     public static void initLifecycle() {
-        sInited = true;
         Context context = AnalysysUtil.getContext();
         if (context instanceof Application) {
             ((Application) context).registerActivityLifecycleCallbacks(sCalback);

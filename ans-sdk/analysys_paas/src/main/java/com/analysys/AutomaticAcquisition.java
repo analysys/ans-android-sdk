@@ -1,7 +1,6 @@
 package com.analysys;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -20,6 +19,7 @@ import com.analysys.process.HeatMap;
 import com.analysys.process.SessionManage;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -39,7 +39,7 @@ import java.util.Map;
  * @Create: 2018/3/4
  * @Author: Wang-X-C
  */
-public class AutomaticAcquisition implements Application.ActivityLifecycleCallbacks {
+public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCallback {
 
     private static final int TRACK_APP_END = 0x01;
     private static final int SAVE_END_INFO = TRACK_APP_END + 1;
@@ -83,7 +83,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     @Override
     public void onActivityCreated(final Activity activity, Bundle savedInstanceState) {
         AnalysysConfig config = AgentProcess.getInstance().getConfig();
-        
+
         if (config.isAutoTrackClick()) {
             AnalysysUtil.onActivityCreated(activity);
         }
@@ -125,14 +125,6 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     @Override
     public void onActivityStopped(Activity activity) {
         activityStop(new WeakReference<>(activity));
-    }
-
-    @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-    }
-
-    @Override
-    public void onActivityDestroyed(Activity activity) {
     }
 
     private void initHeatMap(final WeakReference<Activity> wa) {
