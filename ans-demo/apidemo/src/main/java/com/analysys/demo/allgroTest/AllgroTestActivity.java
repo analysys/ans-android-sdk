@@ -55,6 +55,7 @@ public class AllgroTestActivity extends AppCompatActivity implements ViewPager.O
         mDataBinding.viewPager.addOnPageChangeListener(this);//给ViewPager设置滑动监听，目的是为了显示Fragment
         mDataBinding.btn1.setSelected(true);//首次进入默认选中第一个
         //下方btn设置监听，点击时切换页面
+        mDataBinding.btn0.setOnClickListener(this);
         mDataBinding.btn1.setOnClickListener(this);
         mDataBinding.btn2.setOnClickListener(this);
         mDataBinding.btn3.setOnClickListener(this);
