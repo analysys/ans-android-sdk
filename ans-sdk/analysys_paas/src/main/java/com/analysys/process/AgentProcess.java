@@ -70,6 +70,7 @@ public class AgentProcess {
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
     public void init(final Context context, final AnalysysConfig config) {
+        AnalysysUtil.init(context);
         CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
             @Override
             public void onAppCrash(Throwable e) {
@@ -79,7 +80,6 @@ public class AgentProcess {
         if (config != null) {
             mConfig = config;
         }
-        AnalysysUtil.init(context);
         ActivityLifecycleUtils.initLifecycle();
         ActivityLifecycleUtils.addCallback(new AutomaticAcquisition());
         ANSThreadPool.execute(new Runnable() {
