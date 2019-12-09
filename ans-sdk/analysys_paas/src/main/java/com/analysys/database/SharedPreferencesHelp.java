@@ -21,18 +21,12 @@ class SharedPreferencesHelp {
     }
 
     SharedPreferences getPreferences(Context context) {
-//        if (mPreferences == null && context != null) {
-//            mPreferences = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
-//        } else {
-//            mPreferences = null;
-//        }
 
         if (mPreferences == null) {
             if (context != null) {
                 mPreferences = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
             }
         }
-
 
 
         return mPreferences;
@@ -45,20 +39,6 @@ class SharedPreferencesHelp {
             mEditor = mPreferences.edit();
         }
 
-//        if (mEditor == null && context != null) {
-//            if (mPreferences != null) {
-//                mEditor = mPreferences.edit();
-//            } else {
-//                mPreferences = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
-//                if (mPreferences != null) {
-//                    mEditor = mPreferences.edit();
-//                } else {
-//                    mEditor = null;
-//                }
-//            }
-//        } else {
-//            mEditor = null;
-//        }
         return mEditor;
     }
 

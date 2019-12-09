@@ -15,29 +15,8 @@ class DBHelper extends SQLiteOpenHelper {
 
     DBHelper(Context context) {
         super(context, DBConfig.TableAllInfo.DBNAME, null, DBConfig.TableAllInfo.VERSION);
-//        createTables();
     }
 
-//    public static DBHelper getInstance(Context context) {
-//        if (CommonUtils.isEmpty(mContext)) {
-//            mContext = context;
-//        }
-//        return Holder.INSTANCE;
-//    }
-
-    /**
-     * 建表
-     */
-//    private void createTable(String createSQL) {
-//        try {
-//            SQLiteDatabase db = getWritableDatabase();
-//            if (!DBUtils.isTableExist(db)) {
-//                db.execSQL(createSQL);
-//            }
-//        } catch (Throwable e) {
-//            //ANSLog.e(e);
-//        }
-//    }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -49,9 +28,4 @@ class DBHelper extends SQLiteOpenHelper {
 
     }
 
-
-
-//    private static class Holder {
-//        private static final DBHelper INSTANCE = new DBHelper(mContext);
-//    }
 }

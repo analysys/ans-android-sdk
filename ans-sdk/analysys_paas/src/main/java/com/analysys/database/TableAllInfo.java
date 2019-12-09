@@ -110,21 +110,6 @@ public class TableAllInfo {
         long count = 0l;
         try {
             if (mContext != null) {
-//                SQLiteDatabase db = DBManage.getInstance(mContext).openDB();
-//                if (db != null) {
-//
-//                    DBHelper.getInstance(mContext).createTable(
-//                            TableAllInfo.CREATE_TABLE);
-//
-//                    cursor = db.query(TableAllInfo.TABLE_NAME,
-//                            null, null, null,
-//                            null, null, null);
-//
-//                    if (cursor != null) {
-//                        return cursor.getCount();
-//                    }
-//
-//                }
 
                 Uri uri = EventTableMetaData.getTableFZ(mContext);
                 cursor = mContext.getContentResolver().query(uri,null,null,null,null);
@@ -139,7 +124,6 @@ public class TableAllInfo {
             if (cursor != null) {
                 cursor.close();
             }
-//            DBManage.getInstance(mContext).closeDB();
         }
 
         return count;
@@ -153,24 +137,12 @@ public class TableAllInfo {
             if (mContext == null) {
                 return;
             }
-//            SQLiteDatabase db = DBManage.getInstance(mContext).openDB();
-//            if (db == null) {
-//                return;
-//            }
-//            DBHelper.getInstance(mContext).createTable(TableAllInfo.CREATE_TABLE);
 
             Uri uri = EventTableMetaData.getTableFZ(mContext);
             mContext.getContentResolver().delete(uri,DBConfig.TableAllInfo.Column.SIGN + "=?",new String[]{String.valueOf(DBConfig.Status.FLAG_UPLOADING)});
-//            db.delete(
-//                    DBConfig.TableAllInfo.TABLE_NAME,
-//                    DBConfig.TableAllInfo.Column.SIGN + "=?",
-//                    new String[]{String.valueOf(DBConfig.Status.FLAG_UPLOADING)});
         } catch (Throwable e) {
             ExceptionUtil.exceptionThrow(e);
         }
-//        finally {
-//            DBManage.getInstance(mContext).closeDB();
-//        }
     }
 
     /**
@@ -182,16 +154,6 @@ public class TableAllInfo {
             if (mContext == null) {
                 return;
             }
-//            SQLiteDatabase db = DBManage.getInstance(mContext).openDB();
-//            if (db == null) {
-//                return;
-//            }
-//            DBHelper.getInstance(mContext).createTable(DBConfig.TableAllInfo.CREATE_TABLE);
-
-//            cursor = db.query(DBConfig.TableAllInfo.TABLE_NAME,
-//                    new String[]{DBConfig.TableAllInfo.Column.ID},
-//                    null, null, null, null
-//                    , DBConfig.TableAllInfo.Column.ID + " desc", "0," + count);
 
             Uri uri = EventTableMetaData.getTableFZ(mContext);
             String sortOrder = DBConfig.TableAllInfo.Column.ID + " desc "+" LIMIT 0," + count;
@@ -204,10 +166,6 @@ public class TableAllInfo {
                     int id = cursor.getInt(cursor.getColumnIndexOrThrow(
                             DBConfig.TableAllInfo.Column.ID));
 
-//                    db.delete(DBConfig.TableAllInfo.TABLE_NAME,
-//                            DBConfig.TableAllInfo.Column.ID + "=?",
-//                            new String[]{String.valueOf(id)});
-
                     mContext.getContentResolver().delete(uri,DBConfig.TableAllInfo.Column.ID + "=?",new String[]{String.valueOf(id)});
                 }
             }
@@ -218,7 +176,6 @@ public class TableAllInfo {
             if (cursor != null) {
                 cursor.close();
             }
-//            DBManage.getInstance(mContext).closeDB();
         }
     }
 
@@ -230,12 +187,6 @@ public class TableAllInfo {
             if (mContext == null) {
                 return;
             }
-//            SQLiteDatabase db = DBManage.getInstance(mContext).openDB();
-//            if (db == null) {
-//                return;
-//            }
-//            DBHelper.getInstance(mContext).createTable(DBConfig.TableAllInfo.CREATE_TABLE);
-//            db.delete(DBConfig.TableAllInfo.TABLE_NAME, null, null);
 
             Uri uri = EventTableMetaData.getTableFZ(mContext);
             mContext.getContentResolver().delete(uri,null,null);
@@ -243,33 +194,8 @@ public class TableAllInfo {
         } catch (Throwable e) {
             ExceptionUtil.exceptionThrow(e);
         }
-//        finally {
-//            DBManage.getInstance(mContext).closeDB();
-//        }
     }
 
-//    /**
-//     * 数据查询 cursor
-//     *
-//     * @param db
-//     * @return
-//     */
-//    private Cursor selectCursor(SQLiteDatabase db) {
-//        if (db != null) {
-//            return db.query(true,
-//                    DBConfig.TableAllInfo.TABLE_NAME,
-//                    new String[]{
-//                            DBConfig.TableAllInfo.Column.INFO,
-//                            DBConfig.TableAllInfo.Column.ID,
-//                            DBConfig.TableAllInfo.Column.TYPE
-//                    },
-//                    null, null,
-//                    null, null,
-//                    DBConfig.TableAllInfo.Column.ID + " asc",
-//                    "0," + Constants.MAX_SEND_COUNT);
-//        }
-//        return null;
-//    }
 
     /**
      * 更新标记
@@ -280,9 +206,6 @@ public class TableAllInfo {
     private void updateSign(Context context, int id) {
         ContentValues values = new ContentValues();
         values.put(DBConfig.TableAllInfo.Column.SIGN, DBConfig.Status.FLAG_UPLOADING);
-//        db.update(DBConfig.TableAllInfo.TABLE_NAME, values,
-//                DBConfig.TableAllInfo.Column.ID + "=?",
-//                new String[]{String.valueOf(id)});
 
         Uri uri = EventTableMetaData.getTableFZ(mContext);
         context.getContentResolver().update(uri, values, DBConfig.TableAllInfo.Column.ID + "=?",
