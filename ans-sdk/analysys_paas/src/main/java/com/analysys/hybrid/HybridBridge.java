@@ -9,6 +9,7 @@ import com.analysys.process.AgentProcess;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.SharedUtil;
 
 import org.json.JSONArray;
@@ -61,6 +62,7 @@ public class HybridBridge {
                 }
             }
         } catch (Throwable ignored) {
+            ExceptionUtil.exceptionThrow(ignored);
         }
     }
 
@@ -70,22 +72,7 @@ public class HybridBridge {
             if (array != null && array.length() > 0) {
                 String key = array.optString(0);
                 Object value = array.opt(1);
-
-                try{
-                    String sharedProperty = SharedUtil.getString(
-                            context, Constants.SP_SUPER_PROPERTY, null);
-
-                    if (!CommonUtils.isEmpty(sharedProperty)) {
-                        JSONObject propertyInfo = new JSONObject(sharedProperty);
-                        if (propertyInfo.has(key)) {
-                            return;
-                        }
-                    }
-                }catch (Exception e){
-
-                }
-
-                AnalysysAgent.registerSuperProperty(context, key, value);
+                AgentProcess.getInstance().registerSuperProperty(key,value);
             }
         }
     }
@@ -94,29 +81,10 @@ public class HybridBridge {
     private void registerSuperProperties(Context context, JSONArray array) {
         if (context != null) {
             if (array != null && array.length() > 0) {
-
                 JSONObject obj = array.optJSONObject(0);
-                if (obj == null || obj.length() == 0) {
-                    return;
-                }
-
-                try{
-                    String sharedProperty = SharedUtil.getString(
-                            context, Constants.SP_SUPER_PROPERTY, null);
-
-                    if (!CommonUtils.isEmpty(sharedProperty)) {
-                        JSONObject propertyInfo = new JSONObject(sharedProperty);
-
-                        CommonUtils.mergeJson(propertyInfo,obj);
-                    }
-                }catch (Exception e){
-
-                }
-
                 if (obj != null && obj.length() > 0) {
                     Map<String, Object> map = convertToMap(obj);
-
-                    AnalysysAgent.registerSuperProperties(context, map);
+                    AgentProcess.getInstance().registerJsSuperProperties(map);
                 }
             }
         }
@@ -127,7 +95,7 @@ public class HybridBridge {
         if (array != null && array.length() > 0) {
             String key = array.optString(0);
             if (!TextUtils.isEmpty(key)) {
-                AnalysysAgent.unRegisterSuperProperty(context, key);
+                AgentProcess.getInstance().unregisterJsSuperProperty(key);
             }
         }
     }
@@ -203,7 +171,7 @@ public class HybridBridge {
 
     @SuppressWarnings("unused")
     private void clearSuperProperties(Context context, JSONArray array) {
-        AnalysysAgent.clearSuperProperties(context);
+        AgentProcess.getInstance().clearJsSuperProperty();
     }
 
     @SuppressWarnings("unused")

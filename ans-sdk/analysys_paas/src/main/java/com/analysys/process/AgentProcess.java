@@ -22,6 +22,7 @@ import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.CrashHandler;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.InternalAgent;
 import com.analysys.utils.LogPrompt;
 import com.analysys.utils.NumberFormat;
@@ -120,6 +121,7 @@ public class AgentProcess {
                         LogPrompt.showInitLog(false);
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -172,6 +174,7 @@ public class AgentProcess {
                 }
             }
         } catch (Throwable ignored) {
+            ExceptionUtil.exceptionThrow(ignored);
         }
     }
 
@@ -231,6 +234,7 @@ public class AgentProcess {
 
                     trackEvent(context, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -288,6 +292,7 @@ public class AgentProcess {
                 trackEvent(context, Constants.API_APP_CLICK, Constants.APP_CLICK, eventData);
             }
         } catch (Throwable ignored) {
+            ExceptionUtil.exceptionThrow(ignored);
         }
     }
 
@@ -331,6 +336,7 @@ public class AgentProcess {
                     }
                     trackEvent(context, Constants.API_TRACK, eventName, eventData);
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -418,6 +424,7 @@ public class AgentProcess {
                         }
                     }
                 } catch (Throwable throwable) {
+                    ExceptionUtil.exceptionThrow(throwable);
                 }
             }
         });
@@ -453,6 +460,7 @@ public class AgentProcess {
                         }
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -511,6 +519,7 @@ public class AgentProcess {
                         LogPrompt.showLog(Constants.API_PROFILE_SET_ONCE, false);
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -552,6 +561,7 @@ public class AgentProcess {
                         LogPrompt.showLog(Constants.API_PROFILE_INCREMENT, false);
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -592,6 +602,7 @@ public class AgentProcess {
                         LogPrompt.showLog(Constants.API_PROFILE_APPEND, false);
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -649,6 +660,7 @@ public class AgentProcess {
                         LogPrompt.showLog(Constants.API_PROFILE_UNSET, false);
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -680,9 +692,22 @@ public class AgentProcess {
     }
 
     /**
+     * Js注册单条通用属性
+     * @param key
+     * @param value
+     */
+    public void registerJsSuperProperty(final String key, final Object value) {
+        handleSuperProperty(key, value, Constants.SP_JS_SUPER_PROPERTY);
+    }
+
+    /**
      * 注册单条通用属性
      */
     public void registerSuperProperty(final String key, final Object value) {
+        handleSuperProperty(key, value, Constants.SP_SUPER_PROPERTY);
+    }
+
+    private void handleSuperProperty(final String key, final Object value,String type){
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -699,11 +724,12 @@ public class AgentProcess {
                         if (LogBean.getCode() == Constants.CODE_SUCCESS) {
                             LogPrompt.showLog(Constants.API_REGISTER_SUPER_PROPERTY, true);
                         }
-                        saveSuperProperty(context, property);
+                        saveSuperProperty(context, property,type);
                     } else {
                         LogPrompt.showLog(Constants.API_REGISTER_SUPER_PROPERTY, LogBean.getLog());
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
 
             }
@@ -711,9 +737,21 @@ public class AgentProcess {
     }
 
     /**
-     * 注册多条公共属性
+     * 注册js通用属性
+     * @param propertyDetail
      */
+    public void registerJsSuperProperties(final Map<String, Object> propertyDetail) {
+        handleSuperProperties(propertyDetail,Constants.SP_JS_SUPER_PROPERTY);
+    }
+
+        /**
+         * 注册多条公共属性
+         */
     public void registerSuperProperties(final Map<String, Object> propertyDetail) {
+        handleSuperProperties(propertyDetail,Constants.SP_SUPER_PROPERTY);
+    }
+
+    private void handleSuperProperties(final Map<String, Object> propertyDetail,String type){
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -731,9 +769,10 @@ public class AgentProcess {
                             LogPrompt.showLog(
                                     Constants.API_REGISTER_SUPER_PROPERTIES, true);
                         }
-                        saveSuperProperty(context, propertyInfo);
+                        saveSuperProperty(context, propertyInfo,type);
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
 
@@ -745,6 +784,8 @@ public class AgentProcess {
      * 用户获取super Property
      */
     public Map<String, Object> getSuperProperty() {
+        Map<String, Object> map = new HashMap<String,Object>(16);
+        JSONObject mergeSuper = new JSONObject();
         try {
             Context context = AnalysysUtil.getContext();
             if (context == null) {
@@ -752,36 +793,88 @@ public class AgentProcess {
             }
             String superProperty = SharedUtil.getString(context,
                     Constants.SP_SUPER_PROPERTY, null);
-            if (!CommonUtils.isEmpty(superProperty)) {
-                return CommonUtils.jsonToMap(new JSONObject(superProperty));
+
+            String jsSuperProperty = SharedUtil.getString(context,
+                    Constants.SP_JS_SUPER_PROPERTY, null);
+
+            //用superProperty覆盖jsSuperProperty的方式合并
+            JSONObject superPropertyJson = null;
+            if (superProperty != null&&superProperty.length()>0) {
+                superPropertyJson = new JSONObject(superProperty);
             }
+            JSONObject jsSuperPropertyJson = null;
+            if (jsSuperProperty != null&&jsSuperProperty.length()>0) {
+                jsSuperPropertyJson = new JSONObject(jsSuperProperty);
+            }
+            if (superPropertyJson != null && jsSuperPropertyJson != null) {
+                CommonUtils.mergeJson(superPropertyJson, jsSuperPropertyJson);
+                mergeSuper = jsSuperPropertyJson;
+            } else {
+                if(superPropertyJson==null){
+                    //用jsSuperProperty
+                    mergeSuper = jsSuperPropertyJson;
+                } {
+                    if(jsSuperPropertyJson==null){
+                        mergeSuper = superPropertyJson;
+                    }
+                }
+            }
+
+            if(mergeSuper!=null){
+                map.putAll(CommonUtils.jsonToMap(mergeSuper));
+            }
+
         } catch (Throwable ignored) {
+            ExceptionUtil.exceptionThrow(ignored);
         }
-        return new HashMap<>();
+        return map;
     }
+
 
     /**
      * 用户获取超级属性
      */
     public Object getSuperProperty(String propertyKey) {
+        Object obj = handleGetSuperProperty(propertyKey, Constants.SP_SUPER_PROPERTY);
+        if (obj == null) {
+            obj = handleGetSuperProperty(propertyKey, Constants.SP_JS_SUPER_PROPERTY);
+        }
+        return obj;
+    }
+
+    private Object handleGetSuperProperty(String propertyKey,String type) {
         try {
             Context context = AnalysysUtil.getContext();
             if (context != null && !CommonUtils.isEmpty(propertyKey)) {
                 String superProperty = SharedUtil.getString(
-                        context, Constants.SP_SUPER_PROPERTY, null);
+                        context, type, null);
                 if (!CommonUtils.isEmpty(superProperty)) {
                     return new JSONObject(superProperty).opt(propertyKey);
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable throwable) {
+            ExceptionUtil.exceptionThrow(throwable);
         }
         return null;
     }
 
     /**
+     * 删除js超级属性
+     * @param superPropertyName
+     */
+    public void unregisterJsSuperProperty(final String superPropertyName) {
+        handleSuperProperty(superPropertyName,Constants.SP_JS_SUPER_PROPERTY);
+    }
+
+    /**
      * 删除超级属性
+     * @param superPropertyName
      */
     public void unregisterSuperProperty(final String superPropertyName) {
+        handleSuperProperty(superPropertyName,Constants.SP_SUPER_PROPERTY);
+    }
+
+    private void handleSuperProperty(final String superPropertyName,String type) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -789,38 +882,50 @@ public class AgentProcess {
                     Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(superPropertyName)) {
                         String property = SharedUtil.getString(
-                                context, Constants.SP_SUPER_PROPERTY, null);
-
+                                context, type, null);
                         if (!CommonUtils.isEmpty(property)) {
                             JSONObject json = new JSONObject(property);
                             json.remove(superPropertyName);
                             SharedUtil.setString(
-                                    context, Constants.SP_SUPER_PROPERTY, String.valueOf(json));
+                                    context, type, String.valueOf(json));
                             LogPrompt.showLog(
                                     Constants.API_UNREGISTER_SUPER_PROPERTY, true);
                         }
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
     }
 
     /**
+     * 清空js通用属性
+     */
+    public void clearJsSuperProperty() {
+        handleClearSuperProperty(Constants.SP_JS_SUPER_PROPERTY);
+    }
+
+    /**
      * 删除所有超级属性
      */
     public void clearSuperProperty() {
+        handleClearSuperProperty(Constants.SP_SUPER_PROPERTY);
+    }
+
+    private void handleClearSuperProperty(String type) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
-                        SharedUtil.remove(context, Constants.SP_SUPER_PROPERTY);
+                        SharedUtil.remove(context, type);
                         LogPrompt.showLog(
                                 Constants.API_CLEAR_SUPER_PROPERTIES, true);
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
             }
         });
@@ -1310,11 +1415,11 @@ public class AgentProcess {
      * 存储通用属性
      */
     private void saveSuperProperty(Context context,
-                                   Map<String, Object> superProperty) throws Exception {
+                                   Map<String, Object> superProperty,String type) throws Exception {
         JSONObject propertyInfo;
         if (!CommonUtils.isEmpty(superProperty)) {
             String sharedProperty = SharedUtil.getString(
-                    context, Constants.SP_SUPER_PROPERTY, null);
+                    context, type, null);
             if (!CommonUtils.isEmpty(sharedProperty)) {
                 propertyInfo = new JSONObject(sharedProperty);
                 CommonUtils.mergeJson(new JSONObject(superProperty), propertyInfo);
@@ -1322,7 +1427,7 @@ public class AgentProcess {
                 propertyInfo = new JSONObject(superProperty);
             }
             SharedUtil.setString(
-                    context, Constants.SP_SUPER_PROPERTY, String.valueOf(propertyInfo));
+                    context, type, String.valueOf(propertyInfo));
         }
     }
 
@@ -1336,6 +1441,8 @@ public class AgentProcess {
         SharedUtil.remove(context, Constants.DEV_IS_FIRST_DAY);
         // 重置 通用属性
         SharedUtil.remove(context, Constants.SP_SUPER_PROPERTY);
+        // 重置JS通用属性
+        SharedUtil.remove(context, Constants.SP_JS_SUPER_PROPERTY);
         // 重置 alias id
         CommonUtils.setIdFile(context, Constants.SP_ALIAS_ID, "");
         // 重置identify
