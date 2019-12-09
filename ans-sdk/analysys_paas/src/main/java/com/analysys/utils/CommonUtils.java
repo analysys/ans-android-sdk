@@ -424,11 +424,7 @@ public class CommonUtils {
      */
     public static String getAppKey(Context context) {
         try {
-            String appkey = AnalysysAgent.getConfig().getAppKey();
-            if (appkey == null) {
-                appkey = SharedUtil.getString(context, Constants.SP_APP_KEY, null);
-            }
-            return appkey;
+            return SharedUtil.getString(context, Constants.SP_APP_KEY, null);
         } catch (Throwable ignored) {
         }
         return null;
