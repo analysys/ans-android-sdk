@@ -43,6 +43,7 @@
         <activity
             android:name=".SingleProcessTestActivity"
             android:process=":singleProcess" />
+        <activity android:name=".allgroTest.AllgroTestActivity" />
 
         <meta-data
             android:name="ANALYSYS_AUTO_COLLECTION_MAC"

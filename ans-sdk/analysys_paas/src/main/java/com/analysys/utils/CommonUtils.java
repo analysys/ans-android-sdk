@@ -402,10 +402,12 @@ public class CommonUtils {
             try {
                 Class<?> clazz = Class.forName("android.content.Context");
                 Method method = clazz.getMethod("checkSelfPermission", String.class);
-                int rest = (Integer) method.invoke(context, permission);
-                result = rest == PackageManager.PERMISSION_GRANTED;
-            } catch (Exception throwable) {
-                result = false;
+                Object invoke = method.invoke(context, permission);
+                if (invoke instanceof Integer) {
+                    int rest = (Integer) invoke;
+                    result = rest == PackageManager.PERMISSION_GRANTED;
+                }
+            } catch (Exception ignored) {
             }
         } else {
             PackageManager pm = context.getPackageManager();
@@ -503,6 +505,22 @@ public class CommonUtils {
             method.setAccessible(true);
             Object object = cl.newInstance();
             return method.invoke(object, objects);
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * 带参数 static 反射
+     */
+    public static Object reflexStaticMethod(String classPath, String methodName, Class[] classes,
+                                            Object... objects) {
+        try {
+            Class<?> cl = Class.forName(classPath);
+            Method method = cl.getDeclaredMethod(methodName, classes);
+            //类中的成员变量为private,必须进行此操作
+            method.setAccessible(true);
+            return method.invoke(null, objects);
         } catch (Throwable ignored) {
         }
         return null;
@@ -633,15 +651,18 @@ public class CommonUtils {
      * 获取 id 信息
      */
     public static String getIdFile(Context context, String key) {
-        String filePath = context.getFilesDir().getPath() + Constants.FILE_NAME;
         try {
+            if (context == null || context.getFilesDir() == null) {
+                return null;
+            }
+            String filePath = context.getFilesDir().getPath() + Constants.FILE_NAME;
             String info = readFile(filePath);
             if (!TextUtils.isEmpty(info)) {
                 JSONObject job = new JSONObject(info);
                 return job.optString(key);
             }
         } catch (Throwable throwable) {
-            writeFile(filePath, null);
+//            writeFile(filePath, null);
         }
         return null;
     }
@@ -987,12 +1008,13 @@ public class CommonUtils {
     }
 
     private static String getMacBySystemInterface(Context context) {
-        if (context != null) {
-            WifiManager wifi = (WifiManager) context.getApplicationContext()
-                    .getSystemService(Context.WIFI_SERVICE);
-            if (checkPermission(context, Manifest.permission.ACCESS_WIFI_STATE)) {
+        if (context != null && checkPermission(context, Manifest.permission.ACCESS_WIFI_STATE)) {
+            WifiManager wifi = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wifi != null) {
                 WifiInfo info = wifi.getConnectionInfo();
-                return info.getMacAddress();
+                if (info != null) {
+                    return info.getMacAddress();
+                }
             }
         }
         return Constants.EMPTY;
@@ -1262,5 +1284,21 @@ public class CommonUtils {
             return System.currentTimeMillis() + Constants.diffTime;
         }
         return System.currentTimeMillis();
+    }
+
+    /**
+     * 获取应用启动来源
+     */
+    public static String getLaunchSource() {
+        switch (Constants.sourceNum) {
+            case 1:
+                return "icon";
+            case 2:
+                return "msg";
+            case 3:
+                return "url";
+            default:
+                return "0";
+        }
     }
 }

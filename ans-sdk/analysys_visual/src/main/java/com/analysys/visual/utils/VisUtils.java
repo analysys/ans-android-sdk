@@ -31,7 +31,7 @@ public class VisUtils {
      *
      * @return 设备唯一ID
      */
-    static String ID_KEY = "visual_uuid";
+    private static final String ID_KEY = "visual_uuid";
     private static Map<String, String> mDeviceInfo;
 
     public static Map<String, String> getDeviceInfo(Context context) {
@@ -58,7 +58,7 @@ public class VisUtils {
         return mDeviceInfo;
     }
 
-    public static String getDeviceID(Context context) {
+    private static String getDeviceID(Context context) {
 
         String id = InternalAgent.getString(context, ID_KEY, null);
         if (!InternalAgent.isEmpty(id)) {
@@ -112,8 +112,7 @@ public class VisUtils {
                 try {
                     Class<?> forName = Class.forName("android.os.Build");
                     Method getSerialMethod = forName.getMethod("getSerial");
-                    String result = (String) getSerialMethod.invoke(forName.newInstance());
-                    return result;
+                    return (String) getSerialMethod.invoke(forName.newInstance());
                 } catch (Throwable e) {
                 }
             }
@@ -124,7 +123,7 @@ public class VisUtils {
     /**
      * 获取 IMEI
      */
-    public static String getIMEI(Context context) {
+    private static String getIMEI(Context context) {
         String imei = "";
         try {
             if (!InternalAgent.checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
@@ -147,7 +146,7 @@ public class VisUtils {
         String timeStamp = String.valueOf(System.currentTimeMillis());
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] digest1 = digest.digest(new String(key + timeStamp).getBytes());
+            byte[] digest1 = digest.digest((key + timeStamp).getBytes());
             byte[] encode = Base64.encode(digest1, 0, 10, Base64.DEFAULT);
             return new String(encode);
         } catch (Throwable e) {

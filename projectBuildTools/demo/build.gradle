@@ -1,0 +1,51 @@
+rootProject.ext.gradle_base_demo this, 'com.android.application'
+apply plugin: 'com.analysys.android.plugin'
+
+android {
+    defaultConfig {
+
+        buildConfigField("String", "Build_Type", "${Build_Type}")
+        applicationId "com.analysys.demo"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        preDexLibraries false
+        maxProcessCount 8
+        javaMaxHeapSize "4g"
+    }
+
+    aaptOptions {
+        cruncherEnabled = false
+        useNewCruncher = false
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        warningsAsErrors false
+        disable "UnusedResources"
+        textOutput "stdout"
+        textReport false
+        disable 'RestrictedApi'
+    }
+
+    analysysConfig {
+        lambdaEnabled = true
+    }
+}
+
+
+// 忽略文档编译错误. 设置编码
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}

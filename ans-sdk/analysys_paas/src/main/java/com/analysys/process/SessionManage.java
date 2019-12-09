@@ -8,8 +8,6 @@ import com.analysys.utils.Constants;
 import java.security.MessageDigest;
 import java.util.Random;
 
-import androidx.annotation.Nullable;
-
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
  * @Description: TODO
@@ -147,7 +145,7 @@ public class SessionManage {
         return getString(m);
     }
 
-    private String getString(@Nullable byte[] b) {
+    private String getString(byte[] b) {
         if (b != null) {
             StringBuilder buf = new StringBuilder();
             for (int value : b) {

@@ -1,7 +1,6 @@
 package com.analysys;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -20,20 +19,18 @@ import com.analysys.process.HeatMap;
 import com.analysys.process.SessionManage;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.NumberFormat;
-import com.analysys.utils.SharedUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -42,7 +39,7 @@ import androidx.annotation.NonNull;
  * @Create: 2018/3/4
  * @Author: Wang-X-C
  */
-public class AutomaticAcquisition implements Application.ActivityLifecycleCallbacks {
+public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCallback {
 
     private static final int TRACK_APP_END = 0x01;
     private static final int SAVE_END_INFO = TRACK_APP_END + 1;
@@ -63,7 +60,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         mWorkThread.start();
         mHandler = new Handler(mWorkThread.getLooper()) {
             @Override
-            public void handleMessage(@NonNull Message msg) {
+            public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case TRACK_APP_END:
                         // 上报数据
@@ -84,30 +81,36 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityCreated(@NonNull final Activity activity, Bundle savedInstanceState) {
-        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
-            initHeatMap(new WeakReference<>(activity));
+    public void onActivityCreated(final Activity activity, Bundle savedInstanceState) {
+        AnalysysConfig config = AgentProcess.getInstance().getConfig();
+
+        if (config.isAutoTrackClick()) {
+            AnalysysUtil.onActivityCreated(activity);
         }
-        if (context == null) {
-            context = activity.getApplicationContext();
+
+        if (config.isAutoHeatMap()) {
+            initHeatMap(new WeakReference<>(activity));
         }
     }
 
     @Override
-    public void onActivityStarted(@NonNull final Activity activity) {
+    public void onActivityStarted(final Activity activity) {
         ANSLog.e("");
+        if (context == null) {
+            context = activity.getApplicationContext();
+        }
         appStart(new WeakReference<>(activity));
     }
 
     @Override
-    public void onActivityResumed(@NonNull Activity activity) {
+    public void onActivityResumed(Activity activity) {
         if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
             checkLayoutListener(new WeakReference<>(activity), true);
         }
     }
 
     @Override
-    public void onActivityPaused(@NonNull final Activity activity) {
+    public void onActivityPaused(final Activity activity) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -120,16 +123,8 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
     }
 
     @Override
-    public void onActivityStopped(@NonNull Activity activity) {
+    public void onActivityStopped(Activity activity) {
         activityStop(new WeakReference<>(activity));
-    }
-
-    @Override
-    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-    }
-
-    @Override
-    public void onActivityDestroyed(@NonNull Activity activity) {
     }
 
     private void initHeatMap(final WeakReference<Activity> wa) {
@@ -173,7 +168,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
                             // 1.尝试切session
                             sessionManage(context, activity.getIntent());
 
-                           String changeTime = String.valueOf(System.currentTimeMillis());
+                            String changeTime = String.valueOf(System.currentTimeMillis());
                             // 2.存lastPageChange
                             CommonUtils.setIdFile(activity.getApplicationContext(),
                                     Constants.SP_LAST_PAGE_CHANGE, changeTime);
@@ -192,7 +187,7 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
      * 页面自动采集
      */
     private void pageView(Activity activity) throws Exception {
-        if (activity != null) {
+        if (activity != null && canTrackPageView(activity.getClass().getName())) {
             Map<String, Object> properties = getRegisterProperties(activity);
             if (!properties.containsKey(Constants.PAGE_URL)) {
                 String pageUrl = activity.getClass().getCanonicalName();
@@ -203,9 +198,26 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
             if (!properties.containsKey(Constants.PAGE_TITLE)) {
                 properties.put(Constants.PAGE_TITLE, activity.getTitle());
             }
-            pageInfo(activity.getApplicationContext(),
-                    activity.getClass().getCanonicalName(), properties);
+            AgentProcess.getInstance().autoCollectPageView(properties);
         }
+    }
+
+    /**
+     * 判断是否上报（黑白名单）
+     */
+    private boolean canTrackPageView(String nowPageName) {
+        // 黑白名单策略
+        AgentProcess instance = AgentProcess.getInstance();
+        boolean isAuto = instance.getConfig().isAutoTrackPageView();
+        if (isAuto) {
+            if (instance.isThisPageInPageViewBlackList(nowPageName)) {
+                return false;
+            } else if (instance.hasAutoPageViewWhiteList()) {
+                return instance.isThisPageInPageViewWhiteList(nowPageName);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -378,35 +390,6 @@ public class AutomaticAcquisition implements Application.ActivityLifecycleCallba
         }
     }
 
-    /**
-     * 应用自动采集页面信息
-     */
-    private void pageInfo(Context context, String pageUrl,
-                          Map<String, Object> pageInfo) throws Exception {
-        boolean isAuto = SharedUtil.getBoolean(
-                context, Constants.SP_IS_COLLECTION, true);
-        if (isAuto && isAutomaticCollection(context, pageUrl)) {
-            AgentProcess.getInstance().autoCollectPageView(pageInfo);
-        }
-    }
-
-    /**
-     * 页面是否忽略自动采集，false不自动采集，true自动采集
-     */
-    private boolean isAutomaticCollection(Context context, String nowPageName) {
-        String activities = SharedUtil.getString(
-                context, Constants.SP_IGNORED_COLLECTION, null);
-        if (CommonUtils.isEmpty(activities)) {
-            return true;
-        }
-        List<String> pageNames = CommonUtils.toList(activities);
-        for (String pageName : pageNames) {
-            if (nowPageName.equals(pageName)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * 页面应用关闭

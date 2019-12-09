@@ -1,6 +1,7 @@
 package com.analysys;
 
 import com.analysys.utils.Constants;
+import com.analysys.utils.CrashHandler;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -20,7 +21,10 @@ public class AnalysysConfig {
     private long diffTime = Constants.ignoreDiffTime;
 
     private boolean autoHeatMap = false;
-
+    
+    private boolean autoTrackPageView = true;
+    private boolean autoTrackFragmentPageView = false;
+    private boolean autoTrackClick = false;
 
     /**
      * 获取 App key
@@ -132,6 +136,19 @@ public class AnalysysConfig {
         return diffTime;
     }
 
+    /**
+     * 是否允许配置crash采集
+     * @param crashEnable
+     */
+    public void setEnableException(boolean crashEnable) {
+        CrashHandler.getInstance().setEnableCatch(crashEnable);
+    }
+
+
+
+    /**
+     * 热图 总开关
+     */
     public void setAutoHeatMap(boolean autoTrack) {
         autoHeatMap = autoTrack;
     }
@@ -139,5 +156,40 @@ public class AnalysysConfig {
     public boolean isAutoHeatMap() {
         return autoHeatMap;
     }
+
+
+    /**
+     * PageView 总开关
+     */
+    public boolean isAutoTrackPageView() {
+        return autoTrackPageView;
+    }
+
+    public void setAutoTrackPageView(boolean autoTrackPageView) {
+        this.autoTrackPageView = autoTrackPageView;
+    }
+
+    /**
+     * PageView fragment 开关
+     */
+    public boolean isAutoTrackFragmentPageView() {
+        return autoTrackFragmentPageView;
+    }
+
+    public void setAutoTrackFragmentPageView(boolean isTrackFragmentPageView) {
+        autoTrackFragmentPageView = isTrackFragmentPageView;
+    }
+
+    /**
+     * 全埋点-点击上报 总开关
+     */
+    public boolean isAutoTrackClick() {
+        return autoTrackClick;
+    }
+
+    public void setAutoTrackClick(boolean isTrackClick) {
+        autoTrackClick =isTrackClick;
+    }
+
 }
 

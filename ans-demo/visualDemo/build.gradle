@@ -3,6 +3,7 @@ rootProject.ext.gradle_base_demo this
 dependencies {
 
     if ("visual" == Build_Type.toString()) {
+        api project(':ans-sdk:analysys_allgro')
         api project(':ans-sdk:analysys_visual')
         api project(':ans-sdk:analysys_encryption')
         api project(':ans-sdk:analysys_paas')

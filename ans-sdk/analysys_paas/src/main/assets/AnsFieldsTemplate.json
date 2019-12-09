@@ -34,7 +34,8 @@
       "$session_id",
       "$is_first_time",
       "$is_from_background",
-      "$is_time_calibrated"
+      "$is_time_calibrated",
+      "$start_source"
     ]
   },
   "$end": {
@@ -99,6 +100,25 @@
     ]
   },
   "$app_click": {
+    "xcontext": [
+      "$channel",
+      "$time_zone",
+      "$manufacturer",
+      "$app_version",
+      "$model",
+      "$os",
+      "$os_version",
+      "$network",
+      "$screen_width",
+      "$screen_height",
+      "$carrier_name",
+      "$brand",
+      "$language",
+      "$is_first_day",
+      "$session_id"
+    ]
+  },
+  "$user_click": {
     "xcontext": [
       "$channel",
       "$time_zone",

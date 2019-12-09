@@ -30,8 +30,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -45,7 +45,7 @@ public class HeatMap {
     public Map<String, Object> pageInfo = null;
     private Map<String, Object> clickInfo = null;
     private float rx = 0, ry = 0, x = 0, y = 0;
-    
+
     public static HeatMap getInstance() {
         return HeatMap.Holder.INSTANCE;
     }
@@ -63,8 +63,8 @@ public class HeatMap {
             pageInfo.put(Constants.PAGE_URL, activity.getClass().getName());
             DisplayMetrics metrics = new DisplayMetrics();
             activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-            pageInfo.put(Constants.TOUCH_PAGE_WIDTH, metrics.widthPixels);
-            pageInfo.put(Constants.TOUCH_PAGE_HEIGHT, metrics.heightPixels);
+            pageInfo.put(Constants.PAGE_WIDTH, metrics.widthPixels);
+            pageInfo.put(Constants.PAGE_HEIGHT, metrics.heightPixels);
             pageInfo.put(Constants.TOUCH_SCREEN_DPI, metrics.densityDpi);
             float scale = 1.0f;
             View rootView = activity.getWindow().getDecorView().getRootView();
@@ -197,18 +197,18 @@ public class HeatMap {
             click = 1;
         }
         clickInfo.put(Constants.TOUCH_ELEMENT_CLICKABLE, click);
-        clickInfo.put(Constants.TOUCH_ELEMENT_TYPE, v.getClass().getName());
+        clickInfo.put(Constants.ELEMENT_TYPE, v.getClass().getName());
         // 控件内容
         String content = getContent(v);
         if (!TextUtils.isEmpty(content)) {
-            clickInfo.put(Constants.TOUCH_ELEMENT_CONTENT, content);
+            clickInfo.put(Constants.ELEMENT_CONTENT, content);
         }
     }
 
     private boolean setPath(View v) throws JSONException {
         String path = PathGeneral.getInstance().general(v);
         if (!TextUtils.isEmpty(path) && !CommonUtils.isEmpty(new JSONArray(path))) {
-            clickInfo.put(Constants.TOUCH_ELEMENT_PATH, path.replaceAll(" ", ""));
+            clickInfo.put(Constants.ELEMENT_PATH, path.replaceAll(" ", ""));
             return true;
         }
         return false;
@@ -336,17 +336,21 @@ public class HeatMap {
     /**
      * 热图黑名单
      */
-    void setHeatMapBlackListByPages(Set<String> pages) {
+    void setHeatMapBlackListByPages(List<String> pages) {
         mIgnoreByPages.clear();
-        mIgnoreByPages.addAll(pages);
+        if (pages != null) {
+            mIgnoreByPages.addAll(pages);
+        }
     }
 
     /**
      * 热图白名单
      */
-    void setHeatMapWhiteListByPages(Set<String> pages) {
+    void setHeatMapWhiteListByPages(List<String> pages) {
         mAutoByPages.clear();
-        mAutoByPages.addAll(pages);
+        if (pages != null) {
+            mAutoByPages.addAll(pages);
+        }
     }
 
     /**

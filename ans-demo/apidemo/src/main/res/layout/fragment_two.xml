@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:text="第二个子页面（Fragment）\n带AnalysysIgnorePage 忽略PV上报注解\n 控件级别点击黑白名单测试 "
+        android:textColor="#fff"
+        android:textSize="24sp"/>
+
+    <Button
+        android:id="@+id/fraTwo_btn1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="按钮点击上报（白名单测试1：注解自动上报）"/>
+
+    <Button
+        android:id="@+id/fraTwo_btn2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="按钮点击上报（黑名单测试1：注解自动忽略）"/>
+    
+</LinearLayout>

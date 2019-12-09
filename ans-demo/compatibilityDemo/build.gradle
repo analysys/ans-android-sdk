@@ -26,7 +26,7 @@ dependencies {
 //    implementation files('libs/tbs_sdk_thirdapp_v3.6.0.1371_43624_sharewithdownload_withoutGame_obfs_20181106_121046.jar')
 //    implementation files('libs/MiPush_SDK_Client_3_6_12.jar')
 //    implementation files('libs/pushservice-6.5.0.75.jar')
-
+    api project(':ans-sdk:analysys_allgro')
     api project(':ans-sdk:analysys_visual')
     api project(':ans-sdk:analysys_encryption')
     api project(':ans-sdk:analysys_paas')
