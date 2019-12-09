@@ -1568,7 +1568,7 @@ public class AgentProcess {
     /**
      * 设置页面级白名单
      */
-    public void setAutoClickWhiteListByPages(Set<String> pages) {
+    public void setAutoClickWhiteListByPages(List<String> pages) {
         mAutoByPages.clear();
         for (String page : pages) {
             if (TextUtils.isEmpty(page)) {
@@ -1587,7 +1587,7 @@ public class AgentProcess {
     /**
      * 设置元素类型级白名单
      */
-    public void setAutoClickWhiteListByElementTypes(Set<Class<?>> viewTypes) {
+    public void setAutoClickWhiteListByElementTypes(List<Class<? extends View>> viewTypes) {
         mAutoByByViewTypes.clear();
         if (viewTypes != null) {
             for (Class<?> viewType : viewTypes) {

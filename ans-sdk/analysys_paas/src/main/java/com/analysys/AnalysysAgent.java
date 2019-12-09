@@ -84,6 +84,35 @@ public class AnalysysAgent {
         AgentProcess.getInstance().setAutoClickBlackListByElement(element);
     }
 
+    /**
+     * 点击自动上报-设置页面级白名单
+     *
+     * @param pages 页面名称列表
+     */
+    public static void setAutoClickWhiteListByPages(List<String> pages) {
+        AgentProcess.getInstance().setAutoClickWhiteListByPages(pages);
+    }
+
+
+    /**
+     * 点击自动上报-设置元素类型级白名单
+     *
+     * @param viewTypes 控件元素类列表
+     */
+    public static void setAutoClickWhiteListByElementTypes(List<Class<? extends View>> viewTypes) {
+        AgentProcess.getInstance().setAutoClickWhiteListByElementTypes(viewTypes);
+    }
+
+
+    /**
+     * 点击自动上报-设置元素类型级白名单
+     *
+     * @param element 控件元素对象
+     */
+    public static void setAutoClickWhiteListByElement(View element) {
+        AgentProcess.getInstance().setAutoClickWhiteListByElement(element);
+    }
+
 
     /**
      * debug 模式
