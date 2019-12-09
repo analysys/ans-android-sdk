@@ -58,7 +58,7 @@ public class AnsContentProvider extends ContentProvider {
      */
     private Cursor queryDb(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) throws Exception {
         Cursor cursor = null;
-        checkDb();
+//        checkDb();
         SQLiteDatabase db = DBManage.getInstance(mContext).openDB(mContext);
         if (db != null) {
             cursor = db.query(DBConfig.TableAllInfo.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
@@ -142,7 +142,7 @@ public class AnsContentProvider extends ContentProvider {
      */
     private Uri insertDb(Uri uri, ContentValues values) throws Exception {
 
-        checkDb();
+//        checkDb();
         //每次插入数据都判断是否表存在影响性能
         //DBHelper.getInstance(mContext).createTable(TableAllInfo.CREATE_TABLE);
         long count = -2l;
@@ -163,11 +163,12 @@ public class AnsContentProvider extends ContentProvider {
         }
         switch (uriMatcher.match(uri)) {
             case EventTableMetaData.TABLE_FZ_DIR: {
-                try {
+                synchronized (this){
+                    try {
 
-                    if (values == null || values.size() == 0) {
-                        return tmpUri;
-                    }
+                        if (values == null || values.size() == 0) {
+                            return tmpUri;
+                        }
 
 //                    checkDb();
 //                    //每次插入数据都判断是否表存在影响性能
@@ -178,24 +179,25 @@ public class AnsContentProvider extends ContentProvider {
 //                    }
 //
 //                    tmpUri = ContentUris.withAppendedId(uri, count);
-                    tmpUri = insertDb(uri, values);
+                        tmpUri = insertDb(uri, values);
 
-                } catch (SQLiteDatabaseCorruptException sql) {
-                    dataCorruptException();
-                    try {
-                        tmpUri = insertDb(uri, values);
+                    } catch (SQLiteDatabaseCorruptException sql) {
+                        dataCorruptException();
+                        try {
+                            tmpUri = insertDb(uri, values);
+                        } catch (Exception e) {
+                            ExceptionUtil.exceptionThrow(e);
+                        }
+                    } catch (SQLiteException sqLiteException) {
+                        tableException(sqLiteException);
+                        try {
+                            tmpUri = insertDb(uri, values);
+                        } catch (Exception e) {
+                            ExceptionUtil.exceptionThrow(e);
+                        }
                     } catch (Exception e) {
                         ExceptionUtil.exceptionThrow(e);
                     }
-                } catch (SQLiteException sqLiteException) {
-                    tableException(sqLiteException);
-                    try {
-                        tmpUri = insertDb(uri, values);
-                    } catch (Exception e) {
-                        ExceptionUtil.exceptionThrow(e);
-                    }
-                } catch (Exception e) {
-                    ExceptionUtil.exceptionThrow(e);
                 }
             }
             break;
@@ -221,7 +223,7 @@ public class AnsContentProvider extends ContentProvider {
 
     private int deleteDb(Uri uri, String selection, String[] selectionArgs) throws Exception {
         int code = -3;
-        checkDb();
+//        checkDb();
         SQLiteDatabase db = DBManage.getInstance(mContext).openDB(mContext);
         if (db != null) {
             code = db.delete(DBConfig.TableAllInfo.TABLE_NAME, selection, selectionArgs);
@@ -263,7 +265,7 @@ public class AnsContentProvider extends ContentProvider {
 
     private int updateDb(Uri uri, ContentValues values, String selection, String[] selectionArgs) throws Exception {
         int code = -3;
-        checkDb();
+//        checkDb();
         SQLiteDatabase db = DBManage.getInstance(mContext).openDB(mContext);
         if (db != null) {
             code = db.update(DBConfig.TableAllInfo.TABLE_NAME, values, selection, selectionArgs);
@@ -318,7 +320,12 @@ public class AnsContentProvider extends ContentProvider {
 
         dbReset();
 
-        checkDb();
+        try{
+            checkDb();
+        }catch (Exception e){
+            ExceptionUtil.exceptionThrow(e);
+        }
+
     }
 
 
@@ -345,7 +352,7 @@ public class AnsContentProvider extends ContentProvider {
     /**
      * 校验DB是否为null，并对db赋值
      */
-    private void checkDb() {
+    private void checkDb() throws Exception{
 
         DBManage.getInstance(mContext).openDB(mContext);
     }

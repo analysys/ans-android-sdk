@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Author: WXC
  */
 class DBManage {
-    private AtomicInteger mOpenCounter = new AtomicInteger();
     private DBHelper dbHelper;
     private SQLiteDatabase db;
 
@@ -24,39 +23,21 @@ class DBManage {
         return Holder.INSTANCE;
     }
 
-    public SQLiteDatabase openDB(Context context) {
+    SQLiteDatabase openDB(Context context) throws Exception {
 
-        try {
-            if (mOpenCounter.incrementAndGet() == 1) {
-                checkDb(context);
-            }
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
-        }
+        checkDb(context);
 
         return db;
     }
 
-    public void closeDB() {
-        if (mOpenCounter.decrementAndGet() == 0) {
-            try {
-                if (db != null) {
-                    db.close();
-                }
-            } catch (Exception e) {
-                ExceptionUtil.exceptionThrow(e);
-            } finally {
-                db = null;
-            }
-        }
-    }
 
     /**
      * DB重置
      */
-    public void resetDB() {
+    void resetDB() {
         dbHelper = null;
         db = null;
+//        mOpenCounter.set(0);
     }
 
     /**

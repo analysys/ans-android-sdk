@@ -3,6 +3,13 @@ package com.analysys.database;
 import android.content.Context;
 import android.net.Uri;
 
+/**
+ * @Copyright © 2019 EGuan Inc. All rights reserved.
+ * @Description:
+ * @Version: 1.0
+ * @Create: 2019/11/25 17:31
+ * @Author: WP
+ */
 public class EventTableMetaData {
 
     //表名
