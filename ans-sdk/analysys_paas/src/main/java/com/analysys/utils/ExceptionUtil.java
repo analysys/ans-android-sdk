@@ -1,5 +1,9 @@
 package com.analysys.utils;
 
+import android.util.Log;
+
+import com.analysys.BuildConfig;
+
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
  * @Description: 异常情况处理
@@ -14,6 +18,8 @@ public class ExceptionUtil {
      * @param e
      */
     public static void exceptionThrow(Throwable e){
-        throw new RuntimeException(e);
+        if(BuildConfig.DEBUG){
+            throw new RuntimeException(e);
+        }
     }
 }
