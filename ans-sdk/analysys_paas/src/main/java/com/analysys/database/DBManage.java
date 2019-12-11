@@ -36,6 +36,9 @@ class DBManage {
      */
     void resetDB() {
         dbHelper = null;
+        if (db != null) {
+            db.close();
+        }
         db = null;
 //        mOpenCounter.set(0);
     }
