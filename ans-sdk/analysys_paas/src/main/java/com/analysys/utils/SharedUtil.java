@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
+
 import com.analysys.database.EventTableMetaData;
 
 /**
@@ -23,7 +25,7 @@ public class SharedUtil {
 
         String strValues = getString(context,key,"");
         boolean values = defValue;
-        if(strValues!=null&&!strValues.equals("")&&strValues.length()>0){
+        if(!TextUtils.isEmpty(strValues)){
             values =  Boolean.parseBoolean(strValues);
         }
 
@@ -31,9 +33,6 @@ public class SharedUtil {
     }
 
     public static float getFloat(Context context, String key, float defValue) {
-//        if (initPreferences(context)) {
-//            return mPreferences.getFloat(key, defValue);
-//        }
 
         float values = defValue;
 
@@ -47,10 +46,6 @@ public class SharedUtil {
 
     public static int getInt(Context context, String key, int defValue) {
 
-//        if (initPreferences(context)) {
-//            return mPreferences.getInt(key, defValue);
-//        }
-
         int values = defValue;
 
         String strValues = getString(context,key,"");
@@ -63,9 +58,6 @@ public class SharedUtil {
     }
 
     public static long getLong(Context context, String key, long defValue) {
-//        if (initPreferences(context)) {
-//            return mPreferences.getLong(key, defValue);
-//        }
 
         long values = defValue;
         String strValues = getString(context,key,"");
@@ -77,23 +69,29 @@ public class SharedUtil {
     }
 
     public static String getString(Context context, String key, String defValue) {
-//        if (initPreferences(context)) {
-//            return mPreferences.getString(key, defValue);
-//        }
-
         String values = null;
-        Uri uri = EventTableMetaData.getTABLE_SP(context);
-        Cursor cursor = context.getContentResolver().query(uri,new String[]{key},null,null,null);
-        if(cursor!=null&&cursor.getCount()>=1){
-            if(cursor.moveToPosition(0)){
-                values = cursor.getString(0);
+        Cursor cursor = null;
+        try {
+            Uri uri = EventTableMetaData.getTABLE_SP(context);
+            cursor = context.getContentResolver().query(uri, new String[]{key}, null, null, null);
+            if (cursor != null && cursor.getCount() >= 1) {
+                if (cursor.moveToPosition(0)) {
+                    values = cursor.getString(0);
+                }
+
             }
-            cursor.close();
+
+            if (values == null) {
+                values = defValue;
+            }
+        } catch (Exception e) {
+            ExceptionUtil.exceptionThrow(e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
-        if(values==null){
-            values = defValue;
-        }
 
         return values;
     }
