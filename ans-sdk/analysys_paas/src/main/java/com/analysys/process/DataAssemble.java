@@ -107,22 +107,20 @@ public class DataAssemble {
     private void mergeSuperProperty(String eventName,
                                     Map<String, Object> xContextMap) throws JSONException {
         if (!Constants.ALIAS.equals(eventName) && !eventName.startsWith(Constants.PROFILE)) {
-            String property = SharedUtil.getString(
-                    mContext, Constants.SP_SUPER_PROPERTY, null);
-            if (!TextUtils.isEmpty(property)) {
-                JSONObject superProperty = null;
-                superProperty = new JSONObject(property);
-                Iterator<String> keys = superProperty.keys();
-                String key = null;
-                while (keys.hasNext()) {
-                    key = keys.next();
+
+            Map mapSuper = AgentProcess.getInstance().getSuperProperty();
+            if (mapSuper != null && mapSuper.size() > 0) {
+                Iterator iterator = mapSuper.keySet().iterator();
+                while (iterator.hasNext()) {
+                    String key = (String) iterator.next();
                     if (key != null) {
-                        if(!xContextMap.containsKey(key)){
-                            xContextMap.put(key, superProperty.opt(key));
+                        if (!xContextMap.containsKey(key)) {
+                            xContextMap.put(key, mapSuper.get(key));
                         }
                     }
                 }
             }
+
         }
     }
 
