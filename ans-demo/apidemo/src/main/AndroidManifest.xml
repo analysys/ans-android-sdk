@@ -19,12 +19,6 @@
         android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
 
-        <provider
-            android:authorities="${applicationId}.AnsContentProvider"
-            android:name="com.analysys.database.AnsContentProvider"
-            android:enabled="true"
-            android:exported="false"
-            />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

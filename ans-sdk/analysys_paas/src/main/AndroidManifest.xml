@@ -6,4 +6,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application>
+        <provider
+            android:name="com.analysys.database.AnsContentProvider"
+            android:authorities="${applicationId}.AnsContentProvider"
+            android:enabled="true"
+            android:exported="false" />
+    </application>
+
 </manifest>
