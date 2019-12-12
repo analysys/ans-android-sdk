@@ -1,0 +1,13 @@
+apply plugin: 'maven'
+
+version= '1.0.2'
+group = "cn.com.analysys"
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../repo'))
+        }
+    }
+}
+

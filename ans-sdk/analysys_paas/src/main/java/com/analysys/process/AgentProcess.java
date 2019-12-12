@@ -707,7 +707,7 @@ public class AgentProcess {
         handleSuperProperty(key, value, Constants.SP_SUPER_PROPERTY);
     }
 
-    private void handleSuperProperty(final String key, final Object value,String type){
+    private void handleSuperProperty(final String key, final Object value,final String type){
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -751,7 +751,7 @@ public class AgentProcess {
         handleSuperProperties(propertyDetail,Constants.SP_SUPER_PROPERTY);
     }
 
-    private void handleSuperProperties(final Map<String, Object> propertyDetail,String type){
+    private void handleSuperProperties(final Map<String, Object> propertyDetail,final String type){
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -874,7 +874,7 @@ public class AgentProcess {
         handleSuperProperty(superPropertyName,Constants.SP_SUPER_PROPERTY);
     }
 
-    private void handleSuperProperty(final String superPropertyName,String type) {
+    private void handleSuperProperty(final String superPropertyName,final String type) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -913,7 +913,7 @@ public class AgentProcess {
         handleClearSuperProperty(Constants.SP_SUPER_PROPERTY);
     }
 
-    private void handleClearSuperProperty(String type) {
+    private void handleClearSuperProperty(final String type) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {

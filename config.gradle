@@ -1,0 +1,27 @@
+ext {
+
+    version = '4.3.6'
+
+    compileSdkVersion = 28
+    buildToolsVersion = '28.0.2'
+
+    minSdkVersion = 15
+    targetSdkVersion = 29
+
+    sourceJavaVersion = JavaVersion.VERSION_1_7
+    targetJavaVersion = JavaVersion.VERSION_1_7
+
+    release = "${project.rootDir}" + '/release/'
+
+    pushName = release + 'analysys_push_' + "${version}_${releaseTime()}" + '.jar'
+    paasName = release + 'analysys_core_' + "${version}_${releaseTime()}" + '.jar'
+    zipName = 'analysys_paas_android_java_' + "${version}_${releaseTime()}"
+    visualName = release + 'analysys_visual_' + "${version}_${releaseTime()}" + '.jar'
+    cmbName = release + 'analysys_CMB_' + "${version}_${releaseTime()}" + '.jar'
+    encryptName = release + 'analysys_encrypt_' + "${version}_${releaseTime()}" + '.jar'
+
+}
+/** 获取东八区时间 */
+def releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC +8"))
+}
