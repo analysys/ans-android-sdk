@@ -282,7 +282,7 @@ public class AnsContentProvider extends ContentProvider {
                 if (mContext != null) {
                     SharedPreferences.Editor editor = sharedPreferencesHelp.getEditor(mContext);
                     if (editor != null) {
-                        editor.remove(values.getAsString("key"));
+                        editor.remove(values.getAsString("key")).commit();
                     }
                 }
             }
