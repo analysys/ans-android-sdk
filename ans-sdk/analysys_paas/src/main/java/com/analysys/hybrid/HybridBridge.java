@@ -72,7 +72,7 @@ public class HybridBridge {
             if (array != null && array.length() > 0) {
                 String key = array.optString(0);
                 Object value = array.opt(1);
-                AgentProcess.getInstance().registerSuperProperty(key,value);
+                AgentProcess.getInstance().registerJsSuperProperty(key,value);
             }
         }
     }
