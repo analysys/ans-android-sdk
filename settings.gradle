@@ -1,5 +1,5 @@
 // 插件
-include 'buildSrc'
+include 'analysys_allgro-plugin'
 //demo
 include 'ans-demo:apidemo', 'ans-demo:visualDemo', 'ans-demo:compatibilityDemo'
 //sdk
