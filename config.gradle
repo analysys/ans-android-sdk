@@ -33,6 +33,7 @@ ext {
                   'analysys_visual_' + "${version}",
                   'analysys_allgro_' + "${version}"
     ]
+    releaseTimeVariable = "${releaseTime()}"
 
 }
 /** 获取东八区时间 */

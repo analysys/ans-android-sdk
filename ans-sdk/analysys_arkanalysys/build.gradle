@@ -45,7 +45,7 @@ dependencies {
 
 task delRelease(type: Delete) {
     delete('../release')
-    delete('../../repo')
+//    delete('../../repo')
 }
 
 task releaseAar(type: Copy) {
@@ -130,3 +130,13 @@ for (int i = 0; i < moduleName.size(); i++) {
     makeJar.dependsOn "jarclean${moduleName[i]}"
 }
 
+task makeZipAns(type: Zip){
+    from("../release/"){
+        include("aar/")
+        include("jar/")
+    }
+
+    baseName = "analysys-android-${releaseTimeVariable}"
+    destinationDir file("../release/zip")
+
+}
