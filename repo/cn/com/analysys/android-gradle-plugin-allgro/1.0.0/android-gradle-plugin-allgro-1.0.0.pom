@@ -25,12 +25,6 @@
       <artifactId>gradle</artifactId>
       <version>3.5.0</version>
       <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>org.ow2.asm</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>

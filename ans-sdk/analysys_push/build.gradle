@@ -1,1 +1,81 @@
-rootProject.ext.gradle_base_sdk this
+apply plugin: 'com.android.library'
+apply from: "../maven.gradle"
+
+def jarName = "push_sdk.jar"
+android {
+    lintOptions {
+        abortOnError false
+    }
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility rootProject.ext.sourceJavaVersion
+        targetCompatibility rootProject.ext.targetJavaVersion
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    if (rootProject.ext.buildModel) {
+        compileOnly('cn.com.analysys:analysys_core:1.0.2')
+    } else {
+        compileOnly project(':ans-sdk:analysys_core')
+    }
+
+}
+/**
+ * 打jar包
+ */
+task buildPushJar(type: Jar, dependsOn: ['build']) {
+    archiveName = jarName
+    from(rootProject.ext.buildClass)
+    destinationDir = file('../release/')
+    exclude('com/scott/hellolib/BuildConfig.class')
+    exclude('com/scott/hellolib/BuildConfig\$*.class')
+    exclude('**/R.class')
+    exclude('**/R\$*.class')
+    manifest {
+        attributes(
+                'Implementation-Title': "${project.name}",
+                'Implementation-Version': "${rootProject.ext.version}",
+                'Built-Date': new Date().getDateTimeString(),
+                'Built-With': "gradle-${project.getGradle().getGradleVersion()},groovy-${GroovySystem.getVersion()}",
+                'Created-By': 'Java ' + System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')')
+    }
+}
+/**
+ * 混淆jar包
+ */
+def androidSDKDir = project.android.sdkDirectory.absolutePath
+def androidJarDir = androidSDKDir.toString() + '/platforms/' + "${android.compileSdkVersion}" + '/android.jar'
+task makePushJar(type: proguard.gradle.ProGuardTask, dependsOn: ['buildPushJar']) {
+    doFirst {
+        injars(rootProject.ext.release + jarName)
+        outjars(rootProject.ext.pushName)
+        configuration 'proguard-rules.pro'
+        libraryjars(androidJarDir)
+        dontshrink
+    }
+    doLast {
+        rmJar(rootProject.ext.release + jarName)
+    }
+}
+//删除为混淆文件
+def rmJar(String filePath) {
+    File file = new File(filePath)
+    file.delete()
+}
