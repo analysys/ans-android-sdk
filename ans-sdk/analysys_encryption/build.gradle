@@ -1,1 +1,72 @@
-rootProject.ext.gradle_base_sdk this
+apply plugin: 'com.android.library'
+apply from: "../maven.gradle"
+
+def jarName = "analysys_encryption.jar"
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility rootProject.ext.sourceJavaVersion
+        targetCompatibility rootProject.ext.targetJavaVersion
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}
+//生成未混淆的jar
+task buildEncrypt(type: Jar, dependsOn: ['build']) {
+    jarName
+    from(rootProject.ext.buildClass)
+    from fileTree(dir: 'src/main', includes: ['assets/**'])
+    destinationDir = file('../release/')
+    exclude('**/R.class')
+    exclude('**/R\$*.class')
+    manifest {
+        attributes(
+                'Implementation-Title': "${project.name}",
+                'Implementation-Version': "${rootProject.ext.version}",
+                'Built-Date': new Date().getDateTimeString(),
+                'Built-With': "gradle-${project.getGradle().getGradleVersion()},groovy-${GroovySystem.getVersion()}",
+                'Created-By': 'Java ' + System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')')
+    }
+}
+
+
+/**
+ * 生成混淆的jar
+ */
+def androidSDKDir = project.android.sdkDirectory.absolutePath
+def androidJarDir = androidSDKDir.toString() + '/platforms/' + "${android.compileSdkVersion}" + '/android.jar'
+task makeEncrypt(type: proguard.gradle.ProGuardTask, dependsOn: ['buildEncrypt']) {
+    doFirst {
+        injars(rootProject.ext.release + jarName)
+        outjars(rootProject.ext.encryptName)
+        configuration 'proguard-rules.pro'
+        libraryjars(androidJarDir)
+        dontshrink
+    }
+    doLast {
+        rmJar(rootProject.ext.release + jarName)
+    }
+}
+
+/** 删除为混淆文件 */
+def rmJar(String filePath) {
+    File file = new File(filePath)
+    file.delete()
+}

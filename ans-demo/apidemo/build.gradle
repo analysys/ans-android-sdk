@@ -1,8 +1,20 @@
-rootProject.ext.gradle_base_demo this, 'com.android.application'
+apply plugin: 'com.android.application'
 apply plugin: 'com.analysys.android.plugin'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'analysys'
+            keyPassword '12345678'
+            storeFile file('../key/key.store')
+            storePassword '12345678'
+        }
+    }
+    compileSdkVersion 28
+
     defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
 
         buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
 
@@ -18,6 +30,12 @@ android {
 
         applicationId "com.analysys.demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
     }
 
     buildTypes {
@@ -47,22 +65,34 @@ android {
         textReport false
         disable 'RestrictedApi'
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 
     analysysConfig {
         lambdaEnabled = true
     }
+
+    dataBinding {
+        enabled = true
+    }
+
 }
 
 dependencies {
-    if ("api" == Build_Type.toString()) {
-        implementation project(':ans-sdk:analysys_allgro')
-        implementation project(':ans-sdk:analysys_visual')
-        implementation project(':ans-sdk:analysys_encryption')
-        implementation project(':ans-sdk:analysys_paas')
-        implementation project(':ans-sdk:analysys_push')
-    } else {
-        implementation project(':ans-demo:visualDemo')
-    }
+
+
+    api project(':ans-sdk:analysys_arkanalysys')
+
+    api project(':ans-demo:compatibilityDemo')
+    api project(':ans-demo:visualDemo')
+
+    implementation('com.alibaba:arouter-api:1.5.0')
+    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
 
 }
 

@@ -1,14 +1,55 @@
-rootProject.ext.gradle_base_demo this
+apply plugin: 'com.android.library'
+
+android {
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86_64", "x86", "arm64-v8a", "mips", "mips64"
+        }
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+}
 
 dependencies {
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.fragment:fragment:1.0.0+'
+    implementation 'com.google.android.material:material:1.0.0'
 
-    if ("visual" == Build_Type.toString()) {
-        api project(':ans-sdk:analysys_allgro')
-        api project(':ans-sdk:analysys_visual')
-        api project(':ans-sdk:analysys_encryption')
-        api project(':ans-sdk:analysys_paas')
-        api project(':ans-sdk:analysys_push')
-    } else if ("compatibility" == Build_Type.toString()){
-        api project(':ans-demo:compatibilityDemo')
-    }
+    implementation('com.alibaba:arouter-api:1.5.0')
+    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
 }

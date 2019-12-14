@@ -19,3 +19,17 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.tencent.** {*;}
+-keep class com.baidu.** {*;}
+-keep class com.xiaomi.** {*;}
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.**{*;}
+
+-keep class com.uc.crashsdk.** { *; }
+-keep interface com.uc.crashsdk.** { *; }
+
+
+
+
+

@@ -1,16 +1,47 @@
-rootProject.ext.gradle_base_demo this
+apply plugin: 'com.android.library'
 
 android {
 
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
     defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
 
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86_64", "x86", "arm64-v8a", "mips", "mips64"
         }
         multiDexEnabled true
-        minSdkVersion 15
-        targetSdkVersion 28
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
     }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
 }
 
 
@@ -23,12 +54,16 @@ dependencies {
     implementation 'cn.jiguang.sdk:jcore:1.2.6'
     // 此处以JCore 1.1.9 版本为例。
     implementation 'com.android.support:multidex:1.0.3'
-//    implementation files('libs/tbs_sdk_thirdapp_v3.6.0.1371_43624_sharewithdownload_withoutGame_obfs_20181106_121046.jar')
-//    implementation files('libs/MiPush_SDK_Client_3_6_12.jar')
-//    implementation files('libs/pushservice-6.5.0.75.jar')
-    api project(':ans-sdk:analysys_allgro')
-    api project(':ans-sdk:analysys_visual')
-    api project(':ans-sdk:analysys_encryption')
-    api project(':ans-sdk:analysys_paas')
-    api project(':ans-sdk:analysys_push')
+
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+
+    implementation project(':ans-sdk:analysys_core')
+
+    implementation('com.alibaba:arouter-api:1.5.0')
+    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
+
 }

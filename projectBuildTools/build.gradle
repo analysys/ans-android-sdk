@@ -1,14 +1,17 @@
 // 这里的apply是为了让子模块使用
-apply from: './gradleBuildExt/demoBuild.gradle'
 buildscript {
     repositories {
+        maven {
+            url '../repo'
+        }
+
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         jcenter { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
-        classpath 'cn.com.analysys:android-gradle-plugin-allgro:1.0.0'
+        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'cn.com.analysys:analysys-gradle-plugin-allgro:1.0.0'
     }
     subprojects {
         project.configurations.all {
@@ -27,11 +30,16 @@ buildscript {
 }
 
 allprojects {
-    
+
     repositories {
+
+        maven {
+            url '../../repo'
+        }
+
+
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         jcenter { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-        maven { url 'http://mvn.gt.igexin.com/nexus/content/repositories/releases/' }
         google()
     }
 }

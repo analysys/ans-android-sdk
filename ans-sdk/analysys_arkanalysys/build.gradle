@@ -1,0 +1,175 @@
+apply plugin: 'com.android.library'
+apply from: "../maven.gradle"
+
+android {
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility rootProject.ext.sourceJavaVersion
+        targetCompatibility rootProject.ext.targetJavaVersion
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+}
+
+dependencies {
+
+    if (rootProject.ext.buildModel) {
+        api('cn.com.analysys:analysys_core:1.0.2')
+        api('cn.com.analysys:analysys_encryption:1.0.2')
+        api('cn.com.analysys:analysys_push:1.0.2')
+        api('cn.com.analysys:analysys_visual:1.0.2')
+        api('cn.com.analysys:analysys_allgro:1.0.2')
+    } else {
+        api project(':ans-sdk:analysys_core')
+        api project(':ans-sdk:analysys_encryption')
+        api project(':ans-sdk:analysys_push')
+        api project(':ans-sdk:analysys_visual')
+        api project(':ans-sdk:analysys_allgro')
+    }
+}
+
+task delRelease(type: Delete) {
+    delete('../release')
+//    delete('../../repo')
+
+    delete('../../repo/cn/com/analysys/analysys_core/')
+    delete('../../repo/cn/com/analysys/analysys_encryption/')
+    delete('../../repo/cn/com/analysys/analysys_push/')
+    delete('../../repo/cn/com/analysys/analysys_visual/')
+    delete('../../repo/cn/com/analysys/analysys_allgro/')
+    delete('../../repo/cn/com/analysys/analysys_arkanalysys/')
+}
+
+task releaseAar(type: Copy) {
+
+    for(int i=0;i<moduleName.size;i++){
+        def tmpName = "${moduleName[i]}".replace("_${version}","")
+        from("../${tmpName}/build/outputs/aar/") {
+            rename("${tmpName}-release.aar", "${moduleName[i]}.aar")
+
+        }
+    }
+
+    includeEmptyDirs = false
+
+    into '../release/aar/'
+
+}
+
+task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
+
+    for(int i=0;i<moduleName.size;i++){
+        def tmpName = "${moduleName[i]}".replace("_${version}","")
+        from("../${tmpName}/build/outputs/mapping/release/") {
+            include('mapping.txt')
+            rename('mapping.txt', "mapping-${moduleName[i]}.txt")
+        }
+    }
+
+    into '../release/mapping/'
+}
+
+
+for (int i = 0; i < moduleName.size(); i++) {
+
+    task "unZipAAR${moduleName[i]}"(type: Copy) {
+        from(zipTree("../release/aar/${moduleName[i]}.aar"))
+        into "../release/jar/${moduleName[i]}"
+    }
+
+    task "unZipClasses${moduleName[i]}"(type: Copy, dependsOn: ["unZipAAR${moduleName[i]}"]) {
+        from(zipTree("../release/jar/${moduleName[i]}/classes.jar"))
+        into "../release/jar/${moduleName[i]}/classes/"
+    }
+
+    task "unZipJar${moduleName[i]}"(type: Copy, dependsOn: ["unZipClasses${moduleName[i]}"]) {
+        from("../release/jar/${moduleName[i]}/classes/")
+        from("../release/jar/${moduleName[i]}") {
+            include('assets')
+        }
+        into "../release/jar/tmp/${moduleName[i]}/"
+
+        includeEmptyDirs = false
+    }
+
+    task "jar${moduleName[i]}"(type: Jar, dependsOn: ["unZipJar${moduleName[i]}"]) {
+        from("../release/jar/tmp/${moduleName[i]}/")
+        baseName = "${moduleName[i]}".replace("_${version}","")
+        destinationDir = file("../release/jar/")
+
+
+        manifest {
+            attributes(
+                    'Implementation-Title': "${project.name}",
+                    'Implementation-Version': "${rootProject.ext.version}",
+                    'Built-Date': new Date().getDateTimeString(),
+                    'Built-With': "gradle-${project.getGradle().getGradleVersion()},groovy-${GroovySystem.getVersion()}",
+                    'Created-By': 'Java ' + System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')')
+        }
+    }
+
+    task "jarclean${moduleName[i]}"(type: Delete, dependsOn: ["jar${moduleName[i]}"]) {
+        delete("../release/jar/${moduleName[i]}")
+        delete("../release/jar/tmp")
+    }
+}
+
+task makeJar(){
+
+}
+
+for (int i = 0; i < moduleName.size(); i++) {
+    makeJar.dependsOn "jarclean${moduleName[i]}"
+}
+
+task makeDemo(type:Copy){
+    from("../../ans-demo/"){
+        include("apidemo/")
+        exclude("apidemo/build.gradle")
+    }
+    from("../../projectBuildTools/")
+
+    into("../release/zip/demo")
+}
+
+task makeZipAns(type: Zip,dependsOn: ["makeDemo"]){
+
+    from("../release/zip/"){
+        include("demo/")
+    }
+    from("../release/"){
+        include("aar/")
+        include("jar/")
+    }
+
+    from("../../"){
+        include("repo/")
+    }
+
+    baseName = "analysys-pass-android-${releaseTimeVariable}"
+    destinationDir file("../release/zip")
+
+}
+
+task makeZipAnsClean(type: Delete,dependsOn: ["makeZipAns"]){
+    delete("../release/zip/demo/")
+    delete("../release/aar/")
+    delete("../release/jar/")
+}
+
+

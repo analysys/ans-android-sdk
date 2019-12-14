@@ -1,7 +1,47 @@
-rootProject.ext.gradle_base_sdk this
+apply plugin: 'com.android.library'
+apply from: "../maven.gradle"
 
 android {
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
     defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+
+
         buildConfigField("boolean", "ENABLE_BUGLY", true.toString())
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+    compileOptions {
+        sourceCompatibility rootProject.ext.sourceJavaVersion
+        targetCompatibility rootProject.ext.targetJavaVersion
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+}
+
+
+dependencies {
+    if (rootProject.ext.buildModel) {
+        compileOnly('cn.com.analysys:analysys_core:1.0.2')
+    } else {
+        compileOnly project(':ans-sdk:analysys_core')
     }
 }
