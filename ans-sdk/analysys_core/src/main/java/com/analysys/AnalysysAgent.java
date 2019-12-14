@@ -56,7 +56,14 @@ public class AnalysysAgent {
     public static void setPageViewBlackListByPages(List<String> pages) {
         AgentProcess.getInstance().setPageViewBlackListByPages(pages);
     }
-    
+
+    /**
+     * PageView自动上报-设置页面级白名单
+     * @param pages
+     */
+    public static void setPageViewWhiteListByPages(List<String> pages){
+        AgentProcess.getInstance().setPageViewWhiteListByPages(pages);
+    }
 
     /**
      * 点击自动上报-设置页面级黑名单
@@ -65,7 +72,14 @@ public class AnalysysAgent {
     public static void setAutoClickBlackListByPages(List<String> pages) {
         AgentProcess.getInstance().setAutoClickBlackListByPages(pages);
     }
-
+    /**
+     * 点击自动上报-设置页面级白名单
+     *
+     * @param pages 页面名称列表
+     */
+    public static void setAutoClickWhiteListByPages(List<String> pages) {
+        AgentProcess.getInstance().setAutoClickWhiteListByPages(pages);
+    }
 
     /**
      * 点击自动上报-设置元素类型级黑名单
@@ -76,31 +90,13 @@ public class AnalysysAgent {
     }
 
 
+
     /**
-     * 点击自动上报-设置元素类型级黑名单
+     * 点击自动上报-设置元素类型级白名单
      * @param element 控件元素对象
      */
     public static void setAutoClickBlackListByElement(View element) {
         AgentProcess.getInstance().setAutoClickBlackListByElement(element);
-    }
-
-    /**
-     * 点击自动上报-设置页面级白名单
-     *
-     * @param pages 页面名称列表
-     */
-    public static void setAutoClickWhiteListByPages(List<String> pages) {
-        AgentProcess.getInstance().setAutoClickWhiteListByPages(pages);
-    }
-
-
-    /**
-     * 点击自动上报-设置元素类型级白名单
-     *
-     * @param viewTypes 控件元素类列表
-     */
-    public static void setAutoClickWhiteListByElementTypes(List<Class<? extends View>> viewTypes) {
-        AgentProcess.getInstance().setAutoClickWhiteListByElementTypes(viewTypes);
     }
 
 

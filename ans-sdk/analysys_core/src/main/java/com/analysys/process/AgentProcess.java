@@ -1541,7 +1541,7 @@ public class AgentProcess {
         }
     }
 
-    public void setPageViewWhiteListByPages(Set<String> pages) {
+    public void setPageViewWhiteListByPages(List<String> pages) {
         mPageViewWhiteListByPages.clear();
         if (pages != null) {
             for (String page : pages) {
