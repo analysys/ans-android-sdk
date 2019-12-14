@@ -11,6 +11,10 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+    defaultConfig {
+        buildConfigField "String", "SDK_VERSION", "\"${version}\""
+    }
+
     buildTypes {
         release {
             minifyEnabled true
