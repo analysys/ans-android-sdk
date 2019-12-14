@@ -16,7 +16,7 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro', 'proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
         }
         debug {
@@ -39,9 +39,5 @@ android {
 
 
 dependencies {
-    if (rootProject.ext.buildModel) {
-        compileOnly('cn.com.analysys:analysys_core:1.0.2')
-    } else {
-        compileOnly project(':ans-sdk:analysys_core')
-    }
+    compileOnly project(':ans-sdk:analysys_core')
 }

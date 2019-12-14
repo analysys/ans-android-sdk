@@ -30,12 +30,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    if (rootProject.ext.buildModel) {
-        compileOnly('cn.com.analysys:analysys_core:1.0.2')
-    } else {
-        compileOnly project(':ans-sdk:analysys_core')
-    }
-
+    compileOnly project(':ans-sdk:analysys_core')
 }
 /**
  * 打jar包

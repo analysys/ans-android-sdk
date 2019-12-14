@@ -8,7 +8,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro', 'proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
         }
     }
@@ -27,20 +27,11 @@ android {
 }
 
 dependencies {
-
-    if (rootProject.ext.buildModel) {
-        api('cn.com.analysys:analysys_core:1.0.2')
-        api('cn.com.analysys:analysys_encryption:1.0.2')
-        api('cn.com.analysys:analysys_push:1.0.2')
-        api('cn.com.analysys:analysys_visual:1.0.2')
-        api('cn.com.analysys:analysys_allgro:1.0.2')
-    } else {
-        api project(':ans-sdk:analysys_core')
-        api project(':ans-sdk:analysys_encryption')
-        api project(':ans-sdk:analysys_push')
-        api project(':ans-sdk:analysys_visual')
-        api project(':ans-sdk:analysys_allgro')
-    }
+    api project(':ans-sdk:analysys_core')
+    api project(':ans-sdk:analysys_encryption')
+    api project(':ans-sdk:analysys_push')
+    api project(':ans-sdk:analysys_visual')
+    api project(':ans-sdk:analysys_allgro')
 }
 
 task delRelease(type: Delete) {
@@ -57,8 +48,8 @@ task delRelease(type: Delete) {
 
 task releaseAar(type: Copy) {
 
-    for(int i=0;i<moduleName.size;i++){
-        def tmpName = "${moduleName[i]}".replace("_${version}","")
+    for (int i = 0; i < moduleName.size; i++) {
+        def tmpName = "${moduleName[i]}".replace("_${version}", "")
         from("../${tmpName}/build/outputs/aar/") {
             rename("${tmpName}-release.aar", "${moduleName[i]}.aar")
 
@@ -73,8 +64,8 @@ task releaseAar(type: Copy) {
 
 task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
 
-    for(int i=0;i<moduleName.size;i++){
-        def tmpName = "${moduleName[i]}".replace("_${version}","")
+    for (int i = 0; i < moduleName.size; i++) {
+        def tmpName = "${moduleName[i]}".replace("_${version}", "")
         from("../${tmpName}/build/outputs/mapping/release/") {
             include('mapping.txt')
             rename('mapping.txt', "mapping-${moduleName[i]}.txt")
@@ -109,7 +100,7 @@ for (int i = 0; i < moduleName.size(); i++) {
 
     task "jar${moduleName[i]}"(type: Jar, dependsOn: ["unZipJar${moduleName[i]}"]) {
         from("../release/jar/tmp/${moduleName[i]}/")
-        baseName = "${moduleName[i]}".replace("_${version}","")
+        baseName = "${moduleName[i]}".replace("_${version}", "")
         destinationDir = file("../release/jar/")
 
 
@@ -129,7 +120,7 @@ for (int i = 0; i < moduleName.size(); i++) {
     }
 }
 
-task makeJar(){
+task makeJar() {
 
 }
 
@@ -137,8 +128,8 @@ for (int i = 0; i < moduleName.size(); i++) {
     makeJar.dependsOn "jarclean${moduleName[i]}"
 }
 
-task makeDemo(type:Copy){
-    from("../../ans-demo/"){
+task makeDemo(type: Copy) {
+    from("../../ans-demo/") {
         include("apidemo/")
         exclude("apidemo/build.gradle")
     }
@@ -147,17 +138,17 @@ task makeDemo(type:Copy){
     into("../release/zip/demo")
 }
 
-task makeZipAns(type: Zip,dependsOn: ["makeDemo"]){
+task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
 
-    from("../release/zip/"){
+    from("../release/zip/") {
         include("demo/")
     }
-    from("../release/"){
+    from("../release/") {
         include("aar/")
         include("jar/")
     }
 
-    from("../../"){
+    from("../../") {
         include("repo/")
     }
 
@@ -166,7 +157,7 @@ task makeZipAns(type: Zip,dependsOn: ["makeDemo"]){
 
 }
 
-task makeZipAnsClean(type: Delete,dependsOn: ["makeZipAns"]){
+task makeZipAnsClean(type: Delete, dependsOn: ["makeZipAns"]) {
     delete("../release/zip/demo/")
     delete("../release/aar/")
     delete("../release/jar/")
