@@ -8,7 +8,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
         }
     }
@@ -46,6 +46,13 @@ dependencies {
 task delRelease(type: Delete) {
     delete('../release')
 //    delete('../../repo')
+
+    delete('../../repo/cn/com/analysys/analysys_core/')
+    delete('../../repo/cn/com/analysys/analysys_encryption/')
+    delete('../../repo/cn/com/analysys/analysys_push/')
+    delete('../../repo/cn/com/analysys/analysys_visual/')
+    delete('../../repo/cn/com/analysys/analysys_allgro/')
+    delete('../../repo/cn/com/analysys/analysys_arkanalysys/')
 }
 
 task releaseAar(type: Copy) {
@@ -130,13 +137,39 @@ for (int i = 0; i < moduleName.size(); i++) {
     makeJar.dependsOn "jarclean${moduleName[i]}"
 }
 
-task makeZipAns(type: Zip){
+task makeDemo(type:Copy){
+    from("../../ans-demo/"){
+        include("apidemo/")
+        exclude("apidemo/build.gradle")
+    }
+    from("../../projectBuildTools/")
+
+    into("../release/zip/demo")
+}
+
+task makeZipAns(type: Zip,dependsOn: ["makeDemo"]){
+
+    from("../release/zip/"){
+        include("demo/")
+    }
     from("../release/"){
         include("aar/")
         include("jar/")
     }
 
-    baseName = "analysys-android-${releaseTimeVariable}"
+    from("../../"){
+        include("repo/")
+    }
+
+    baseName = "analysys-pass-android-${releaseTimeVariable}"
     destinationDir file("../release/zip")
 
 }
+
+task makeZipAnsClean(type: Delete,dependsOn: ["makeZipAns"]){
+    delete("../release/zip/demo/")
+    delete("../release/aar/")
+    delete("../release/jar/")
+}
+
+

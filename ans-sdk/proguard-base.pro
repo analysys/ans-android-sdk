@@ -1,3 +1,7 @@
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
 -optimizationpasses 5
 ##打印混淆的详细信息
 #-verbose
@@ -38,15 +42,4 @@
 -keepclassmembers class * {
    public <init>(org.json.JSONObject);
 }
-#################################################################
-########################### 易观混淆 ############################
-#################################################################
 
-# 打通所有的包
--repackageclass com.analysy.pushs
-# 混淆到包名下
--dontwarn com.analysys.push.**
-# 保证API不混淆
--keep class com.analysys.push.PushAgent{
- *;
-}

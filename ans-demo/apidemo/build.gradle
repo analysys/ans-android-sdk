@@ -82,11 +82,6 @@ android {
 
 dependencies {
 
-//    implementation project(':ans-sdk:analysys_paas')
-//    implementation project(':ans-sdk:analysys_encryption')
-//    implementation project(':ans-sdk:analysys_push')
-//    implementation project(':ans-sdk:analysys_visual')
-//    implementation project(':ans-sdk:analysys_allgro')
 
     api project(':ans-sdk:analysys_arkanalysys')
 

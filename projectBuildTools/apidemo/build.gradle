@@ -1,12 +1,25 @@
-rootProject.ext.gradle_base_demo this, 'com.android.application'
+apply plugin: 'com.android.application'
 apply plugin: 'com.analysys.android.plugin'
 
 android {
-    defaultConfig {
 
-        buildConfigField("String", "Build_Type", "${Build_Type}")
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+
+        buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
+
+
         applicationId "com.analysys.demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
     }
 
     buildTypes {
@@ -36,12 +49,34 @@ android {
         textReport false
         disable 'RestrictedApi'
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 
     analysysConfig {
         lambdaEnabled = true
     }
+
+    dataBinding {
+        enabled = true
+    }
+
 }
 
+dependencies {
+
+
+    api('cn.com.analysys:analysys_arkanalysys:latest.release')
+
+
+    implementation('com.alibaba:arouter-api:1.5.0')
+    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
+
+}
 
 // 忽略文档编译错误. 设置编码
 tasks.withType(Javadoc) {

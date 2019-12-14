@@ -13,3 +13,6 @@
 #aar和jar包
 ./gradlew releaseMapping
 ./gradlew makeJar
+
+#zip包
+./gradlew makeZipAnsClean

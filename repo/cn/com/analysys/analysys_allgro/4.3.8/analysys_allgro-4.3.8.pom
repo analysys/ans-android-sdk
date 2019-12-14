@@ -6,12 +6,4 @@
   <artifactId>analysys_allgro</artifactId>
   <version>4.3.8</version>
   <packaging>aar</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>cn.com.analysys</groupId>
-      <artifactId>analysys_core</artifactId>
-      <version>4.3.8</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
 </project>
