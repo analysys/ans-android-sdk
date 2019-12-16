@@ -85,17 +85,24 @@ public class AnalysysAgent {
      * 点击自动上报-设置元素类型级黑名单
      * @param viewTypes 控件元素类列表
      */
-    public static void setAutoClickBlackListByElementTypes(List<Class<? extends View>> viewTypes) {
+    public static void setAutoClickBlackListByViewTypes(List<Class<? extends View>> viewTypes) {
         AgentProcess.getInstance().setAutoClickBlackListByElementTypes(viewTypes);
     }
 
+    /**
+     * 点击自动上报-设置元素类型级白名单
+     * @param viewTypes 控件元素类列表
+     */
+    public static void setAutoClickWhiteListByViewTypes(List<Class<? extends View>> viewTypes) {
+        AgentProcess.getInstance().setAutoClickWhiteListByElementTypes(viewTypes);
+    }
 
 
     /**
      * 点击自动上报-设置元素类型级白名单
      * @param element 控件元素对象
      */
-    public static void setAutoClickBlackListByElement(View element) {
+    public static void setAutoClickBlackListByView(View element) {
         AgentProcess.getInstance().setAutoClickBlackListByElement(element);
     }
 
@@ -105,7 +112,7 @@ public class AnalysysAgent {
      *
      * @param element 控件元素对象
      */
-    public static void setAutoClickWhiteListByElement(View element) {
+    public static void setAutoClickWhiteListByView(View element) {
         AgentProcess.getInstance().setAutoClickWhiteListByElement(element);
     }
 
