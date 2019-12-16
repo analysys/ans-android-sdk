@@ -63,6 +63,18 @@ public class AllegroUtils {
         return idString;
     }
 
+    public static void setViewIdResourceName(View view, String id) {
+        try{
+            if (view != null && !TextUtils.isEmpty(id)) {
+                view.setTag(R.id.analysys_tag_view_id, id);
+            }
+
+            String ids = (String) view.getTag((R.id.analysys_tag_view_id));
+        }catch (Exception e){
+
+        }
+    }
+
     public static String getIdResourceName(int id) {
         String idString = "";
         try {

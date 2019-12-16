@@ -7,7 +7,9 @@ import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
 import com.analysys.utils.Constants;
 import com.analysys.utils.CrashHandler;
+import com.analysys.utils.ExceptionUtil;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -594,6 +596,21 @@ public class AnalysysAgent {
      */
     public static void reportException(Context context, Throwable throwable) {
         CrashHandler.getInstance().reportException(context, throwable, CrashHandler.CrashType.crash_report);
+    }
+
+    /**
+     * 设置当个view的ID
+     * @param view
+     * @param id
+     */
+    public static void setAnsViewID(View view, String id) {
+        try {
+            Class<?> threadClazz = Class.forName("com.analysys.allgro.AllegroUtils");
+            Method method = threadClazz.getMethod("setViewIdResourceName", View.class, String.class);
+            System.out.println(method.invoke(null, view, id));
+        } catch (Exception e) {
+            ExceptionUtil.exceptionThrow(e);
+        }
     }
 }
 
