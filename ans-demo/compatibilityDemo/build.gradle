@@ -20,6 +20,9 @@ android {
                 arguments = [AROUTER_MODULE_NAME: project.getName()]
             }
         }
+
+        // 个推相关配置
+        manifestPlaceholders = Eval.me(ManifestPlaceholders)
     }
     buildTypes {
         release {

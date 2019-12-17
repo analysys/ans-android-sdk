@@ -18,16 +18,6 @@ android {
 
         buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
 
-        // 个推相关配置
-        manifestPlaceholders = [
-                GETUI_APP_ID    : "gI8n3bRHKt8RF1Ovovep57",
-                GETUI_APP_KEY   : "KLTj3f2BfE72zs3ggKhvb1",
-                GETUI_APP_SECRET: "1gYnp4UubFAt59SoOCL2yA",
-                JPUSH_PKGNAME   : "com.analysys.demo",
-                JPUSH_APPKEY    : "74abc6f71d9cd90db9ddfa40", //更新appkey
-                JPUSH_CHANNEL   : "developer-default" //暂时填写默认值即可.
-        ]
-
         applicationId "com.analysys.demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -36,6 +26,9 @@ android {
                 arguments = [AROUTER_MODULE_NAME: project.getName()]
             }
         }
+
+        // 个推相关配置
+        manifestPlaceholders = Eval.me(ManifestPlaceholders)
     }
 
     buildTypes {
@@ -55,7 +48,7 @@ android {
         cruncherEnabled = false
         useNewCruncher = false
     }
-    
+
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
