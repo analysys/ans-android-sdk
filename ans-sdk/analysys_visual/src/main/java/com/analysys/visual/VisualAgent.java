@@ -138,7 +138,7 @@ public class VisualAgent {
      * hit:方法为内部方法,调用前，请确保已经调用init方法
      */
     private static void initVisual(final Context context) {
-        final String url = InternalAgent.getString(context, "url", Constants.SP_DEBUG_VISUAL_URL);
+        final String url = InternalAgent.getString(context, Constants.SP_DEBUG_VISUAL_URL, null);
         if (!TextUtils.isEmpty(url)) {
             VisualManager.getInstance(context);
         }
