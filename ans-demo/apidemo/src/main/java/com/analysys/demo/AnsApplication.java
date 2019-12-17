@@ -22,7 +22,7 @@ public class AnsApplication extends Application {
 //    public static final String UPLOAD_URL = "https://arksdk.analysys.cn:4089";
 //    private static final String SOCKET_URL = "wss://arksdk.analysys.cn:4091";
 //    private static final String CONFIG_URL = "https://arksdk.analysys.cn:4089";
-    public static final String APP_KEY = "a217639dbb1f6a9c";
+    public static final String APP_KEY = "2709692586aa3e42";
     public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
     private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
     private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
