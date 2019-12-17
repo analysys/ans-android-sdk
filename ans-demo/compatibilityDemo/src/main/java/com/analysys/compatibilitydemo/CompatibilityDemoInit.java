@@ -3,8 +3,6 @@ package com.analysys.compatibilitydemo;
 import android.content.Context;
 import android.util.Log;
 
-import com.alibaba.android.arouter.facade.annotation.Route;
-import com.alibaba.android.arouter.facade.template.IProvider;
 import com.analysys.compatibilitydemo.push.GeTuiIntentService;
 import com.analysys.compatibilitydemo.push.GeTuiService;
 import com.analysys.compatibilitydemo.utils.ThreadPool;
@@ -15,16 +13,14 @@ import com.xiaomi.mipush.sdk.MiPushClient;
 
 import cn.jpush.android.api.JPushInterface;
 
-@Route(path = "/compatibilityDemo/api")
-public class CompatibilityDemoInit implements IProvider {
+public class CompatibilityDemoInit {
 
     private static final String XIAOMI_APP_ID = "2882303761517835296";
     private static final String XIAOMI_APP_KEY = "5711783571296";
     private static final String BAIDU_APP_KEY = "2RHDBhc3wkkPVf4TqNzks4Tl";
-    private Context mContext;
+    private static Context mContext;
 
-    @Override
-    public void init(Context context) {
+    public static void init(Context context) {
         Log.e("jeven", "CompatibilityDemoInit--->init() call");
         if (context != null) {
             mContext = context.getApplicationContext();
@@ -35,7 +31,7 @@ public class CompatibilityDemoInit implements IProvider {
         }
     }
 
-    private void initPushServices() {
+    private static void initPushServices() {
         ThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -48,29 +44,29 @@ public class CompatibilityDemoInit implements IProvider {
     }
 
     //小米推送
-    private void initXiaoMiPush() {
+    private static void initXiaoMiPush() {
         MiPushClient.registerPush(mContext, XIAOMI_APP_ID, XIAOMI_APP_KEY);
     }
 
     //个推初始化
-    private void initGeTuiPush() {
+    private static void initGeTuiPush() {
         PushManager.getInstance().initialize(mContext, GeTuiService.class);
         PushManager.getInstance().registerPushIntentService(mContext, GeTuiIntentService.class);
     }
 
     //极光初始化
-    private void initJPush() {
+    private static void initJPush() {
         JPushInterface.setDebugMode(true);
         JPushInterface.init(mContext);
     }
 
     //百度推送
-    private void initBaiDuPush() {
+    private static void initBaiDuPush() {
         com.baidu.android.pushservice.PushManager.startWork(mContext,
                 PushConstants.LOGIN_TYPE_API_KEY, BAIDU_APP_KEY);
     }
 
-    private void initX5WebView() {
+    private static void initX5WebView() {
         QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
 
             @Override

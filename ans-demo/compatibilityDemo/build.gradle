@@ -15,12 +15,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [AROUTER_MODULE_NAME: project.getName()]
-            }
-        }
-
         // 个推相关配置
         manifestPlaceholders = Eval.me(ManifestPlaceholders)
     }
@@ -65,8 +59,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
 
     implementation project(':ans-sdk:analysys_core')
-
-    implementation('com.alibaba:arouter-api:1.5.0')
-    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
 
 }

@@ -14,12 +14,6 @@ android {
 
         applicationId "com.analysys.demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [AROUTER_MODULE_NAME: project.getName()]
-            }
-        }
     }
 
     buildTypes {
@@ -68,10 +62,6 @@ dependencies {
 
 
     api('cn.com.analysys:analysys_arkanalysys:latest.release')
-
-
-    implementation('com.alibaba:arouter-api:1.5.0')
-    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

@@ -21,12 +21,6 @@ android {
         applicationId "com.analysys.demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [AROUTER_MODULE_NAME: project.getName()]
-            }
-        }
-
         // 个推相关配置
         manifestPlaceholders = Eval.me(ManifestPlaceholders)
     }
@@ -80,9 +74,6 @@ dependencies {
 
     api project(':ans-demo:compatibilityDemo')
     api project(':ans-demo:visualDemo')
-
-    implementation('com.alibaba:arouter-api:1.5.0')
-    annotationProcessor 'com.alibaba:arouter-compiler:1.2.2'
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

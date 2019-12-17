@@ -1,12 +1,13 @@
 package com.analysys.demo;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.StrictMode;
 
-import com.alibaba.android.arouter.launcher.ARouter;
 import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
 import com.analysys.EncryptEnum;
+import com.analysys.utils.ReflectUtils;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -17,12 +18,15 @@ import com.analysys.EncryptEnum;
  */
 public class AnsApplication extends Application {
     public static final int DEBUG_MODE = 2;
+//    public static final String APP_KEY = "04bf9dd9ec538df7";
+//    public static final String UPLOAD_URL = "https://arksdk.analysys.cn:4089";
+//    private static final String SOCKET_URL = "wss://arksdk.analysys.cn:4091";
+//    private static final String CONFIG_URL = "https://arksdk.analysys.cn:4089";
     public static final String APP_KEY = "a217639dbb1f6a9c";
     public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
     private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
     private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
     private static  AnsApplication instance;
-
 
     private boolean isDebug = true;
 
@@ -36,15 +40,13 @@ public class AnsApplication extends Application {
         instance = this;
         // 设置严苛模式
         strictMode();
-        // 初始化ARouter
-        initRouter();
 
         // 初始化方舟SDK
         initAnalsysy();
 
         // 尝试初始化对应模块
-        if ("compatibility".equals(BuildConfig.Build_Type)) {// 尝试初始化三方兼容模块
-            ARouter.getInstance().build("/compatibilityDemo/api").navigation();
+        if ("compatibility".equals(BuildConfig.Build_Type)) {
+            ReflectUtils.invokeStaticMethod("com.analysys.compatibilitydemo.CompatibilityDemoInit", "init", Context.class, this);
         }
     }
 
@@ -103,16 +105,5 @@ public class AnsApplication extends Application {
                     .penaltyLog()
                     .build());
         }
-    }
-
-    /**
-     * 初始化Router
-     */
-    private void initRouter() {
-        if (isDebug) {
-            ARouter.openLog();
-            ARouter.openDebug();
-        }
-        ARouter.init(this);
     }
 }

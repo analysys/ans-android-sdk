@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
-import com.alibaba.android.arouter.facade.annotation.Route;
 import com.analysys.visualdemo.R;
 
 import java.io.FileNotFoundException;
@@ -25,7 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-@Route(path = "/visualDemo/TopVisualPage")
 public class TopVisualMainActivity extends Activity {
 
 
