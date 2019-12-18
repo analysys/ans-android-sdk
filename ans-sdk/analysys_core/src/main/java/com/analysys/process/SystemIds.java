@@ -131,9 +131,9 @@ public class SystemIds {
         }
     }
 
-    boolean isRegister() {
-        return !mIdNameToId.isEmpty() && mIdToIdName.size() > 0;
-    }
+//    boolean isRegister() {
+//        return !mIdNameToId.isEmpty() && mIdToIdName.size() > 0;
+//    }
 
     private static class Holder {
         private static final SystemIds INSTANCE = new SystemIds();
