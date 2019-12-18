@@ -10,7 +10,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
 
-        buildConfigField("boolean", "ENABLE_BUGLY", true.toString())
+        buildConfigField("boolean", "ENABLE_BUGLY", false.toString())
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
