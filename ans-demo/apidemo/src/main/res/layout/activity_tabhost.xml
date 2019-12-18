@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--TabHost布局文件的结构：
+    1，TabHost容器必须包含TabWidget，FrameLayout
+    2，FrameLayout则用于“层叠”组合多个选项页面，TabWidget定义选项卡的标题条，随FrameLayout中的层叠组件均分
+    3，三个组件的ID有要求：
+        TabHost的ID必须是android:id="@android:id/tabhost"
+        TabWidget的ID必须是 android:id="@android:id/tabs"
+        FrameLayout的ID必须是  android:id="@android:id/tabcontent"
+ -->
+<!-- 定义一个TabHost， ID必须是android提供的ID，android:id="@android:id/tabhost"-->
+<TabHost  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/tabhost"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <!-- 定义一个TabWiget选项卡标题条，ID必须是android提供的ID，android:id="@android:id/tabs" -->
+
+        <TabWidget
+            android:id="@android:id/tabs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- 定义一个帧布局FrameLayout，代表一个Tab页面，ID必须是android提供的ID， android:id="@android:id/tabcontent" -->
+        <FrameLayout
+            android:id="@android:id/tabcontent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <!-- 当然可以放其他复杂的布局 -->
+            <LinearLayout
+                android:id="@+id/tab01"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="第一个Tab页"
+                    android:textSize="20dp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/tab02"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="第二个Tab页"
+                    android:textSize="20dp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tab03"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="第三个Tab页"
+                    android:textSize="20dp"
+                    />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+</TabHost>
