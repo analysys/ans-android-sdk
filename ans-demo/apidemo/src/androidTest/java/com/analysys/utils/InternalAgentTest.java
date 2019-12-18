@@ -2,8 +2,6 @@ package com.analysys.utils;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
-
 import junit.framework.Assert;
 
 import org.json.JSONArray;
@@ -21,7 +19,7 @@ import java.util.List;
  * @Author: Wang-X-C
  */
 public class InternalAgentTest {
-    private Context mContext = InstrumentationRegistry.getContext();
+    private Context mContext = AnalysysUtil.getContext();
 
     @Test
     public void getSourceDetail() {

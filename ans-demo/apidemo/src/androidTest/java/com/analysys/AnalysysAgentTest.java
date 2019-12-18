@@ -2,9 +2,8 @@ package com.analysys;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
-
 import com.analysys.push.PushListener;
+import com.analysys.utils.AnalysysUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,7 +21,7 @@ import java.util.Map;
  * @Author: Wang-X-C
  */
 public class AnalysysAgentTest {
-    Context mContext = InstrumentationRegistry.getContext();
+    Context mContext = AnalysysUtil.getContext();
 
     @Test
     public void init() {

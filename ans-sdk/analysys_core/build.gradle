@@ -13,6 +13,7 @@ android {
 
     defaultConfig {
         buildConfigField "String", "SDK_VERSION", "\"${version}\""
+        minSdkVersion rootProject.ext.minSdkVersion
     }
 
     buildTypes {
