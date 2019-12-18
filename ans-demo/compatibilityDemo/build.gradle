@@ -18,6 +18,13 @@ android {
         // 个推相关配置
         manifestPlaceholders = Eval.me(ManifestPlaceholders)
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
