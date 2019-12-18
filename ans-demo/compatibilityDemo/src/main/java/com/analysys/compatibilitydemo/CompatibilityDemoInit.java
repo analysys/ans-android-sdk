@@ -17,7 +17,7 @@ public class CompatibilityDemoInit {
 
     private static final String XIAOMI_APP_ID = "2882303761517835296";
     private static final String XIAOMI_APP_KEY = "5711783571296";
-    private static final String BAIDU_APP_KEY = "2RHDBhc3wkkPVf4TqNzks4Tl";
+    private static final String BAIDU_APP_KEY = "dicFHwycZXtvbwUqgvgZU6Ay";
     private static Context mContext;
 
     public static void init(Context context) {

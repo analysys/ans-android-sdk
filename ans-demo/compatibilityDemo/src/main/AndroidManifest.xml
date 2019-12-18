@@ -109,7 +109,7 @@
             android:writePermission="baidu.push.permission.WRITE_PUSHINFOPROVIDER.com.analysys.demo" /> <!-- 在百度开发者中心查询应用的API Key -->
         <meta-data
             android:name="api_key"
-            android:value="2RHDBhc3wkkPVf4TqNzks4Tl" /> <!-- 此处Receiver名字修改为当前包名路径 -->
+            android:value="dicFHwycZXtvbwUqgvgZU6Ay" /> <!-- 此处Receiver名字修改为当前包名路径 -->
         <receiver android:name=".push.BaiduPushMessageReceiver">
             <intent-filter>
 
