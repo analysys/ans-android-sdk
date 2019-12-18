@@ -19,7 +19,7 @@ android {
         buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
 
         applicationId "com.analysys.demo"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // 个推相关配置
         manifestPlaceholders = Eval.me(ManifestPlaceholders)
@@ -69,6 +69,11 @@ android {
 
 dependencies {
 
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
 
     api project(':ans-sdk:analysys_arkanalysys')
 

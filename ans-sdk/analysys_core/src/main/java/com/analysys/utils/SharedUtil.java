@@ -69,16 +69,11 @@ public class SharedUtil {
         Cursor cursor = null;
         try {
             Uri uri = EventTableMetaData.getTABLE_SP(context);
-            cursor = context.getContentResolver().query(uri, new String[]{key}, null, null, null);
+            cursor = context.getContentResolver().query(uri, new String[]{key}, defValue, null, null);
             if (cursor != null && cursor.getCount() >= 1) {
                 if (cursor.moveToPosition(0)) {
                     values = cursor.getString(0);
                 }
-
-            }
-
-            if (values == null) {
-                values = defValue;
             }
         } catch (Exception e) {
             ExceptionUtil.exceptionThrow(e);
@@ -88,6 +83,9 @@ public class SharedUtil {
             }
         }
 
+        if (values == null) {
+            values = defValue;
+        }
 
         return values;
     }

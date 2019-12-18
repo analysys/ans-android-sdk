@@ -2,7 +2,7 @@ package com.analysys.process;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
+import com.analysys.utils.AnalysysUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import org.junit.Test;
  * @Author: Wang-X-C
  */
 public class SessionManageTest {
-    Context mContext = InstrumentationRegistry.getContext();
+    Context mContext = AnalysysUtil.getContext();
 
     @Test
     public void getInstance() {
@@ -33,8 +33,8 @@ public class SessionManageTest {
         Assert.assertNotNull(SessionManage.getInstance(mContext).getSessionId());
     }
 
-    @Test
-    public void setPageEnd() {
-        SessionManage.getInstance(mContext).setPageEnd();
-    }
+//    @Test
+//    public void setPageEnd() {
+//        SessionManage.getInstance(mContext).setPageEnd();
+//    }
 }
