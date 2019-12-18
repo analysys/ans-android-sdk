@@ -2,8 +2,13 @@ package com.analysys;
 
 import android.content.Context;
 
+import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
 import com.analysys.utils.AnalysysUtil;
+import com.analysys.utils.CommonUtils;
+import com.analysys.utils.Constants;
+import com.analysys.utils.InternalAgent;
+import com.analysys.utils.SharedUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,20 +47,36 @@ public class AnalysysAgentTest {
 
     @Test
     public void setDebugMode() {
-        AnalysysAgent.setDebugMode(mContext, 0);
-        AnalysysAgent.setDebugMode(mContext, 1);
-        AnalysysAgent.setDebugMode(mContext, 2);
+        AgentProcess.getInstance().setDebug(0, false);
+        Assert.assertEquals(0, CommonUtils.getDebugMode(mContext));
+
+        AgentProcess.getInstance().setDebug(1, false);
+        Assert.assertEquals(1, CommonUtils.getDebugMode(mContext));
+
+        AgentProcess.getInstance().setDebug(2, false);
+        Assert.assertEquals(2, CommonUtils.getDebugMode(mContext));
     }
 
     @Test
-    public void setUploadURL() {
-        String url = "https://arksdktest.analysys.cn:4069";
-        String url2 = "http://arksdktest.analysys.cn:8089";
-        String url3 = "wss://arksdktest.analysys.cn:4069";
-        AnalysysAgent.setUploadURL(mContext, url);
-        AnalysysAgent.setUploadURL(mContext, url2);
-        AnalysysAgent.setUploadURL(mContext, url3);
-        AnalysysAgent.setUploadURL(mContext, null);
+    public void setURL() {
+        String url = "https://arksdktest.analysys.cn:4089";
+        AgentProcess.getInstance().setUploadURL(url, false);
+        Assert.assertEquals(url + "/up",
+                SharedUtil.getString(AnalysysUtil.getContext(), Constants.SP_USER_URL, null));
+
+        String url2 = "wss://arksdktest.analysys.cn:4091";
+        AgentProcess.getInstance().setVisitorDebugURL(url2, false);
+        Assert.assertEquals(url2
+                + "?appkey=" + InternalAgent.getAppId(mContext)
+                + "&version=" + InternalAgent.getVersionName(mContext)
+                + "&os=Android", SharedUtil.getString(AnalysysUtil.getContext(),
+                com.analysys.visual.utils.Constants.SP_DEBUG_VISUAL_URL, null));
+
+        String url3 = "https://arksdktest.analysys.cn:4089";
+        AgentProcess.getInstance().setVisitorConfigURL(url3, false);
+        Assert.assertEquals(url + "/configure",
+                SharedUtil.getString(AnalysysUtil.getContext(),
+                com.analysys.visual.utils.Constants.SP_GET_STRATEGY_URL, null));
     }
 
     @Test
@@ -322,10 +343,10 @@ public class AnalysysAgentTest {
     @Test
     public void trackCampaign() {
         String campaign = "campaign";
-        AnalysysAgent.trackCampaign(mContext,campaign,true);
-        AnalysysAgent.trackCampaign(mContext,campaign,false);
-        AnalysysAgent.trackCampaign(mContext,null,true);
-        AnalysysAgent.trackCampaign(mContext,null,false);
+        AnalysysAgent.trackCampaign(mContext, campaign, true);
+        AnalysysAgent.trackCampaign(mContext, campaign, false);
+        AnalysysAgent.trackCampaign(mContext, null, true);
+        AnalysysAgent.trackCampaign(mContext, null, false);
     }
 
     @Test
@@ -337,10 +358,10 @@ public class AnalysysAgentTest {
 
             }
         };
-        AnalysysAgent.trackCampaign(mContext,campaign,true, pl);
-        AnalysysAgent.trackCampaign(mContext,campaign,false, pl);
-        AnalysysAgent.trackCampaign(mContext,null,true, pl);
-        AnalysysAgent.trackCampaign(mContext,null,false, pl);
+        AnalysysAgent.trackCampaign(mContext, campaign, true, pl);
+        AnalysysAgent.trackCampaign(mContext, campaign, false, pl);
+        AnalysysAgent.trackCampaign(mContext, null, true, pl);
+        AnalysysAgent.trackCampaign(mContext, null, false, pl);
     }
 
     @Test
