@@ -337,6 +337,12 @@ class ViewClickProbe extends ASMHookAdapter {
             viewInfo.put(Constants.ELEMENT_TYPE, viewType);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewText);
             viewInfo.put(Constants.ELEMENT_POSITION, position + "");
+
+            String idName = AllegroUtils.getViewIdResourceName(v);
+            if (!TextUtils.isEmpty(idName)) {
+                viewInfo.put(Constants.ELEMENT_ID, idName);
+            }
+
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Exception e) {
             AllegroUtils.reportCatchException(e);
@@ -362,6 +368,12 @@ class ViewClickProbe extends ASMHookAdapter {
             viewInfo.put(Constants.ELEMENT_TYPE, viewType);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             viewInfo.put(Constants.ELEMENT_POSITION, groupPosition + ":" + childPosition);
+
+            String idName = AllegroUtils.getViewIdResourceName(v);
+            if (!TextUtils.isEmpty(idName)) {
+                viewInfo.put(Constants.ELEMENT_ID, idName);
+            }
+
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Exception e) {
             AllegroUtils.reportCatchException(e);
@@ -386,6 +398,12 @@ class ViewClickProbe extends ASMHookAdapter {
             viewInfo.put(Constants.ELEMENT_TYPE, viewType);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             viewInfo.put(Constants.ELEMENT_POSITION, groupPosition);
+
+            String idName = AllegroUtils.getViewIdResourceName(v);
+            if (!TextUtils.isEmpty(idName)) {
+                viewInfo.put(Constants.ELEMENT_ID, idName);
+            }
+
             trackListView(parent, v, groupPosition, hasTrackClickAnn);
         } catch (Exception e) {
             AllegroUtils.reportCatchException(e);
@@ -409,6 +427,12 @@ class ViewClickProbe extends ASMHookAdapter {
             String[] viewTypeAndText = AllegroUtils.getViewTypeAndText(v);
             viewInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
+
+            String idName = AllegroUtils.getViewIdResourceName(v);
+            if (!TextUtils.isEmpty(idName)) {
+                viewInfo.put(Constants.ELEMENT_ID, idName);
+            }
+
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Exception e) {
             AllegroUtils.reportCatchException(e);
