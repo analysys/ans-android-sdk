@@ -43,6 +43,9 @@
  -keep class com.analysys.utils.AnalysysUtil {
   *;
  }
+ -keep class com.analysys.utils.ReflectUtils {
+  *;
+ }
  -keep class com.analysys.process.AgentProcess {
   *;
  }
