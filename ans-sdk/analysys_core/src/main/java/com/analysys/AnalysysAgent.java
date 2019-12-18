@@ -127,7 +127,7 @@ public class AnalysysAgent {
      * 2、打开Debug模式,该模式下发送的数据可计入平台数据统计
      */
     public static void setDebugMode(Context context, int debugMode) {
-        AgentProcess.getInstance().setDebug(debugMode);
+        AgentProcess.getInstance().setDebug(debugMode, true);
     }
 
     /**
@@ -138,7 +138,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setUploadURL(Context context, String url) {
-        AgentProcess.getInstance().setUploadURL(url);
+        AgentProcess.getInstance().setUploadURL(url, true);
     }
 
     /**
@@ -472,7 +472,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setVisitorDebugURL(Context context, String url) {
-        AgentProcess.getInstance().setVisitorDebugURL(url);
+        AgentProcess.getInstance().setVisitorDebugURL(url, true);
     }
 
     /**
@@ -483,7 +483,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setVisitorConfigURL(Context context, String url) {
-        AgentProcess.getInstance().setVisitorConfigURL(url);
+        AgentProcess.getInstance().setVisitorConfigURL(url, true);
     }
 
     /**

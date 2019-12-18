@@ -78,6 +78,14 @@ public class ANSThreadPool {
         executor.execute(command);
     }
 
+    public static void execute(Runnable command, boolean isAsync) {
+        if (isAsync) {
+            execute(command);
+        } else {
+            command.run();
+        }
+    }
+
     public static void waitForAsyncTask() {
         try {
             for (WeakReference<ScheduledFuture<?>> reference : queue) {

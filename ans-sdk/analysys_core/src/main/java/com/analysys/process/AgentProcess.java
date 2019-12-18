@@ -130,7 +130,7 @@ public class AgentProcess {
     /**
      * debug 信息处理
      */
-    public void setDebug(final int debug) {
+    public void setDebug(final int debug, boolean isAsync) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -146,7 +146,7 @@ public class AgentProcess {
                 }
                 LogPrompt.showLog(Constants.API_SET_DEBUG_MODE, true);
             }
-        });
+        }, isAsync);
     }
 
     /**
@@ -1015,7 +1015,7 @@ public class AgentProcess {
     /**
      * 存储url
      */
-    public void setUploadURL(final String url) {
+    public void setUploadURL(final String url, boolean isAsync) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -1040,7 +1040,7 @@ public class AgentProcess {
                 } catch (Throwable ignored) {
                 }
             }
-        });
+        }, isAsync);
     }
 
 
@@ -1183,7 +1183,7 @@ public class AgentProcess {
     /**
      * 设置可视化websocket服务器地址
      */
-    public void setVisitorDebugURL(final String url) {
+    public void setVisitorDebugURL(final String url, boolean isAsync) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -1198,13 +1198,13 @@ public class AgentProcess {
                 } catch (Throwable ignored) {
                 }
             }
-        });
+        }, isAsync);
     }
 
     /**
      * 设置线上请求埋点配置的服务器地址
      */
-    public void setVisitorConfigURL(final String url) {
+    public void setVisitorConfigURL(final String url, boolean isAsync) {
         ANSThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -1221,7 +1221,7 @@ public class AgentProcess {
                 } catch (Throwable ignored) {
                 }
             }
-        });
+        }, isAsync);
     }
 
     public void enablePush(final String provider, final String pushId) {
