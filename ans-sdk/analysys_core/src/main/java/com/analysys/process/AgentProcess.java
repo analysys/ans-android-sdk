@@ -1632,7 +1632,7 @@ public class AgentProcess {
     /**
      * 设置元素类型级黑名单
      */
-    public void setAutoClickBlackListByViewTypes(List<Class<? extends View>> viewTypes) {
+    public void setAutoClickBlackListByViewTypes(List<Class> viewTypes) {
         mIgnoreByViewTypes.clear();
         if (viewTypes != null) {
             for (Class<?> viewType : viewTypes) {
@@ -1647,7 +1647,7 @@ public class AgentProcess {
     /**
      * 设置元素类型级白名单
      */
-    public void setAutoClickWhiteListByViewTypes(List<Class<? extends View>> viewTypes) {
+    public void setAutoClickWhiteListByViewTypes(List<Class> viewTypes) {
         mAutoByByViewTypes.clear();
         if (viewTypes != null) {
             for (Class<?> viewType : viewTypes) {
@@ -1660,7 +1660,7 @@ public class AgentProcess {
     }
 
     /**
-     * 判断元素类型是否在点击上报黑名单
+     * 判断元素类型是否在点击上报白名单
      */
     public boolean isThisViewTypeInAutoClickWhiteList(Class<?> viewType) {
         if (viewType != null) {

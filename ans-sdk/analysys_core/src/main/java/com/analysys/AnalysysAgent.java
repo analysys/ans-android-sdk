@@ -87,7 +87,7 @@ public class AnalysysAgent {
      * 点击自动上报-设置元素类型级黑名单
      * @param viewTypes 控件元素类列表
      */
-    public static void setAutoClickBlackListByViewTypes(List<Class<? extends View>> viewTypes) {
+    public static void setAutoClickBlackListByViewTypes(List<Class> viewTypes) {
         AgentProcess.getInstance().setAutoClickBlackListByViewTypes(viewTypes);
     }
 
@@ -95,7 +95,7 @@ public class AnalysysAgent {
      * 点击自动上报-设置元素类型级白名单
      * @param viewTypes 控件元素类列表
      */
-    public static void setAutoClickWhiteListByViewTypes(List<Class<? extends View>> viewTypes) {
+    public static void setAutoClickWhiteListByViewTypes(List<Class> viewTypes) {
         AgentProcess.getInstance().setAutoClickWhiteListByViewTypes(viewTypes);
     }
 
