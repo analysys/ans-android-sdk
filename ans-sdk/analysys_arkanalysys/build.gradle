@@ -91,7 +91,7 @@ for (int i = 0; i < moduleName.size(); i++) {
     task "unZipJar${moduleName[i]}"(type: Copy, dependsOn: ["unZipClasses${moduleName[i]}"]) {
         from("../release/jar/${moduleName[i]}/classes/")
         from("../release/jar/${moduleName[i]}") {
-            include('assets')
+            include('assets/')
         }
         into "../release/jar/tmp/${moduleName[i]}/"
 
