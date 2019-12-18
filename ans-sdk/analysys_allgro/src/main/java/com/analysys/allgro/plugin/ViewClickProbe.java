@@ -179,7 +179,7 @@ class ViewClickProbe extends ASMHookAdapter {
                 return;
             }
 
-            if (!checkTrackClickEnable(dialog, null, hasTrackClickAnn)) {
+            if (!checkTrackClickEnable(dialog, dialog, hasTrackClickAnn)) {
                 return;
             }
 
