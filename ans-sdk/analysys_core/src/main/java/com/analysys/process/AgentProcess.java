@@ -1593,9 +1593,9 @@ public class AgentProcess {
      */
     public void setAutoClickBlackListByPages(List<String> pages) {
         mIgnoreByPages.clear();
-        if (pages != null) {
+        if (pages != null && pages.size()>0) {
             for (String page : pages) {
-                if (TextUtils.isEmpty(page)) {
+                if (!TextUtils.isEmpty(page)) {
                     mIgnoreByPages.add(page.hashCode());
                 }
             }
@@ -1606,7 +1606,7 @@ public class AgentProcess {
      * 判断页面是否在点击上报黑名单
      */
     public boolean isThisPageInAutoClickBlackList(String page) {
-        return TextUtils.isEmpty(page) && mIgnoreByPages.contains(page.hashCode());
+        return !TextUtils.isEmpty(page) && mIgnoreByPages.contains(page.hashCode());
     }
 
 
@@ -1618,7 +1618,7 @@ public class AgentProcess {
         if (viewTypes != null) {
             for (Class<?> viewType : viewTypes) {
                 String viewTypeStr = viewType.getName();
-                if (TextUtils.isEmpty(viewTypeStr)) {
+                if (!TextUtils.isEmpty(viewTypeStr)) {
                     mIgnoreByViewTypes.add(viewTypeStr.hashCode());
                 }
             }
@@ -1631,7 +1631,7 @@ public class AgentProcess {
     public boolean isThisElementTypeInAutoClickBlackList(Class<?> viewType) {
         if (viewType != null) {
             String name = viewType.getName();
-            return TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
+            return !TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
         }
         return false;
     }
@@ -1652,7 +1652,7 @@ public class AgentProcess {
     public boolean isThisElementInAutoClickBlackList(Object element) {
         if (element != null) {
             String name = element.getClass().getName();
-            return TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
+            return !TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
         }
         return false;
     }
@@ -1664,7 +1664,7 @@ public class AgentProcess {
     public void setAutoClickWhiteListByPages(List<String> pages) {
         mAutoByPages.clear();
         for (String page : pages) {
-            if (TextUtils.isEmpty(page)) {
+            if (!TextUtils.isEmpty(page)) {
                 mAutoByPages.add(page.hashCode());
             }
         }
@@ -1674,7 +1674,7 @@ public class AgentProcess {
      * 判断页面是否在点击上报白名单
      */
     public boolean isThisPageInAutoClickWhiteList(String page) {
-        return TextUtils.isEmpty(page) && mAutoByPages.contains(page.hashCode());
+        return !TextUtils.isEmpty(page) && mAutoByPages.contains(page.hashCode());
     }
 
     /**
@@ -1685,7 +1685,7 @@ public class AgentProcess {
         if (viewTypes != null) {
             for (Class<?> viewType : viewTypes) {
                 String viewTypeStr = viewType.getName();
-                if (TextUtils.isEmpty(viewTypeStr)) {
+                if (!TextUtils.isEmpty(viewTypeStr)) {
                     mAutoByByViewTypes.add(viewTypeStr.hashCode());
                 }
             }
@@ -1698,7 +1698,7 @@ public class AgentProcess {
     public boolean isThisElementTypeInAutoClickWhiteList(Class<?> viewType) {
         if (viewType != null) {
             String name = viewType.getName();
-            return TextUtils.isEmpty(name) && mAutoByByViewTypes.contains(name.hashCode());
+            return !TextUtils.isEmpty(name) && mAutoByByViewTypes.contains(name.hashCode());
         }
         return false;
     }
@@ -1718,7 +1718,7 @@ public class AgentProcess {
     public boolean isThisElementInAutoClickWhiteList(Object element) {
         if (element != null) {
             String name = element.getClass().getName();
-            return TextUtils.isEmpty(name) && mAutoByView.contains(name.hashCode());
+            return !TextUtils.isEmpty(name) && mAutoByView.contains(name.hashCode());
         }
         return false;
     }
@@ -1734,30 +1734,5 @@ public class AgentProcess {
     public AnalysysConfig getConfig() {
         return mConfig;
     }
-
-//    /**
-//     * 设置远程调试
-//     */
-//    private void setDebugging(int debug) {
-//        try {
-//            if (Build.VERSION.SDK_INT >= 19 && (debug == 1 || debug == 2)) {
-//                WebView.setWebContentsDebuggingEnabled(true);
-//            }
-//        } catch (Throwable t) {
-//
-//        }
-//    }
-//
-//
-//    /**
-//     * 初始化流量审计SDK
-//     */
-//    private void deviceInit() {
-//        CommonUtils.reflexUtils(
-//                "com.analysys.track.AnalysysTracker",
-//                "init",
-//                new Class[]{Context.class, String.class, String.class},
-//                mContext, "", "");
-//    }
 
 }
