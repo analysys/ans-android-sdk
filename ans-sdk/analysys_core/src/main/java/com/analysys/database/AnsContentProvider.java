@@ -98,7 +98,7 @@ public class AnsContentProvider extends ContentProvider {
                 if (mContext != null) {
                     SharedPreferences sharedPreferences = sharedPreferencesHelp.getPreferences(mContext);
                     if (sharedPreferences != null && spKey != null) {
-                        String spValues = sharedPreferences.getString(spKey, "");
+                        String spValues = sharedPreferences.getString(spKey, null);
                         MatrixCursor matrixCursor = new MatrixCursor(new String[]{"column_name"});
                         matrixCursor.addRow(new Object[]{spValues});
 
