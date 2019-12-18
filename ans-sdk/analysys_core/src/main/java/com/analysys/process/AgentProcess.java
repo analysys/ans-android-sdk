@@ -1603,62 +1603,6 @@ public class AgentProcess {
     }
 
     /**
-     * 判断页面是否在点击上报黑名单
-     */
-    public boolean isThisPageInAutoClickBlackList(String page) {
-        return !TextUtils.isEmpty(page) && mIgnoreByPages.contains(page.hashCode());
-    }
-
-
-    /**
-     * 设置元素类型级黑名单
-     */
-    public void setAutoClickBlackListByElementTypes(List<Class<? extends View>> viewTypes) {
-        mIgnoreByViewTypes.clear();
-        if (viewTypes != null) {
-            for (Class<?> viewType : viewTypes) {
-                String viewTypeStr = viewType.getName();
-                if (!TextUtils.isEmpty(viewTypeStr)) {
-                    mIgnoreByViewTypes.add(viewTypeStr.hashCode());
-                }
-            }
-        }
-    }
-
-    /**
-     * 判断页面是否在点击上报黑名单
-     */
-    public boolean isThisElementTypeInAutoClickBlackList(Class<?> viewType) {
-        if (viewType != null) {
-            String name = viewType.getName();
-            return !TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
-        }
-        return false;
-    }
-
-
-    /**
-     * 设置元素类型级黑名单
-     */
-    public void setAutoClickBlackListByElement(Object element) {
-        if (element != null) {
-            mIgnoreByView.add(element.hashCode());
-        }
-    }
-
-    /**
-     * 判断元素对象是否在点击上报黑名单
-     */
-    public boolean isThisElementInAutoClickBlackList(Object element) {
-        if (element != null) {
-            String name = element.getClass().getName();
-            return !TextUtils.isEmpty(name) && mIgnoreByPages.contains(name.hashCode());
-        }
-        return false;
-    }
-
-
-    /**
      * 设置页面级白名单
      */
     public void setAutoClickWhiteListByPages(List<String> pages) {
@@ -1678,9 +1622,32 @@ public class AgentProcess {
     }
 
     /**
+     * 判断页面是否在点击上报黑名单
+     */
+    public boolean isThisPageInAutoClickBlackList(String page) {
+        return !TextUtils.isEmpty(page) && mIgnoreByPages.contains(page.hashCode());
+    }
+
+
+    /**
+     * 设置元素类型级黑名单
+     */
+    public void setAutoClickBlackListByViewTypes(List<Class<? extends View>> viewTypes) {
+        mIgnoreByViewTypes.clear();
+        if (viewTypes != null) {
+            for (Class<?> viewType : viewTypes) {
+                String viewTypeStr = viewType.getName();
+                if (!TextUtils.isEmpty(viewTypeStr)) {
+                    mIgnoreByViewTypes.add(viewTypeStr.hashCode());
+                }
+            }
+        }
+    }
+
+    /**
      * 设置元素类型级白名单
      */
-    public void setAutoClickWhiteListByElementTypes(List<Class<? extends View>> viewTypes) {
+    public void setAutoClickWhiteListByViewTypes(List<Class<? extends View>> viewTypes) {
         mAutoByByViewTypes.clear();
         if (viewTypes != null) {
             for (Class<?> viewType : viewTypes) {
@@ -1695,7 +1662,7 @@ public class AgentProcess {
     /**
      * 判断元素类型是否在点击上报黑名单
      */
-    public boolean isThisElementTypeInAutoClickWhiteList(Class<?> viewType) {
+    public boolean isThisViewTypeInAutoClickWhiteList(Class<?> viewType) {
         if (viewType != null) {
             String name = viewType.getName();
             return !TextUtils.isEmpty(name) && mAutoByByViewTypes.contains(name.hashCode());
@@ -1703,10 +1670,34 @@ public class AgentProcess {
         return false;
     }
 
+
+
+
+    /**
+     * 判断元素是否在点击上报黑名单
+     */
+    public boolean isThisViewTypeInAutoClickBlackList(Class<?> viewType) {
+        if (viewType != null) {
+            String name = viewType.getName();
+            return !TextUtils.isEmpty(name) && mIgnoreByViewTypes.contains(name.hashCode());
+        }
+        return false;
+    }
+
+
+    /**
+     * 设置元素类型级黑名单
+     */
+    public void setAutoClickBlackListByView(Object element) {
+        if (element != null) {
+            mIgnoreByView.add(element.hashCode());
+        }
+    }
+
     /**
      * 设置元素类型级白名单
      */
-    public void setAutoClickWhiteListByElement(Object element) {
+    public void setAutoClickWhiteListByView(Object element) {
         if (element != null) {
             mAutoByView.add(element.hashCode());
         }
@@ -1715,10 +1706,21 @@ public class AgentProcess {
     /**
      * 判断元素对象是否在点击上报黑名单
      */
-    public boolean isThisElementInAutoClickWhiteList(Object element) {
+    public boolean isThisViewInAutoClickBlackList(Object element) {
         if (element != null) {
-            String name = element.getClass().getName();
-            return !TextUtils.isEmpty(name) && mAutoByView.contains(name.hashCode());
+//            String name = element.getClass().getName();
+            return mIgnoreByView.contains(element.hashCode());
+        }
+        return false;
+    }
+
+    /**
+     * 判断元素对象是否在点击上报黑名单
+     */
+    public boolean isThisViewInAutoClickWhiteList(Object element) {
+        if (element != null) {
+//            String name = element.getClass().getName();
+            return  mAutoByView.contains(element.hashCode());
         }
         return false;
     }

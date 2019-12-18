@@ -471,14 +471,14 @@ class ViewClickProbe extends ASMHookAdapter {
             }
         }
 
-        boolean isInBlack = instance.isThisElementInAutoClickBlackList(element)
-                || (element != null && instance.isThisElementTypeInAutoClickBlackList(element.getClass()))
+        boolean isInBlack = instance.isThisViewInAutoClickBlackList(element)
+                || (element != null && instance.isThisViewTypeInAutoClickBlackList(element.getClass()))
                 || (pageObj != null && instance.isThisPageInAutoClickBlackList(pageObj.getClass().getName()));
         if (isInBlack) {
             return false;
         } else if (AgentProcess.getInstance().hasAutoClickWhiteList()) {
-            return instance.isThisElementInAutoClickWhiteList(element)
-                    || (element != null && instance.isThisElementTypeInAutoClickWhiteList(element.getClass()))
+            return instance.isThisViewInAutoClickWhiteList(element)
+                    || (element != null && instance.isThisViewTypeInAutoClickWhiteList(element.getClass()))
                     || (pageObj != null && instance.isThisPageInAutoClickWhiteList(pageObj.getClass().getName()));
         }
         return true;

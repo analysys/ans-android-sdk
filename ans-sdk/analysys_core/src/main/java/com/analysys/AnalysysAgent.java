@@ -88,7 +88,7 @@ public class AnalysysAgent {
      * @param viewTypes 控件元素类列表
      */
     public static void setAutoClickBlackListByViewTypes(List<Class<? extends View>> viewTypes) {
-        AgentProcess.getInstance().setAutoClickBlackListByElementTypes(viewTypes);
+        AgentProcess.getInstance().setAutoClickBlackListByViewTypes(viewTypes);
     }
 
     /**
@@ -96,7 +96,7 @@ public class AnalysysAgent {
      * @param viewTypes 控件元素类列表
      */
     public static void setAutoClickWhiteListByViewTypes(List<Class<? extends View>> viewTypes) {
-        AgentProcess.getInstance().setAutoClickWhiteListByElementTypes(viewTypes);
+        AgentProcess.getInstance().setAutoClickWhiteListByViewTypes(viewTypes);
     }
 
 
@@ -105,7 +105,7 @@ public class AnalysysAgent {
      * @param element 控件元素对象
      */
     public static void setAutoClickBlackListByView(View element) {
-        AgentProcess.getInstance().setAutoClickBlackListByElement(element);
+        AgentProcess.getInstance().setAutoClickBlackListByView(element);
     }
 
 
@@ -115,7 +115,7 @@ public class AnalysysAgent {
      * @param element 控件元素对象
      */
     public static void setAutoClickWhiteListByView(View element) {
-        AgentProcess.getInstance().setAutoClickWhiteListByElement(element);
+        AgentProcess.getInstance().setAutoClickWhiteListByView(element);
     }
 
 
