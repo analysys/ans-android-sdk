@@ -363,7 +363,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
             if (appStartTime == 0) {
                 // 获取应用启动时间
                 String startTime = CommonUtils.getIdFile(context, Constants.APP_START_TIME);
-                if (startTime != null) {
+                if (!TextUtils.isEmpty(startTime)) {
                     appStartTime = Long.valueOf(startTime);
                 }
             }
@@ -386,7 +386,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
             // 存储最后一次操作时间
             CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
         } catch (JSONException e) {
-            e.printStackTrace();
+
         }
     }
 
