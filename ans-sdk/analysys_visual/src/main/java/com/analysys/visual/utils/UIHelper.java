@@ -12,6 +12,7 @@ import com.analysys.visual.viewcrawler.ViewSnapshot;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -77,8 +78,14 @@ public class UIHelper {
         if (global == null) {
             return null;
         }
-        List views = (List) getReflectField(global, "mViews");
-        if (views == null) {
+        Object objViews = getReflectField(global, "mViews");
+        List views;
+        if (objViews instanceof List) {
+            views = (List)objViews;
+        } else if (objViews instanceof View[]) {
+            View[] arrViews=(View[]) objViews;
+            views = new ArrayList(Arrays.asList(arrViews));
+        } else {
             return null;
         }
         List<ViewSnapshot.RootViewInfo> listView = new ArrayList<>();
@@ -124,8 +131,14 @@ public class UIHelper {
         if (global == null) {
             return null;
         }
-        List views = (List) getReflectField(global, "mViews");
-        if (views == null) {
+        Object objViews = getReflectField(global, "mViews");
+        List views;
+        if (objViews instanceof List) {
+            views = (List)objViews;
+        } else if (objViews instanceof View[]) {
+            View[] arrViews=(View[]) objViews;
+            views = new ArrayList(Arrays.asList(arrViews));
+        } else {
             return null;
         }
         List<ViewSnapshot.RootViewInfo> listView = null;
