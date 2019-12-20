@@ -4,7 +4,7 @@ apply plugin: 'maven'
 dependencies {
     implementation gradleApi()//gradle sdk
     implementation localGroovy()//groovy sdk
-    implementation 'com.android.tools.build:gradle:3.5.0'
+    compileOnly 'com.android.tools.build:gradle:3.5.0'
 
     implementation 'org.ow2.asm:asm:6.0'
     implementation 'org.ow2.asm:asm-commons:6.0'
