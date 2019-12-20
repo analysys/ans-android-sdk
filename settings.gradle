@@ -1,4 +1,6 @@
+// 插件
+include 'analysys_allgro-plugin'
 //demo
 include 'ans-demo:apidemo', 'ans-demo:visualDemo', 'ans-demo:compatibilityDemo'
 //sdk
-include 'ans-sdk:analysys_paas', 'ans-sdk:analysys_encryption', 'ans-sdk:analysys_push', 'ans-sdk:analysys_visual'
+include 'ans-sdk:analysys_core', 'ans-sdk:analysys_encryption', 'ans-sdk:analysys_push', 'ans-sdk:analysys_visual', 'ans-sdk:analysys_allgro','ans-sdk:analysys_arkanalysys'

@@ -1,5 +1,6 @@
 package com.analysys.visual.viewcrawler;
 
+import com.analysys.utils.ANSThreadPool;
 import com.analysys.utils.InternalAgent;
 import com.analysys.visual.websocket.client.BaseWebSocketClient;
 import com.analysys.visual.websocket.drafts.Draft_6455;
@@ -63,13 +64,13 @@ class EditorConnection {
         return new BufferedOutputStream(new WebSocketOutputStream());
     }
     public interface Editor {
-        public void sendSnapshot(JSONObject message);
+        void sendSnapshot(JSONObject message);
 
-        public void bindEvents(JSONObject message);
+        void bindEvents(JSONObject message);
 
-        public void sendDeviceInfo();
+        void sendDeviceInfo();
 
-        public void cleanup();
+        void cleanup();
     }
 
     public class EditorConnectionException extends IOException {
@@ -82,6 +83,10 @@ class EditorConnection {
     }
 
     private class EditorClient extends BaseWebSocketClient {
+
+        private boolean mMessageReceived;
+        private long mOpenTime;
+
         public EditorClient(URI uri, int connectTimeout, Socket sslSocket) {
             super(uri, new Draft_6455(), null, connectTimeout);
             setSocket(sslSocket);
@@ -90,12 +95,33 @@ class EditorConnection {
         @Override
         public void onOpen(ServerHandshake handshakedata) {
             InternalAgent.d(TAG, "Websocket connected");
+            mOpenTime = System.currentTimeMillis();
+            ANSThreadPool.execute(mCheckConnRunnable);
         }
+
+        private Runnable mCheckConnRunnable = new Runnable() {
+            @Override
+            public void run() {
+                while (System.currentTimeMillis() - mOpenTime < 3000) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (mMessageReceived) {
+                        break;
+                    }
+                }
+                if (!mMessageReceived) {
+                    close();
+                }
+            }
+        };
 
         @Override
         public void onMessage(String message) {
             InternalAgent.d(TAG, "message sent to the client by the server: " + message);
-
+            mMessageReceived = true;
             try {
                 final JSONObject messageJson = new JSONObject(message);
                 final String type = messageJson.getString("type");

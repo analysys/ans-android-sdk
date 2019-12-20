@@ -2,14 +2,12 @@ package com.analysys.visual.viewcrawler;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -19,10 +17,12 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.JsonWriter;
 
+import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.InternalAgent;
 import com.analysys.visual.utils.Constants;
 import com.analysys.visual.utils.EGJSONUtils;
 import com.analysys.visual.utils.EgPair;
+import com.analysys.visual.utils.UIHelper;
 import com.analysys.visual.utils.VisUtils;
 
 import org.json.JSONArray;
@@ -63,6 +63,7 @@ public class ViewCrawler {
     private static final int MESSAGE_HANDLE_EDITOR_BINDINGS_RECEIVED = 5;
     private static final int MESSAGE_HANDLE_EDITOR_CLOSED = 6;
     private static final int MESSAGE_HANDLE_SEND_EVENT_SERVER = 7;
+    private static final int MESSAGE_CHECK_DLG = 8;
     private static final int EMULATOR_CONNECT_ATTEMPT_INTERVAL_MILLIS = 1000 * 30;
     private static final String TAG = "VisualViewCrawler";
     private final Context mContext;
@@ -83,6 +84,9 @@ public class ViewCrawler {
     private final String WS_EVENTINFO_DELETE = "delete";
     //    path and self json
     private Map<String, JSONObject> mMemoryPathAndJson = null;
+    private final Handler mMainThreadHandler;
+
+    private SensorHelper mSensorHelper;
     public ViewCrawler(Context context) {
         mContext = context;
         mEditState = new EditState();
@@ -97,19 +101,56 @@ public class ViewCrawler {
         mMessageThreadHandler = new ViewCrawlerHandler(context, thread.getLooper());
 
         mDynamicEventTracker = new DynamicEventTracker();
-        final Application app = (Application) context.getApplicationContext();
-        app.registerActivityLifecycleCallbacks(new LifecycleCallbacks());
+        mSensorHelper = new SensorHelper();
+        mMainThreadHandler = new Handler(Looper.getMainLooper());
     }
 
     public void startUpdates() {
         mMessageThreadHandler.start();
         applyPersistedUpdates();
+
+        mMainThreadHandler.postDelayed(mCheckDlgRunnable, CHECK_DLG_DELAY);
     }
 
     public void applyPersistedUpdates() {
         mMessageThreadHandler.sendMessage(mMessageThreadHandler.obtainMessage
                 (MESSAGE_INITIALIZE_CHANGES));
     }
+
+    /**
+     * 记录当前界面是否有dialog在显示
+     * */
+    private boolean mIsDlgShowing;
+
+    private long CHECK_DLG_DELAY = 500;
+
+    /**
+     * 是否含有对话框配置
+     */
+    private boolean mContainsDlgConfig;
+
+    /**
+     * 检测dialog显示
+     */
+    private Runnable mCheckDlgRunnable = new Runnable() {
+        public void run() {
+            if (mContainsDlgConfig || mMessageThreadHandler.isConnected()) {
+                boolean isShowingDlg = false;
+                Activity activity = ActivityLifecycleUtils.getCurrentActivity();
+                if (activity != null) {
+                    List<ViewSnapshot.RootViewInfo> listView = UIHelper.getActivityDialogs(activity);
+                    if (listView != null && !listView.isEmpty()) {
+                        isShowingDlg = true;
+                    }
+                }
+                if (mIsDlgShowing != isShowingDlg) {
+                    mIsDlgShowing = isShowingDlg;
+                    mMessageThreadHandler.applyEventBindings();
+                }
+            }
+            mMainThreadHandler.postDelayed(this, CHECK_DLG_DELAY);
+        }
+    };
 
     /**
      * 保存当前与历史绑定事件Presistent
@@ -132,6 +173,9 @@ public class ViewCrawler {
 
     public void connectToEditor() {
         mMessageThreadHandler.connectToEditor();
+        if (!mMessageThreadHandler.isConnected()) {
+            mSensorHelper.installConnectionSensor();
+        }
     }
 
     private class EmulatorConnector implements Runnable {
@@ -164,76 +208,61 @@ public class ViewCrawler {
         }
     }
 
-    private class LifecycleCallbacks implements Application.ActivityLifecycleCallbacks,
-            FlipGesture.OnFlipGestureListener {
+    private ActivityLifecycleUtils.BaseLifecycleCallback mLifecycleCallback = new ActivityLifecycleUtils.BaseLifecycleCallback() {
+        @Override
+        public void onActivityResumed(Activity activity) {
+            mEditState.onActivityResumed();
+        }
+    };
+
+    private class SensorHelper implements FlipGesture.OnFlipGestureListener {
 
         private final FlipGesture mFlipGesture;
         private final EmulatorConnector mEmulatorConnector;
+        private boolean mIsSensorRegistered;
 
-        public LifecycleCallbacks() {
-            mFlipGesture = new FlipGesture(mContext, this);
+        public SensorHelper() {
+            mFlipGesture = new FlipGesture(this);
             mEmulatorConnector = new EmulatorConnector();
+            installConnectionSensor();
+            if (ActivityLifecycleUtils.getCurrentActivity() != null) {
+                mEditState.onActivityResumed();
+            }
         }
 
         @Override
         public void onFlipGesture() {
+            uninstallConnectionSensor();
             final Message message = mMessageThreadHandler.obtainMessage(MESSAGE_CONNECT_TO_EDITOR);
             mMessageThreadHandler.sendMessage(message);
         }
 
-        @Override
-        public void onActivityCreated(Activity activity, Bundle bundle) {
-        }
-
-        @Override
-        public void onActivityStarted(Activity activity) {
-        }
-
-        @Override
-        public void onActivityResumed(Activity activity) {
-            installConnectionSensor(activity);
-            mEditState.add(activity);
-        }
-
-        @Override
-        public void onActivityPaused(Activity activity) {
-            mEditState.remove(activity);
-            uninstallConnectionSensor(activity);
-        }
-
-        @Override
-        public void onActivityStopped(Activity activity) {
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-        }
-
-        @Override
-        public void onActivityDestroyed(Activity activity) {
-        }
-
-        private void installConnectionSensor(final Activity activity) {
+        private void installConnectionSensor() {
             if (isInEmulator()) {
                 mEmulatorConnector.start();
-            } else {
+            } else if (!mIsSensorRegistered) {
                 final SensorManager sensorManager =
-                        (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
+                        (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
                 final Sensor accelerometer =
                         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
                 sensorManager.registerListener(mFlipGesture, accelerometer,
                         SensorManager.SENSOR_DELAY_NORMAL);
+                mIsSensorRegistered = true;
             }
+            ActivityLifecycleUtils.addCallback(mLifecycleCallback);
         }
 
-        private void uninstallConnectionSensor(final Activity activity) {
+        private void uninstallConnectionSensor() {
             if (isInEmulator()) {
                 mEmulatorConnector.stop();
-            } else {
-                final SensorManager sensorManager = (SensorManager) activity.getSystemService
+            } else if (mIsSensorRegistered) {
+                final SensorManager sensorManager = (SensorManager) mContext.getSystemService
                         (Context.SENSOR_SERVICE);
                 sensorManager.unregisterListener(mFlipGesture);
+                mFlipGesture.reset();
+                mIsSensorRegistered = false;
             }
+            ActivityLifecycleUtils.removeCallback(mLifecycleCallback);
         }
 
         private boolean isInEmulator() {
@@ -279,9 +308,9 @@ public class ViewCrawler {
             final ResourceIds resourceIds = new BaseResourceReader.Ids(resourcePackage, context);
 
             mProtocol = new EditProtocol(resourceIds);
-            mOriginalEventBindings = new HashSet<EgPair<String, JSONObject>>();
-            mEditorEventBindings = new HashMap<String, EgPair<String, JSONObject>>();
-            mPersistentEventBindings = new HashSet<EgPair<String, JSONObject>>();
+            mOriginalEventBindings = new HashSet<>();
+            mEditorEventBindings = new HashMap<>();
+            mPersistentEventBindings = new HashSet<>();
             mStartLock = new ReentrantLock();
             mStartLock.lock();
         }
@@ -302,6 +331,9 @@ public class ViewCrawler {
                         break;
                     case MESSAGE_CONNECT_TO_EDITOR:
                         connectToEditor();
+                        if (!isConnected()) {
+                            mSensorHelper.installConnectionSensor();
+                        }
                         break;
                     case MESSAGE_SEND_DEVICE_INFO:
                         sendDeviceInfo();
@@ -354,7 +386,7 @@ public class ViewCrawler {
                         final JSONObject event = bindings.getJSONObject(i);
                         final String targetActivity = EGJSONUtils.optionalStringKey(event,
                                 "target_page");
-                        mPersistentEventBindings.add(new EgPair<String, JSONObject>(targetActivity, event));
+                        mPersistentEventBindings.add(new EgPair<>(targetActivity, event));
                     }
                 } catch (final JSONException e) {
                     InternalAgent.i(TAG, "JSON error when loading event bindings, clearing " +
@@ -525,6 +557,8 @@ public class ViewCrawler {
             }
             // ELSE config is valid:
 
+
+
             final OutputStream out = mEditorConnection.getBufferedOutputStream();
             final OutputStreamWriter writer = new OutputStreamWriter(out);
             try {
@@ -535,7 +569,7 @@ public class ViewCrawler {
                 {
                     writer.write("\"activities\":");
                     writer.flush();
-                    mSnapshot.snapshots(mEditState, out);
+                    mSnapshot.snapshots(out);
                 }
 
                 final long snapshotTime = System.currentTimeMillis() - startSnapshot;
@@ -575,7 +609,7 @@ public class ViewCrawler {
          */
         private void handleEditorBindingsReceived(JSONObject message) {
             JSONArray temp;
-            String recordtype = "";
+            String recordtype;
             try {
                 recordtype = message.optString(WS_KEY_EVENT_TYPE);
                 // 埋点下发消息用于绑定控件
@@ -587,13 +621,13 @@ public class ViewCrawler {
             }
 
             if (temp != null && temp.length() == 0) {
-                mMemoryPathAndJson = new HashMap<String, JSONObject>();
+                mMemoryPathAndJson = new HashMap<>();
             }
             if (mMemoryPathAndJson == null) {
-                mMemoryPathAndJson = new HashMap<String, JSONObject>();
+                mMemoryPathAndJson = new HashMap<>();
             }
 
-            if (temp.length() > 0) {
+            if (temp != null && temp.length() > 0) {
                 for (int i = 0; i < temp.length(); i++) {
                     JSONObject obj = temp.optJSONObject(i);
                     if (obj != null & obj.length() > 0) {
@@ -651,8 +685,7 @@ public class ViewCrawler {
                     final JSONObject event = tempArr.getJSONObject(i);
                     final String targetActivity = EGJSONUtils.optionalStringKey(event,
                             "target_page");
-                    mEditorEventBindings.put(event.get("path").toString(), new EgPair<String,
-                            JSONObject>(targetActivity, event));
+                    mEditorEventBindings.put(event.get("path").toString(), new EgPair<>(targetActivity, event));
                 } catch (final JSONException e) {
                     InternalAgent.e(TAG, "Bad event binding received from editor in " + tempArr
                             .toString(), e);
@@ -666,6 +699,7 @@ public class ViewCrawler {
          * Clear state associated with the editor now that the editor is gone.
          */
         private void handleEditorClosed() {
+            mSensorHelper.installConnectionSensor();
             mEditorEventBindings.clear();
             mPersistentEventBindings.addAll(mOriginalEventBindings);
             mOriginalEventBindings.clear();
@@ -677,6 +711,10 @@ public class ViewCrawler {
             applyEventBindings();
         }
 
+        private boolean isConnected() {
+            return mEditorConnection != null && mEditorConnection.isConnected();
+        }
+
         /**
          * Reads our JSON-stored edits from memory and submits them to our EditState. Overwrites
          * any existing edits at the time that it is run.
@@ -685,8 +723,7 @@ public class ViewCrawler {
          * from disk or when we receive new edits from event bindings from our persistent storage
          */
         private void applyEventBindings() {
-            final List<EgPair<String, BaseViewVisitor>> newVisitors = new ArrayList<EgPair<String,
-                    BaseViewVisitor>>();
+            final List<EgPair<String, BaseViewVisitor>> newVisitors = new ArrayList<>();
             {
                 if (mEditorEventBindings.size() == 0 && mOriginalEventBindings.size() == 0) {
                     for (EgPair<String, JSONObject> changeInfo : mPersistentEventBindings) {
@@ -694,7 +731,7 @@ public class ViewCrawler {
                             final BaseViewVisitor visitor =
                                     mProtocol.readEventBinding(changeInfo.second,
                                             mDynamicEventTracker);
-                            newVisitors.add(new EgPair<String, BaseViewVisitor>(changeInfo.first,
+                            newVisitors.add(new EgPair<>(changeInfo.first,
                                     visitor));
                         } catch (final EditProtocol.InapplicableInstructionsException e) {
                             InternalAgent.i(TAG, e.getMessage());
@@ -711,7 +748,7 @@ public class ViewCrawler {
                     try {
                         final BaseViewVisitor visitor =
                                 mProtocol.readEventBinding(changeInfo.second, mDynamicEventTracker);
-                        newVisitors.add(new EgPair<String, BaseViewVisitor>(changeInfo.first,
+                        newVisitors.add(new EgPair<>(changeInfo.first,
                                 visitor));
                     } catch (final EditProtocol.InapplicableInstructionsException e) {
                         InternalAgent.i(TAG, e.getMessage());
@@ -721,16 +758,19 @@ public class ViewCrawler {
                 }
             }
 
-            final Map<String, List<BaseViewVisitor>> editMap = new HashMap<String,
-                    List<BaseViewVisitor>>();
+            final Map<String, List<BaseViewVisitor>> editMap = new HashMap<>();
             final int totalEdits = newVisitors.size();
+            mContainsDlgConfig = false;
             for (int i = 0; i < totalEdits; i++) {
                 final EgPair<String, BaseViewVisitor> next = newVisitors.get(i);
                 final List<BaseViewVisitor> mapElement;
+                if (next.first != null && next.first.endsWith(UIHelper.DIALOG_SUFFIX)) {
+                    mContainsDlgConfig = true;
+                }
                 if (editMap.containsKey(next.first)) {
                     mapElement = editMap.get(next.first);
                 } else {
-                    mapElement = new ArrayList<BaseViewVisitor>();
+                    mapElement = new ArrayList<>();
                     editMap.put(next.first, mapElement);
                 }
                 mapElement.add(next.second);
@@ -763,8 +803,7 @@ public class ViewCrawler {
         }
 
         private SharedPreferences getSharedPreferences() {
-            final String sharedPrefsName = SHARED_PREF_EDITS_FILE;
-            return mContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
+            return mContext.getSharedPreferences(SHARED_PREF_EDITS_FILE, Context.MODE_PRIVATE);
         }
     }
 

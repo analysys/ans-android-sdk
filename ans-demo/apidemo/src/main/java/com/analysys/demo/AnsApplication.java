@@ -1,12 +1,13 @@
 package com.analysys.demo;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.StrictMode;
 
-import com.alibaba.android.arouter.launcher.ARouter;
 import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
 import com.analysys.EncryptEnum;
+import com.analysys.utils.ReflectUtils;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -17,29 +18,35 @@ import com.analysys.EncryptEnum;
  */
 public class AnsApplication extends Application {
     public static final int DEBUG_MODE = 2;
-    public static final String APP_KEY = "androidtest";
-    public static final String UPLOAD_URL = "http://192.168.10.91:8089";
-    private static final String SOCKET_URL = "ws://192.168.10.91:9091";
-    private static final String CONFIG_URL = "http://192.168.10.91:8089";
+    //    public static final String APP_KEY = "04bf9dd9ec538df7";
+//    public static final String UPLOAD_URL = "https://arksdk.analysys.cn:4089";
+//    private static final String SOCKET_URL = "wss://arksdk.analysys.cn:4091";
+//    private static final String CONFIG_URL = "https://arksdk.analysys.cn:4089";
+    public static final String APP_KEY = "2709692586aa3e42";
+    public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
+    private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
+    private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
+    private static  AnsApplication instance;
 
     private boolean isDebug = true;
+
+    public static AnsApplication getInstance() {
+        return instance;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         // 设置严苛模式
         strictMode();
-        // 初始化ARouter
-        initRouter();
 
         // 初始化方舟SDK
         initAnalsysy();
 
         // 尝试初始化对应模块
-        switch (BuildConfig.Build_Type) {
-            case "compatibility":
-                // 尝试初始化三方兼容模块
-                ARouter.getInstance().build("/compatibilityDemo/api").navigation();
+        if ("compatibility".equals(BuildConfig.Build_Type)) {
+            ReflectUtils.invokeStaticMethod("com.analysys.compatibilitydemo.CompatibilityDemoInit", "init", Context.class, this);
         }
     }
 
@@ -64,10 +71,18 @@ public class AnsApplication extends Application {
         config.setMaxDiffTimeInterval(5 * 60);
         // 开启渠道归因
         config.setAutoInstallation(true);
+        // 热图数据采集（默认关闭）
+        config.setAutoHeatMap(false);
+        // pageView自动上报总开关（默认开启）
+        config.setAutoTrackPageView(true);
+        // fragment-pageView自动上报开关（默认关闭）
+        config.setAutoTrackFragmentPageView(false);
+        // 点击自动上报开关（默认关闭）
+        config.setAutoTrackClick(false);
+
+        config.setEnableException(true);
         // 初始化
         AnalysysAgent.init(this, config);
-        // 开启热图数据采集
-        AnalysysAgent.setAutoHeatMap(false);
         // 设置数据上传/更新地址
         AnalysysAgent.setUploadURL(this, UPLOAD_URL);
         // 设置 WebSocket 连接 Url
@@ -90,16 +105,5 @@ public class AnsApplication extends Application {
                     .penaltyLog()
                     .build());
         }
-    }
-
-    /**
-     * 初始化Router
-     */
-    private void initRouter() {
-        if (isDebug) {
-            ARouter.openLog();
-            ARouter.openDebug();
-        }
-        ARouter.init(this);
     }
 }

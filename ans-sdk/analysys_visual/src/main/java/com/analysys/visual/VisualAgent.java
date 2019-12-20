@@ -16,21 +16,25 @@ import com.analysys.visual.viewcrawler.VisualManager;
  */
 public class VisualAgent {
 
+    private static boolean sInited;
+
     /**
      * 设置基础
      */
-    public void setVisualBaseURL(Context context, String url) {
+    public static void setVisualBaseURL(Context context, String url) {
         InternalAgent.setString(context, Constants.SP_DEBUG_VISUAL_URL,
                 Constants.WSS + url + Constants.WSS_PORT + getParams(context));
         InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL,
                 com.analysys.utils.Constants.HTTPS + url + Constants.HTTPS_PORT + "/configure");
+        if (!TextUtils.isEmpty(url)) {
+            init(context);
+        }
     }
 
     /**
      * 设置可视化websocket服务器地址
      */
-    public void setVisitorDebugURL(Context context, String url) {
-        init(context);
+    public static void setVisitorDebugURL(Context context, String url) {
         try {
             String getUrl = "";
             if (InternalAgent.isEmpty(context) || InternalAgent.isEmpty(url)) {
@@ -47,6 +51,11 @@ public class VisualAgent {
                 /** 拼接完成url地址，读取配置文件，获取反射路径，反射调用传入地址 */
                 InternalAgent.setString(context, Constants.SP_DEBUG_VISUAL_URL,
                         getUrl + getParams(context));
+
+                final String configUrl = InternalAgent.getString(context, Constants.SP_GET_STRATEGY_URL, "");
+                if(!TextUtils.isEmpty(configUrl)) {
+                    init(context);
+                }
             }
         } catch (Throwable e) {
         }
@@ -55,7 +64,7 @@ public class VisualAgent {
     /**
      * 地址拼接
      */
-    private String getParams(Context context) {
+    private static String getParams(Context context) {
         try {
             StringBuilder sb = new StringBuilder("?");
             sb.append(Constants.PARA_KEY)
@@ -81,7 +90,7 @@ public class VisualAgent {
     /**
      * 设置线上请求埋点配置的服务器地址
      */
-    public void setVisitorConfigURL(Context context, String url) {
+    public static void setVisitorConfigURL(Context context, String url) {
         try {
             String getUrl = "";
             if (InternalAgent.isEmpty(context) || InternalAgent.isEmpty(url)) {
@@ -98,6 +107,11 @@ public class VisualAgent {
                 /** 拼接成完整的url，读取配置文件，获取反射路径，反射调用传入地址 */
                 InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL, getUrl +
                         "/configure");
+
+                final String debugUrl = InternalAgent.getString(context, Constants.SP_DEBUG_VISUAL_URL, "");
+                if(!TextUtils.isEmpty(debugUrl)) {
+                    init(context);
+                }
             }
         } catch (Throwable e) {
         }
@@ -106,7 +120,11 @@ public class VisualAgent {
     /**
      * 初始化可视化
      */
-    public void init(Context context) {
+    public static synchronized void init(Context context) {
+        if (sInited) {
+            return;
+        }
+        sInited = true;
         initVisual(context);
         StrategyGet.getInstance(context).getVisualBindingConfig();
         InternalAgent.d("Visual init: success.");
@@ -119,8 +137,8 @@ public class VisualAgent {
      * TODO:优化方式可在init接口增加'是否延时加载可视化'参数,确定initVisual方法是否延时调用
      * hit:方法为内部方法,调用前，请确保已经调用init方法
      */
-    private void initVisual(final Context context) {
-        final String url = InternalAgent.getString(context, "url", Constants.SP_DEBUG_VISUAL_URL);
+    private static void initVisual(final Context context) {
+        final String url = InternalAgent.getString(context, Constants.SP_DEBUG_VISUAL_URL, null);
         if (!TextUtils.isEmpty(url)) {
             VisualManager.getInstance(context);
         }

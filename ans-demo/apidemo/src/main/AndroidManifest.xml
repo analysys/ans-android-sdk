@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.analysys.demo">
+    package="com.analysys.demo"
+    android:versionCode="1"
+    android:versionName="1.0">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -33,6 +35,14 @@
         <activity android:name=".EventActivity" />
         <activity android:name=".PropertyActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".HeatMapTestActivity" />
+        <activity
+            android:name=".SingleProcessTestActivity"
+            android:process=":singleProcess" />
+        <activity android:name=".allgroTest.AllgroTestActivity" />
+        <activity android:name=".allgroTest.AllgroMainActivity" />
+        <activity android:name=".allgroTest.TabTestActivity" />
+
         <meta-data
             android:name="ANALYSYS_AUTO_COLLECTION_MAC"
             android:value="false"/>

@@ -22,6 +22,11 @@ ans-android-sdk 是一款商用级别的用户行为采集项目，目前支持�
 <application >
 
     ......
+    <provider
+    android:name="com.analysys.database.AnsContentProvider"
+    android:authorities="[应用包名].AnsContentProvider"
+    android:enabled="true"
+    android:exported="false" />
     <!--  设置appKey  -->
     <meta-data
     android:name="ANALYSYS_APPKEY"

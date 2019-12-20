@@ -109,7 +109,7 @@
             android:writePermission="baidu.push.permission.WRITE_PUSHINFOPROVIDER.com.analysys.demo" /> <!-- 在百度开发者中心查询应用的API Key -->
         <meta-data
             android:name="api_key"
-            android:value="2RHDBhc3wkkPVf4TqNzks4Tl" /> <!-- 此处Receiver名字修改为当前包名路径 -->
+            android:value="dicFHwycZXtvbwUqgvgZU6Ay" /> <!-- 此处Receiver名字修改为当前包名路径 -->
         <receiver android:name=".push.BaiduPushMessageReceiver">
             <intent-filter>
 
@@ -175,28 +175,42 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".activity.SecondActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="com.analysys.demo"
+                    android:path="/second"
+                    android:scheme="analysysapp" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".activity.X5WebViewDemo" />
 
-<!--        <meta-data-->
-<!--            android:name="GETUI_APP_ID"-->
-<!--            android:value="gI8n3bRHKt8RF1Ovovep57" />-->
-<!--        <meta-data-->
-<!--            android:name="GETUI_APP_KEY"-->
-<!--            android:value="KLTj3f2BfE72zs3ggKhvb1" />-->
-<!--        <meta-data-->
-<!--            android:name="GETUI_APP_SECRET"-->
-<!--            android:value="fh978N75mK6SbqkWE4AB28" />-->
-<!--        <meta-data-->
-<!--            android:name="JPUSH_PKGNAME"-->
-<!--            android:value="com.analysys.apidemo" />-->
-<!--        <meta-data-->
-<!--            android:name="JPUSH_APPKEY"-->
-<!--            android:value="fb807356b9492193f5546006"-->
-<!--            tools:replace="android:value"/>-->
-<!--        <meta-data-->
-<!--            android:name="JPUSH_CHANNEL"-->
-<!--            android:value="developer-default"-->
-<!--            tools:replace="android:value"/>-->
+        <meta-data
+            android:name="GETUI_APP_ID"
+            android:value="gI8n3bRHKt8RF1Ovovep57" />
+        <meta-data
+            android:name="GETUI_APP_KEY"
+            android:value="KLTj3f2BfE72zs3ggKhvb1" />
+        <meta-data
+            android:name="GETUI_APP_SECRET"
+            android:value="fh978N75mK6SbqkWE4AB28" />
+        <meta-data
+            android:name="JPUSH_PKGNAME"
+            android:value="com.analysys.demo" />
+        <meta-data
+            android:name="JPUSH_APPKEY"
+            android:value="74abc6f71d9cd90db9ddfa40"
+            tools:replace="android:value"/>
+        <meta-data
+            android:name="JPUSH_CHANNEL"
+            android:value="developer-default"
+            tools:replace="android:value"/>
 
     </application>
 </manifest>

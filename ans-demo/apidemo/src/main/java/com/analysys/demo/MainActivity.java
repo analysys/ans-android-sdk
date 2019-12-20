@@ -6,8 +6,9 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.alibaba.android.arouter.launcher.ARouter;
 import com.analysys.ANSAutoPageTracker;
+import com.analysys.AnalysysAgent;
+import com.analysys.demo.allgroTest.AllgroTestActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,13 @@ public class MainActivity extends AppCompatActivity implements ANSAutoPageTracke
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            // 判断如果是deepLink启动，设置启动来源为 3
+            AnalysysAgent.launchSource(3);
+        }
+
+
     }
 
     public void onClick(View view) {
@@ -41,7 +49,17 @@ public class MainActivity extends AppCompatActivity implements ANSAutoPageTracke
             startActivity(new Intent(MainActivity.this, WebViewActivity.class));
         } else if (id == R.id.visualDemoButton) {
             // 跳转可视化模块
-            ARouter.getInstance().build("/visualDemo/TopVisualPage").navigation();
+            try {
+                Class clz = Class.forName("com.analysys.visualdemo.activity.TopVisualMainActivity");
+                startActivity(new Intent(this, clz));
+            } catch (ClassNotFoundException e) {
+            }
+        } else if (id == R.id.TestHeatMapButton) {
+            // 热图黑名单测试
+            startActivity(new Intent(MainActivity.this, HeatMapTestActivity.class));
+        } else if (id == R.id.TestAllgroButton) {
+            // 跳转全埋点模块
+            startActivity(new Intent(MainActivity.this, AllgroTestActivity.class));
         }
     }
 

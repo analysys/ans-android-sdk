@@ -1,0 +1,187 @@
+{
+  "ReservedKeywords": [
+    "xwhat",
+    "xwhen",
+    "xwho",
+    "appid",
+    "xcontext",
+    "$lib",
+    "$lib_version",
+    "$platform",
+    "$is_login",
+    "$debug",
+    "$imei",
+    "$mac",
+    "$session_id",
+    "$first_visit_time"
+  ],
+  "appid": {
+    "valueType": 0,
+    "value": "com.analysys.utils.InternalAgent.getAppId",
+    "required": true,
+    "checkFuncList": []
+  },
+  "xwho": {
+    "valueType": 0,
+    "value": "com.analysys.utils.InternalAgent.getUserId",
+    "required": true
+  },
+  "xwhen": {
+    "valueType": 0,
+    "value": "com.analysys.utils.InternalAgent.getCurrentTime",
+    "required": true
+  },
+  "xwhat": {
+    "valueType": 2,
+    "value": "",
+    "required": true
+  },
+  "$track": {
+    "valueType": 2,
+    "value": "",
+    "checkFuncList": [
+      "com.analysys.utils.InternalAgent.checkEventName"
+    ]
+  },
+  "xcontext": {
+    "additional": {
+      "userKeysLimit": 100
+    },
+    "contextKey": {
+      "checkFuncList": [
+        "com.analysys.utils.InternalAgent.checkKey"
+      ]
+    },
+    "contextValue": {
+      "checkFuncList": [
+        "com.analysys.utils.InternalAgent.checkValue"
+      ]
+    },
+    "$lib": {
+      "valueType": 1,
+      "value": "Android",
+      "required": true
+    },
+    "$lib_version": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getLibVersion",
+      "required": true
+    },
+    "$platform": {
+      "valueType": 1,
+      "value": "Android",
+      "required": true
+    },
+    "$debug": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getDebugMode",
+      "required": true
+    },
+    "$is_login": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getLogin",
+      "required": true
+    },
+    "$is_first_time": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.isFirstTime",
+      "required": true
+    },
+    "$channel": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getChannel",
+      "required": true
+    },
+    "$time_zone": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getTimeZone",
+      "required": true
+    },
+    "$manufacturer": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getManufacturer",
+      "required": true
+    },
+    "$app_version": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getVersionName",
+      "required": true
+    },
+    "$model": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getDeviceModel",
+      "required": true
+    },
+    "$os": {
+      "valueType": 1,
+      "value": "Android",
+      "required": true
+    },
+    "$os_version": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getOSVersion",
+      "required": true
+    },
+    "$network": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getNetwork",
+      "required": true
+    },
+    "$carrier_name": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getCarrierName",
+      "required": true
+    },
+    "$screen_width": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getScreenWidth",
+      "required": true
+    },
+    "$screen_height": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getScreenHeight",
+      "required": true
+    },
+    "$brand": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getBrand",
+      "required": true
+    },
+    "$language": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getDeviceLanguage",
+      "required": true
+    },
+    "$is_first_day": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.isFirstDay",
+      "required": true
+    },
+    "$session_id": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getSessionId",
+      "required": true
+    },
+    "$imei": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getIMEI",
+      "required": false
+    },
+    "$mac": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getMac",
+      "required": true
+    },
+    "$is_time_calibrated": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.isCalibrated",
+      "required": true
+    },
+    "$start_source": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getLaunchSource",
+      "required": true
+    }
+  }
+}
+

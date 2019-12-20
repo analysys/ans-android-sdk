@@ -1,22 +1,28 @@
-rootProject.ext.gradle_base_demo this, 'com.android.application'
+apply plugin: 'com.android.application'
+apply plugin: 'com.analysys.android.plugin'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'analysys'
+            keyPassword '12345678'
+            storeFile file('../key/key.store')
+            storePassword '12345678'
+        }
+    }
+    compileSdkVersion 28
+
     defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
 
         buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
 
-        // 个推相关配置
-        manifestPlaceholders = [
-                GETUI_APP_ID    : "gI8n3bRHKt8RF1Ovovep57",
-                GETUI_APP_KEY   : "KLTj3f2BfE72zs3ggKhvb1",
-                GETUI_APP_SECRET: "1gYnp4UubFAt59SoOCL2yA",
-                JPUSH_PKGNAME   : "com.analysys.demo",
-                JPUSH_APPKEY    : "74abc6f71d9cd90db9ddfa40", //更新appkey
-                JPUSH_CHANNEL   : "developer-default" //暂时填写默认值即可.
-        ]
-
         applicationId "com.analysys.demo"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // 个推相关配置
+        manifestPlaceholders = Eval.me(ManifestPlaceholders)
     }
 
     buildTypes {
@@ -36,7 +42,7 @@ android {
         cruncherEnabled = false
         useNewCruncher = false
     }
-    
+
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
@@ -46,18 +52,36 @@ android {
         textReport false
         disable 'RestrictedApi'
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    analysysConfig {
+        lambdaEnabled = true
+    }
+
+    dataBinding {
+        enabled = true
+    }
 
 }
 
 dependencies {
-    if ("api" == Build_Type.toString()) {
-        implementation project(':ans-sdk:analysys_visual')
-        implementation project(':ans-sdk:analysys_encryption')
-        implementation project(':ans-sdk:analysys_paas')
-        implementation project(':ans-sdk:analysys_push')
-    } else {
-        implementation project(':ans-demo:visualDemo')
-    }
+
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+
+    api project(':ans-sdk:analysys_arkanalysys')
+
+    api project(':ans-demo:compatibilityDemo')
+    api project(':ans-demo:visualDemo')
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
 
 }
 
