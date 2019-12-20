@@ -22,7 +22,7 @@
 # 保护代码中的Annotation不被混淆
 -keepattributes *Annotation*
 # 避免混淆泛型, 这在JSON实体映射时非常重要
--keepattributes Signature,SourceFile,LineNumberTable
+-keepattributes Signature,LineNumberTable
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 
 -keep public class * extends android.app.Activity
