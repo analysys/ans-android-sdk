@@ -6,16 +6,15 @@ uploadArchives {
         mavenDeployer {
             // 发布地址
             repository(url: uri('../repo'))
-//            repository(url: uri('')) {
-//                authentication(userName: 'AnalysysSDK', password: 'Eguan&sdk&2000 ')
-//            }
 
             pom.project {
                 name 'analysysAllgroPlugin'
                 groupId 'cn.com.analysys'
-                artifactId 'analysys-gradle-plugin-allgro'
+                artifactId 'analysys-allgro-plugin'
                 version '1.0.0'
                 packaging 'jar'
+                description 'analysysAllgroPlugin'
+                url 'https://github.com/analysys/ans-android-sdk'
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -28,6 +27,11 @@ uploadArchives {
                         email 'analysys@analysys.com.cn'
                         url 'https://ark.analysys.cn'
                     }
+                }
+                scm {
+                    connection 'https://github.com/analysys/ans-android-sdk'
+                    developerConnection 'https://github.com/analysys/ans-android-sdk'
+                    url 'https://github.com/analysys/ans-android-sdk'
                 }
             }
         }

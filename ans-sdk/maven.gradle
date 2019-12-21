@@ -1,56 +1,54 @@
 apply plugin: 'maven'
 
-version= rootProject.ext.version
-group = "cn.com.analysys"
-//def nexusRepositoryUrl=nexusReleases
-//
-//if (!false.toBoolean()){
-//    version = "${version}"
-//    nexusRepositoryUrl=nexusSnapshots
-//}
+//def maven_version = rootProject.ext.version
+//def maven_groupId = "cn.com.analysys"
+//def maven_type = 'aar'
+
+version = rootProject.ext.version
+group = 'cn.com.analysys'
+
+def maven_artifactId = project.name
+if(project.name.equals("analysys_encryption")) {
+    maven_artifactId = "analysys_encryp"
+}
+
 
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: uri('../../repo'))
+
+            pom.project {
+                name maven_artifactId
+//                groupId maven_groupId
+                artifactId maven_artifactId
+//                version maven_version
+//                packaging maven_type
+                url 'https://github.com/analysys/ans-android-sdk'
+                description maven_artifactId
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name 'analysys'
+                        email 'analysys@analysys.com.cn'
+                        url 'https://ark.analysys.cn'
+                    }
+                }
+
+                scm {
+                    connection 'https://github.com/analysys/ans-android-sdk'
+                    developerConnection 'https://github.com/analysys/ans-android-sdk'
+                    url 'https://github.com/analysys/ans-android-sdk'
+                }
+            }
         }
+
+
     }
 }
 
-//uploadArchives {
-//    repositories {
-//        mavenDeployer {
-//            repository(url: "$nexusRepositoryUrl") {
-//                authentication(userName: nexusUserName, password: nexusPassword)
-//            }
-//
-//            pom.project {
-//                name LIB_ARTIFACT
-//                groupId LIB_GROUP
-//                artifactId LIB_ARTIFACT
-//                version version
-//                packaging 'jar'
-//                description LIB_DES
-//                licenses {
-//                    license {
-//                        name LICENCE_NAME
-//                        url LICENCE_URL
-//                        distribution LICENCE_DIST
-//                    }
-//                }
-//                developers {
-//                    developer {
-//                        id DEVELOPER_ID
-//                        name DEVELOPER_NAME
-//                        email DEVELOPER_EMAIL
-//                    }
-//                }
-//
-//                organization {
-//                    name ORGANIZATION_NAME
-//                    url ORGANIZATION_URL
-//                }
-//            }
-//        }
-//    }
-//}

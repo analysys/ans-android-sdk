@@ -13,7 +13,7 @@ buildscript {
         // root下build.gradle使用
         apply from: "config.gradle"
         classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'cn.com.analysys:analysys-gradle-plugin-allgro:1.0.0'
+        classpath 'cn.com.analysys:analysys-allgro-plugin:1.0.0'
     }
     subprojects {
         project.configurations.all {
