@@ -15,7 +15,7 @@ if(project.name.equals("analysys_allgro")){
 }else if(project.name.equals("analysys_core")){
     maven_artifactId = "analysys-core"
 }else if(project.name.equals("analysys_encryption")) {
-    maven_artifactId = "analysys-encryp"
+    maven_artifactId = "analysys-encrypt"
 }else if(project.name.equals("analysys_push")) {
     maven_artifactId = "analysys-push"
 }else if(project.name.equals("analysys_visual")) {
