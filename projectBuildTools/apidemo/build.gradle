@@ -61,7 +61,7 @@ android {
 dependencies {
 
 
-    api('cn.com.analysys:analysys_arkanalysys:latest.release')
+    api('cn.com.analysys:analysys-arkanalysys:latest.release')
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

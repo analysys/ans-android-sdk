@@ -8,8 +8,18 @@ version = rootProject.ext.version
 group = 'cn.com.analysys'
 
 def maven_artifactId = project.name
-if(project.name.equals("analysys_encryption")) {
-    maven_artifactId = "analysys_encryp"
+if(project.name.equals("analysys_allgro")){
+    maven_artifactId = "analysys-allgro"
+} else if(project.name.equals("analysys_arkanalysys")){
+    maven_artifactId = "analysys-arkanalysys"
+}else if(project.name.equals("analysys_core")){
+    maven_artifactId = "analysys-core"
+}else if(project.name.equals("analysys_encryption")) {
+    maven_artifactId = "analysys-encryp"
+}else if(project.name.equals("analysys_push")) {
+    maven_artifactId = "analysys-push"
+}else if(project.name.equals("analysys_visual")) {
+    maven_artifactId = "analysys-visual"
 }
 
 
