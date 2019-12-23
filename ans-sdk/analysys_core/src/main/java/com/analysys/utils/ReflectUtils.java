@@ -187,7 +187,7 @@ public class ReflectUtils {
                     return true;
                 }
             } catch (Throwable ignore) {
-                ExceptionUtil.exceptionThrow(e);
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
         return false;

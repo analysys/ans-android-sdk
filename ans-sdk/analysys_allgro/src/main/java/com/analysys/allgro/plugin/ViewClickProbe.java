@@ -86,13 +86,13 @@ class ViewClickProbe extends ASMHookAdapter {
             try {
                 Class<?> tabCLass = Class.forName("android.support.design.widget.TabLayout$Tab");
                 isTab = tabCLass.isInstance(tab);
-            } catch (Exception ignored) {
+            } catch (Throwable ignore) {
             }
 
             try {
                 Class<?> tabCLass = Class.forName("com.google.android.material.tabs.TabLayout$Tab");
                 isTab = tabCLass.isInstance(tab);
-            } catch (Exception ignored) {
+            } catch (Throwable ignore) {
             }
 
             if (!isTab) {
@@ -213,12 +213,12 @@ class ViewClickProbe extends ASMHookAdapter {
                 Class<?> currentAlertDialogClass;
                 try {
                     supportAlertDialogClass = Class.forName("android.support.v7.app.AlertDialog");
-                } catch (Exception ignored) {
+                } catch (Throwable ignore) {
                 }
 
                 try {
                     androidXAlertDialogClass = Class.forName("androidx.appcompat.app.AlertDialog");
-                } catch (Exception ignored) {
+                } catch (Throwable ignore) {
                 }
 
                 if (supportAlertDialogClass == null && androidXAlertDialogClass == null) {
@@ -236,7 +236,7 @@ class ViewClickProbe extends ASMHookAdapter {
                     try {
                         Method getButtonMethod = dialog.getClass().getMethod("getButton", int.class);
                         button = (Button) getButtonMethod.invoke(dialog, which);
-                    } catch (Exception ignored) {
+                    } catch (Throwable ignore) {
                     }
 
                     if (button != null) {
@@ -260,7 +260,7 @@ class ViewClickProbe extends ASMHookAdapter {
                                 }
                                 elementInfo.put(Constants.ELEMENT_POSITION, which);
                             }
-                        } catch (Exception ignored) {
+                        } catch (Throwable ignore) {
                         }
                     }
                 }
