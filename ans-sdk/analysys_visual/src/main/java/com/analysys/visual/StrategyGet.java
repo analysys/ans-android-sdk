@@ -53,8 +53,8 @@ public class StrategyGet {
             } else {
                 InternalAgent.d("当前网络不可用");
             }
-        } catch (Throwable e) {
-            InternalAgent.e(e);
+        } catch (Throwable ignore) {
+            InternalAgent.e(ignore);
         }
     }
 
@@ -76,8 +76,8 @@ public class StrategyGet {
             sb.append(PARA_VERSION).append("=").append(InternalAgent.getVersionName(mContext)).append("&");
             sb.append(PARA_PLATFORM).append("=").append(PLATFORM_ANDROID);
             return sb.toString();
-        } catch (Throwable e) {
-            InternalAgent.e(e);
+        } catch (Throwable ignore) {
+            InternalAgent.e(ignore);
             return "";
         }
     }

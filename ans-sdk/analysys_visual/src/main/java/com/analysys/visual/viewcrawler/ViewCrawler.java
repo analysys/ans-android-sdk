@@ -388,9 +388,9 @@ public class ViewCrawler {
                                 "target_page");
                         mPersistentEventBindings.add(new EgPair<>(targetActivity, event));
                     }
-                } catch (final JSONException e) {
+                } catch (Throwable ignore) {
                     InternalAgent.i(TAG, "JSON error when loading event bindings, clearing " +
-                            "persistent " + "memory", e);
+                            "persistent " + "memory", ignore);
                     final SharedPreferences preferences = getSharedPreferences();
                     final SharedPreferences.Editor editor = preferences.edit();
                     editor.remove(SHARED_PREF_BINDINGS_KEY);
@@ -416,10 +416,10 @@ public class ViewCrawler {
                     final SSLContext sslContext = SSLContext.getInstance("TLS");
                     sslContext.init(null, null, null);
                     foundSSLFactory = sslContext.getSocketFactory();
-                } catch (final GeneralSecurityException e) {
+                } catch (Throwable ignore) {
                     InternalAgent.i(TAG, "System has no SSL support. Built-in events editor will " +
                             "not be " +
-                            "available", e);
+                            "available", ignore);
                     foundSSLFactory = null;
                 }
                 final SSLSocketFactory socketFactory = foundSSLFactory;
@@ -431,15 +431,15 @@ public class ViewCrawler {
                 }
                 try {
                     sslSocket = socketFactory.createSocket();
-                } catch (IOException e) {
-                    InternalAgent.e(e);
+                } catch (Throwable ignore) {
+                    InternalAgent.e(ignore);
                 }
             } else {
                 final SocketFactory socketFactory = SocketFactory.getDefault();
                 try {
                     sslSocket = socketFactory.createSocket();
-                } catch (IOException e) {
-                    InternalAgent.e(e);
+                } catch (Throwable ignore) {
+                    InternalAgent.e(ignore);
                 }
             }
             InternalAgent.d(TAG, "WebSocket url: " + url);
@@ -449,8 +449,8 @@ public class ViewCrawler {
                 InternalAgent.e(TAG, "Error parsing URI " + url + " for editor WebSocket", e);
             } catch (final EditorConnection.EditorConnectionException e) {
                 InternalAgent.e(TAG, "Error connecting to URI " + url, e);
-            } catch (Throwable e) {
-                InternalAgent.e(e);
+            } catch (Throwable ignore) {
+                InternalAgent.e(ignore);
             }
         }
 
@@ -466,8 +466,8 @@ public class ViewCrawler {
             final JSONObject errorObject = new JSONObject();
             try {
                 errorObject.put("error_message", errorMessage);
-            } catch (final JSONException e) {
-                InternalAgent.e(TAG, "Apparently impossible JSONException", e);
+            } catch (Throwable ignore) {
+                InternalAgent.e(TAG, "Apparently impossible JSONException", ignore);
             }
 
             final OutputStreamWriter writer = new OutputStreamWriter(mEditorConnection
@@ -477,13 +477,13 @@ public class ViewCrawler {
                 writer.write("\"payload\": ");
                 writer.write(errorObject.toString());
                 writer.write("}");
-            } catch (final IOException e) {
-                InternalAgent.e(TAG, "Can't write error message to editor", e);
+            } catch (Throwable ignore) {
+                InternalAgent.e(TAG, "Can't write error message to editor", ignore);
             } finally {
                 try {
                     writer.close();
-                } catch (final IOException e) {
-                    InternalAgent.e(TAG, "Could not close output writer to editor", e);
+                } catch (Throwable ignore) {
+                    InternalAgent.e(TAG, "Could not close output writer to editor", ignore);
                 }
             }
         }
@@ -514,13 +514,13 @@ public class ViewCrawler {
                 }
                 j.endObject(); // payload
                 j.endObject();
-            } catch (final IOException e) {
-                InternalAgent.e(TAG, "Can't write device_info to server", e);
+            } catch (Throwable ignore) {
+                InternalAgent.e(TAG, "Can't write device_info to server", ignore);
             } finally {
                 try {
                     j.close();
-                } catch (final IOException e) {
-                    InternalAgent.e(TAG, "Can't close websocket writer", e);
+                } catch (Throwable ignore) {
+                    InternalAgent.e(TAG, "Can't close websocket writer", ignore);
                 }
             }
         }
@@ -545,6 +545,8 @@ public class ViewCrawler {
             } catch (final EditProtocol.BadInstructionsException e) {
                 InternalAgent.e(TAG, "Editor sent malformed message with snapshot request", e);
                 sendError(e.getMessage());
+                return;
+            } catch (Throwable ignore) {
                 return;
             }
 
@@ -579,13 +581,13 @@ public class ViewCrawler {
                 writer.write("}"); // } payload
                 writer.write("}"); // } whole message
                 writer.flush();
-            } catch (final IOException e) {
-                InternalAgent.e(TAG, "Can't write snapshot request to server", e);
+            } catch (final Throwable ignore) {
+                InternalAgent.e(TAG, "Can't write snapshot request to server", ignore);
             } finally {
                 try {
                     writer.close();
-                } catch (final IOException e) {
-                    InternalAgent.e(TAG, "Can't close writer.", e);
+                } catch (Throwable ignore) {
+                    InternalAgent.e(TAG, "Can't close writer.", ignore);
                 }
             }
         }
@@ -615,8 +617,8 @@ public class ViewCrawler {
                 // 埋点下发消息用于绑定控件
                 final JSONObject payload = message.getJSONObject(WS_KEY_PAYLOAD);
                 temp = payload.getJSONArray(WS_KEY_EVENTS);
-            } catch (final JSONException e) {
-                InternalAgent.e(TAG, "Bad event bindings received", e);
+            } catch (Throwable ignore) {
+                InternalAgent.e(TAG, "Bad event bindings received", ignore);
                 return;
             }
 
@@ -673,8 +675,8 @@ public class ViewCrawler {
                     try {
                         mEditorEventBindings.put(eventBinding.second.get("path").toString(),
                                 eventBinding);
-                    } catch (JSONException e) {
-                        InternalAgent.e(e);
+                    } catch (Throwable ignore) {
+                        InternalAgent.e(ignore);
                     }
                 }
                 mPersistentEventBindings.clear();
@@ -686,9 +688,9 @@ public class ViewCrawler {
                     final String targetActivity = EGJSONUtils.optionalStringKey(event,
                             "target_page");
                     mEditorEventBindings.put(event.get("path").toString(), new EgPair<>(targetActivity, event));
-                } catch (final JSONException e) {
+                } catch (Throwable ignore) {
                     InternalAgent.e(TAG, "Bad event binding received from editor in " + tempArr
-                            .toString(), e);
+                            .toString(), ignore);
                 }
             }
 
@@ -738,6 +740,7 @@ public class ViewCrawler {
                         } catch (final EditProtocol.BadInstructionsException e) {
                             InternalAgent.e(TAG, "Bad persistent event binding cannot be applied" +
                                     ".", e);
+                        } catch (Throwable ignore) {
                         }
                     }
                 }
@@ -754,6 +757,7 @@ public class ViewCrawler {
                         InternalAgent.i(TAG, e.getMessage());
                     } catch (final EditProtocol.BadInstructionsException e) {
                         InternalAgent.e(TAG, "Bad editor event binding cannot be applied.", e);
+                    } catch (Throwable ignore) {
                     }
                 }
             }
@@ -791,13 +795,13 @@ public class ViewCrawler {
             try {
                 writer.write(eventInfo.toString());
                 writer.flush();
-            } catch (final IOException e) {
-                InternalAgent.e(TAG, "Can't write event_info to server", e);
+            } catch (Throwable ignore) {
+                InternalAgent.e(TAG, "Can't write event_info to server", ignore);
             } finally {
                 try {
                     writer.close();
-                } catch (final IOException e) {
-                    InternalAgent.e(TAG, "Can't close websocket writer", e);
+                } catch (Throwable ignore) {
+                    InternalAgent.e(TAG, "Can't close websocket writer", ignore);
                 }
             }
         }

@@ -190,7 +190,7 @@ public class UIHelper {
             Field field = obj.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             return field.get(obj);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
         }
         return null;
     }
