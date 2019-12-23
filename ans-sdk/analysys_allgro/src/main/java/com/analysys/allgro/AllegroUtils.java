@@ -58,7 +58,7 @@ public class AllegroUtils {
                     idString = getIdResourceName(view.getId());
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
         return idString;
     }
@@ -70,7 +70,7 @@ public class AllegroUtils {
             }
 
             String ids = (String) view.getTag((R.id.analysys_tag_view_id));
-        }catch (Exception e){
+        }catch (Throwable ignore){
 
         }
     }
@@ -81,7 +81,7 @@ public class AllegroUtils {
             if (id != View.NO_ID) {
                 idString = AnalysysUtil.getContext().getResources().getResourceEntryName(id);
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
         return idString;
     }
@@ -162,7 +162,7 @@ public class AllegroUtils {
                     if (!TextUtils.isEmpty(viewText)) {
                         viewText = viewText.toString().substring(0, viewText.length() - 1);
                     }
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
             }
         }
@@ -196,7 +196,7 @@ public class AllegroUtils {
                 method = view.getClass().getMethod("getTextOff");
             }
             return (String) method.invoke(view);
-        } catch (Exception ex) {
+        } catch (Throwable ignore) {
             return "UNKNOWN";
         }
     }
@@ -253,7 +253,7 @@ public class AllegroUtils {
                 }
             }
             return stringBuilder.toString();
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             return stringBuilder != null ? stringBuilder.toString() : "";
         }
     }
@@ -266,14 +266,14 @@ public class AllegroUtils {
             Class<?> switchCompatClass = null;
             try {
                 switchCompatClass = Class.forName("android.support.v7.widget.SwitchCompat");
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
                 //ignored
             }
 
             if (switchCompatClass == null) {
                 try {
                     switchCompatClass = Class.forName("androidx.appcompat.widget.SwitchCompat");
-                } catch (Exception e) {
+                } catch (Throwable ignore) {
                     //ignored
                 }
             }
@@ -326,7 +326,7 @@ public class AllegroUtils {
             if (!TextUtils.isEmpty(viewText)) {
                 return viewText.toString();
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
         }
         return "";
     }
@@ -375,18 +375,18 @@ public class AllegroUtils {
             Class<?> fragment = null;
             try {
                 fragment = Class.forName("android.app.Fragment");
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
                 //ignored
             }
             try {
                 supportFragmentClass = Class.forName("android.support.v4.app.Fragment");
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
                 //ignored
             }
 
             try {
                 androidXFragmentClass = Class.forName("androidx.fragment.app.Fragment");
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
                 //ignored
             }
 
@@ -399,7 +399,7 @@ public class AllegroUtils {
                     (fragment != null && fragment.isInstance(object))) {
                 return true;
             }
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             //ignored
         }
         return false;
@@ -476,7 +476,7 @@ public class AllegroUtils {
             pageInfo.put(Constants.PAGE_HEIGHT, pageHeightAndWidth[0]);
             pageInfo.put(Constants.PAGE_WIDTH, pageHeightAndWidth[1]);
 
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
         }
         return pageInfo;
     }
@@ -502,7 +502,7 @@ public class AllegroUtils {
                     if (!TextUtils.isEmpty(pageName)) {
                         return Class.forName(pageName).newInstance();
                     }
-                } catch (Exception e) {
+                } catch (Throwable ignore) {
                 }
                 // 尝试获取activity
                 Activity activity = getActivityFromView(v);
@@ -510,7 +510,7 @@ public class AllegroUtils {
                     return activity;
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
         }
         // 最后的尝试
         return AnalysysUtil.getCurActivity();
@@ -524,7 +524,7 @@ public class AllegroUtils {
         try {
             Method getParentFragmentMethod = fragmentObj.getClass().getMethod("getParentFragment");
             return getParentFragmentMethod.invoke(fragmentObj);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             //ignored
         }
         return null;
@@ -564,7 +564,7 @@ public class AllegroUtils {
                 }
 
                 return activityTitle;
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
                 return null;
             }
         }
@@ -599,7 +599,7 @@ public class AllegroUtils {
                             }
                         }
                     }
-                } catch (Exception e) {
+                } catch (Throwable ignore) {
                     //ignored
                 }
             }
@@ -612,13 +612,13 @@ public class AllegroUtils {
         Class<?> appCompatActivityClass = null;
         try {
             appCompatActivityClass = Class.forName("android.support.v7.app.AppCompatActivity");
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             //ignored
         }
         if (appCompatActivityClass == null) {
             try {
                 appCompatActivityClass = Class.forName("androidx.appcompat.app.AppCompatActivity");
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
                 //ignored
             }
         }
@@ -650,7 +650,7 @@ public class AllegroUtils {
                     pageInfo[0] = view.getHeight();
                     pageInfo[1] = view.getWidth();
                 }
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
             }
         }
         return pageInfo;
@@ -695,7 +695,7 @@ public class AllegroUtils {
         try {
             Method getActivityMethod = fragment.getClass().getMethod("getActivity");
             return (Activity) getActivityMethod.invoke(fragment);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             //ignored
         }
         return getCurAc();
@@ -784,7 +784,7 @@ public class AllegroUtils {
         Class<?> compatClass;
         try {
             compatClass = Class.forName(name);
-        } catch (ClassNotFoundException e) {
+        } catch (Throwable ignore) {
             return null;
         }
         return compatClass;
@@ -798,7 +798,7 @@ public class AllegroUtils {
             Field field = obj.getClass().getField(fieldName);
             field.setAccessible(true);
             return field.get(obj);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
         }
         return null;
     }
@@ -818,7 +818,7 @@ public class AllegroUtils {
             Method method = obj.getClass().getMethod(methodName, parameterTypes);
             method.setAccessible(true);
             return method.invoke(obj, params);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
         }
         return null;
     }
@@ -827,13 +827,13 @@ public class AllegroUtils {
      * 上报捕获的异常
      * @param throwable 
      */
-    public static void reportCatchException(Exception throwable) {
+    public static void reportCatchException(Throwable  throwable) {
         if (BuildConfig.ENABLE_BUGLY) {
             try {
                 Class clazz = Class.forName("com.tencent.bugly.crashreport.CrashReport");
                 Method postCatchedException = clazz.getMethod("postCatchedException", Throwable.class);
                 postCatchedException.invoke(null, throwable);
-            } catch (Throwable e) {
+            } catch (Throwable ignore) {
 
             }
         }
