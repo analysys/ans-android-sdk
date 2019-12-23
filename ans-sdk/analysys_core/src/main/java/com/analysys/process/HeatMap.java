@@ -310,7 +310,7 @@ public class HeatMap {
             } catch (Throwable ignore) {
 
             }
-
+            return false;
         }
     }
 
