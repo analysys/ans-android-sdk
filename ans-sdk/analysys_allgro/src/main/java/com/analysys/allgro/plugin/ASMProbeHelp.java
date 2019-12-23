@@ -12,6 +12,7 @@ import com.analysys.allgro.AllegroUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -236,9 +237,11 @@ public class ASMProbeHelp implements ASMHookInterface {
         // 计数器检测，定时清
         if (mCount > 1000) {
             mCount = 0;
-            for (Map.Entry<Integer, Long> entry : eventTimestamp.entrySet()) {
-                if ((currentOnClickTimestamp - entry.getValue()) > 500) {
-                    eventTimestamp.remove(entry.getKey());
+
+            for (Iterator<Map.Entry<Integer, Long>> it = eventTimestamp.entrySet().iterator(); it.hasNext();) {
+                Map.Entry<Integer, Long> item = it.next();
+                if ((currentOnClickTimestamp - item.getValue()) > 500) {
+                    it.remove();
                 }
             }
         }
