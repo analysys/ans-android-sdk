@@ -41,7 +41,6 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             trackMenuItem(null, menuItem, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -73,7 +72,6 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -135,7 +133,6 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -158,7 +155,6 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_CONTENT, tabName);
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -271,7 +267,6 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             autoTrackClick(dialog, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -288,7 +283,6 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_CONTENT, isOpen ? "Open" : "Close");
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -314,7 +308,6 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_POSITION, parent.indexOfChild(childView) + "");
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -345,7 +338,6 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -376,7 +368,6 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -406,7 +397,6 @@ class ViewClickProbe extends ASMHookAdapter {
 
             trackListView(parent, v, groupPosition, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -435,7 +425,6 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
         }
     }
 

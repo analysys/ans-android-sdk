@@ -25,7 +25,7 @@ public class ReflectUtils {
         Class clz;
         try {
             clz = Class.forName(clzName);
-        } catch (ClassNotFoundException e) {
+        } catch (Throwable ignore) {
             return null;
         }
         return invokeMethod(clz, null, methodName, new Class[]{paramType}, new Object[]{paramValue});
@@ -60,7 +60,7 @@ public class ReflectUtils {
         while (clz != null && method == null) {
             try {
                 method = clz.getDeclaredMethod(methodName, paramTypes);
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
             }
             if (method == null) {
                 if (clz == Object.class) {
@@ -86,7 +86,7 @@ public class ReflectUtils {
         }
         try {
             return method.invoke(obj, paramValues);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
         }
         return null;
     }
@@ -120,7 +120,7 @@ public class ReflectUtils {
         try {
             field.setAccessible(true);
             return field.get(obj);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
         }
         return null;
     }
@@ -130,7 +130,7 @@ public class ReflectUtils {
         while (clz != null && field == null) {
             try {
                 field = clz.getDeclaredField(fieldName);
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
             }
             if (field == null) {
                 if (clz == Object.class) {
@@ -171,8 +171,8 @@ public class ReflectUtils {
         try {
             field.setAccessible(true);
             field.set(obj, fieldValue);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -186,8 +186,8 @@ public class ReflectUtils {
                 if (clzParent.isAssignableFrom(clz)) {
                     return true;
                 }
-            } catch (Exception e) {
-                ExceptionUtil.exceptionThrow(e);
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
         return false;

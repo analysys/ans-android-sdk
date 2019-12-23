@@ -30,8 +30,8 @@ public class NumberFormat {
         try {
             BigDecimal b = BigDecimal.valueOf(d);
             return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return 0.00;
     }
@@ -48,8 +48,8 @@ public class NumberFormat {
         }
         try {
             return Integer.parseInt(num);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return 0;
     }
@@ -67,8 +67,8 @@ public class NumberFormat {
         }
         try {
             return Integer.parseInt(intStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return defValue;
     }
@@ -83,8 +83,8 @@ public class NumberFormat {
     public static long convertTolong(String longStr, long defValue) {
         try {
             return Long.parseLong(longStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return defValue;
     }
@@ -99,8 +99,8 @@ public class NumberFormat {
     public static float convertTofloat(String fStr, float defValue) {
         try {
             return Float.parseFloat(fStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return defValue;
     }
@@ -118,8 +118,8 @@ public class NumberFormat {
         }
         try {
             return Double.parseDouble(dStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return defValue;
     }
@@ -136,8 +136,8 @@ public class NumberFormat {
         }
         try {
             return Integer.parseInt(intStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return 0;
     }
@@ -151,8 +151,8 @@ public class NumberFormat {
     public static long convertToLong(String longStr) {
         try {
             return Long.parseLong(longStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return 0;
     }
@@ -166,8 +166,8 @@ public class NumberFormat {
     public static float convertToFloat(String fStr) {
         try {
             return Float.parseFloat(fStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return 0;
     }
@@ -181,8 +181,8 @@ public class NumberFormat {
     public static double convertToDouble(String dStr) {
         try {
             return Double.parseDouble(dStr);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return 0;
     }
@@ -237,7 +237,7 @@ public class NumberFormat {
             int priceRemainder = bigDecimals[1].setScale(2, RoundingMode.HALF_UP).intValue();
 
             return String.format(Locale.CHINA, "%d.%02d", priceInt, priceRemainder);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             return doubleString;
         }
     }
@@ -257,7 +257,7 @@ public class NumberFormat {
             double tempDoubleString = Double.parseDouble(doubleString);
             tempDoubleString = getDouble(tempDoubleString / rate);
             return String.format("%.2f", tempDoubleString);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             return doubleString;
         }
     }
@@ -271,7 +271,7 @@ public class NumberFormat {
     public static double strToDouble(String doubleString) {
         try {
             return Double.parseDouble(doubleString);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             return 0.0;
         }
     }
@@ -286,7 +286,7 @@ public class NumberFormat {
         try {
             double parseDouble = Double.parseDouble(doubleString);
             return getDouble(parseDouble);
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
             return 0.0;
         }
     }

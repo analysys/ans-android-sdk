@@ -75,8 +75,8 @@ public class SharedUtil {
                     values = cursor.getString(0);
                 }
             }
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -118,8 +118,8 @@ public class SharedUtil {
             contentValues.put("values", value);
 
             context.getContentResolver().insert(uri, contentValues);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
@@ -132,8 +132,8 @@ public class SharedUtil {
             contentValues.put("key",key);
 
             context.getContentResolver().update(uri,contentValues,null,null);
-        }catch (Exception e){
-            ExceptionUtil.exceptionThrow(e);
+        }catch (Throwable ignore){
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 

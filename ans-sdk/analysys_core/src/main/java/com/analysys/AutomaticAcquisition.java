@@ -386,7 +386,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                             Base64.NO_WRAP)));
             // 存储最后一次操作时间
             CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
-        } catch (JSONException e) {
+        } catch (Throwable e) {
 
         }
     }
@@ -469,7 +469,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                     CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
                     // 3. 清空页面来源信息
                     resetReferrer(context);
-                } catch (JSONException e) {
+                } catch (Throwable e) {
                     ExceptionUtil.exceptionThrow(e);
                 }
             }
