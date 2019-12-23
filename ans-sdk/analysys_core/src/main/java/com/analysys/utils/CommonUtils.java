@@ -407,7 +407,7 @@ public class CommonUtils {
                     int rest = (Integer) invoke;
                     result = rest == PackageManager.PERMISSION_GRANTED;
                 }
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         } else {
             PackageManager pm = context.getPackageManager();

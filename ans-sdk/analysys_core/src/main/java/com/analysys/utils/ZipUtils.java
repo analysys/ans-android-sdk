@@ -52,24 +52,24 @@ public class ZipUtils {
                 out.write(buffer, 0, n);
             }
             return out.toString();
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
         } finally {
             if (gzip != null) {
                 try {
                     gzip.close();
-                } catch (IOException e) {
+                } catch (Throwable ignore) {
                 }
             }
             if (in != null) {
                 try {
                     in.close();
-                } catch (IOException e) {
+                } catch (Throwable ignore) {
                 }
             }
             if (out != null) {
                 try {
                     out.close();
-                } catch (IOException e) {
+                } catch (Throwable ignore) {
                 }
             }
         }

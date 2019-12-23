@@ -47,7 +47,7 @@ public class SystemIds {
                 final Class<?> rIdClass = Class.forName(localClassName);
                 readClassIds(rIdClass, null, mIdNameToId);
             }
-        } catch (ClassNotFoundException ignored) {
+        } catch (Throwable ignore) {
         }
         sysIdClass = getIdSystemClass();
         readClassIds(sysIdClass, "android", mIdNameToId);

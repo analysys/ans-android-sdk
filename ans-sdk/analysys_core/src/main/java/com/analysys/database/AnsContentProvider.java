@@ -81,8 +81,8 @@ public class AnsContentProvider extends ContentProvider {
                     dataCorruptException();
                 } catch (SQLiteException sqLiteException) {
                     tableException(sqLiteException);
-                } catch (Exception e) {
-                    ExceptionUtil.exceptionThrow(e);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
             break;
@@ -172,18 +172,18 @@ public class AnsContentProvider extends ContentProvider {
                         dataCorruptException();
                         try {
                             tmpUri = insertDb(uri, values);
-                        } catch (Exception e) {
-                            ExceptionUtil.exceptionThrow(e);
+                        } catch (Throwable ignore) {
+                            ExceptionUtil.exceptionThrow(ignore);
                         }
                     } catch (SQLiteException sqLiteException) {
                         tableException(sqLiteException);
                         try {
                             tmpUri = insertDb(uri, values);
-                        } catch (Exception e) {
-                            ExceptionUtil.exceptionThrow(e);
+                        } catch (Throwable ignore) {
+                            ExceptionUtil.exceptionThrow(ignore);
                         }
-                    } catch (Exception e) {
-                        ExceptionUtil.exceptionThrow(e);
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
                 }
             }
@@ -231,8 +231,8 @@ public class AnsContentProvider extends ContentProvider {
                     dataCorruptException();
                 } catch (SQLiteException sqLiteException) {
                     tableException(sqLiteException);
-                } catch (Exception e) {
-                    ExceptionUtil.exceptionThrow(e);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
             break;
@@ -272,8 +272,8 @@ public class AnsContentProvider extends ContentProvider {
                     dataCorruptException();
                 } catch (SQLiteException sqLiteException) {
                     tableException(sqLiteException);
-                } catch (Exception e) {
-                    ExceptionUtil.exceptionThrow(e);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
             break;
@@ -307,8 +307,8 @@ public class AnsContentProvider extends ContentProvider {
 
         try{
             checkDb();
-        }catch (Exception e){
-            ExceptionUtil.exceptionThrow(e);
+        }catch (Throwable ignore){
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
