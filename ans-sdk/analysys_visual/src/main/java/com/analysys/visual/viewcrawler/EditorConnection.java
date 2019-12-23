@@ -106,7 +106,6 @@ class EditorConnection {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
                     if (mMessageReceived) {
                         break;

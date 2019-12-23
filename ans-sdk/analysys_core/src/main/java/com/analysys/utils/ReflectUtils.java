@@ -172,7 +172,7 @@ public class ReflectUtils {
             field.setAccessible(true);
             field.set(obj, fieldValue);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
     }
 
@@ -187,7 +187,7 @@ public class ReflectUtils {
                     return true;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                ExceptionUtil.exceptionThrow(e);
             }
         }
         return false;

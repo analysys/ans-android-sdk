@@ -191,7 +191,6 @@ public class UIHelper {
             field.setAccessible(true);
             return field.get(obj);
         } catch (Exception e) {
-            e.printStackTrace();
         }
         return null;
     }

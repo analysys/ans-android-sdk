@@ -31,7 +31,7 @@ public class NumberFormat {
             BigDecimal b = BigDecimal.valueOf(d);
             return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return 0.00;
     }
@@ -49,8 +49,7 @@ public class NumberFormat {
         try {
             return Integer.parseInt(num);
         } catch (Exception e) {
-            e.printStackTrace();
-
+            ExceptionUtil.exceptionThrow(e);
         }
         return 0;
     }
@@ -69,7 +68,7 @@ public class NumberFormat {
         try {
             return Integer.parseInt(intStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return defValue;
     }
@@ -85,7 +84,7 @@ public class NumberFormat {
         try {
             return Long.parseLong(longStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return defValue;
     }
@@ -101,7 +100,7 @@ public class NumberFormat {
         try {
             return Float.parseFloat(fStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return defValue;
     }
@@ -120,7 +119,7 @@ public class NumberFormat {
         try {
             return Double.parseDouble(dStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return defValue;
     }
@@ -138,7 +137,7 @@ public class NumberFormat {
         try {
             return Integer.parseInt(intStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return 0;
     }
@@ -153,7 +152,7 @@ public class NumberFormat {
         try {
             return Long.parseLong(longStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return 0;
     }
@@ -168,7 +167,7 @@ public class NumberFormat {
         try {
             return Float.parseFloat(fStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return 0;
     }
@@ -183,7 +182,7 @@ public class NumberFormat {
         try {
             return Double.parseDouble(dStr);
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionUtil.exceptionThrow(e);
         }
         return 0;
     }

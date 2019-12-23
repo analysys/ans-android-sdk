@@ -23,6 +23,7 @@ import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.NumberFormat;
 
 import org.json.JSONException;
@@ -469,7 +470,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                     // 3. 清空页面来源信息
                     resetReferrer(context);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    ExceptionUtil.exceptionThrow(e);
                 }
             }
         }

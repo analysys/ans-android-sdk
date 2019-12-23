@@ -477,7 +477,6 @@ public class AllegroUtils {
             pageInfo.put(Constants.PAGE_WIDTH, pageHeightAndWidth[1]);
 
         } catch (Exception e) {
-            e.printStackTrace();
         }
         return pageInfo;
     }
@@ -504,7 +503,6 @@ public class AllegroUtils {
                         return Class.forName(pageName).newInstance();
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                 }
                 // 尝试获取activity
                 Activity activity = getActivityFromView(v);
@@ -513,7 +511,6 @@ public class AllegroUtils {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
         }
         // 最后的尝试
         return AnalysysUtil.getCurActivity();
@@ -654,7 +651,6 @@ public class AllegroUtils {
                     pageInfo[1] = view.getWidth();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         return pageInfo;
@@ -803,7 +799,6 @@ public class AllegroUtils {
             field.setAccessible(true);
             return field.get(obj);
         } catch (Exception e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -824,7 +819,6 @@ public class AllegroUtils {
             method.setAccessible(true);
             return method.invoke(obj, params);
         } catch (Exception e) {
-            e.printStackTrace();
         }
         return null;
     }
