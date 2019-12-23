@@ -288,24 +288,29 @@ public class HeatMap {
         @Override
         public boolean onTouch(final View v, final MotionEvent event) {
 //            Log.v("sanbo", Log.getStackTraceString(new Exception(v.hashCode() + "")));
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                try {
-                    // 黑白名单判断
-                    if (isTackHeatMap(v)) {
-                        setCoordinate(v, event);
+            try {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    try {
+                        // 黑白名单判断
+                        if (isTackHeatMap(v)) {
+                            setCoordinate(v, event);
+                        }
+                    } catch (Throwable ignored) {
                     }
-                } catch (Throwable ignored) {
                 }
-            }
 //            boolean x1 = patch(v, event);
-            // 获取是否递归调用
-            boolean isLoop = isLoop(Thread.currentThread().getStackTrace());
-            // 无回调或者循环递归了，均不消费
-            if (onTouchListener == null || isLoop) {
-                return false;
-            } else {
-                return onTouchListener.onTouch(v, event);
+                // 获取是否递归调用
+                boolean isLoop = isLoop(Thread.currentThread().getStackTrace());
+                // 无回调或者循环递归了，均不消费
+                if (onTouchListener == null || isLoop) {
+                    return false;
+                } else {
+                    return onTouchListener.onTouch(v, event);
+                }
+            } catch (Throwable ignore) {
+
             }
+            return false;
         }
     }
 
@@ -337,33 +342,49 @@ public class HeatMap {
      * 热图黑名单
      */
     void setHeatMapBlackListByPages(List<String> pages) {
-        mIgnoreByPages.clear();
-        if (pages != null) {
-            mIgnoreByPages.addAll(pages);
+        try {
+            mIgnoreByPages.clear();
+            if (pages != null) {
+                mIgnoreByPages.addAll(pages);
+            }
+        }catch (Throwable ignore) {
+
         }
+
     }
 
     /**
      * 热图白名单
      */
     void setHeatMapWhiteListByPages(List<String> pages) {
-        mAutoByPages.clear();
-        if (pages != null) {
-            mAutoByPages.addAll(pages);
+        try {
+            mAutoByPages.clear();
+            if (pages != null) {
+                mAutoByPages.addAll(pages);
+            }
+        } catch (Throwable ignore) {
+
         }
+
     }
 
     /**
      * 判断是否上报热图信息
      */
     private boolean isTackHeatMap(View v) {
-        if (isInIgnoreList(v)) {
-            // 命中黑名单
-            return false;
-        } else if (hasAutoList()) {
-            // 存在白名单
-            return isInAutoList(v); // 命中白名单
+
+        try {
+            if (isInIgnoreList(v)) {
+                // 命中黑名单
+                return false;
+            } else if (hasAutoList()) {
+                // 存在白名单
+                return isInAutoList(v); // 命中白名单
+            }
+        }catch (Throwable ignore) {
+
         }
+
         return true;
     }
 
@@ -382,11 +403,16 @@ public class HeatMap {
      * @return 是否命中白名单
      */
     private boolean isInIgnoreList(View v) {
-        Context context = v.getContext();
-        if (context instanceof Activity) {
-            String pageName = context.getClass().getName();
-            return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
+        try {
+            Context context = v.getContext();
+            if (context instanceof Activity) {
+                String pageName = context.getClass().getName();
+                return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
+            }
+        } catch (Throwable ignore) {
+
         }
+
         return false;
     }
 
@@ -396,11 +422,16 @@ public class HeatMap {
      * @return 是否命中白名单
      */
     private boolean isInAutoList(View v) {
-        Context context = v.getContext();
-        if (context instanceof Activity) {
-            String pageName = context.getClass().getName();
-            return !TextUtils.isEmpty(pageName) && mAutoByPages.contains(pageName);
+        try {
+            Context context = v.getContext();
+            if (context instanceof Activity) {
+                String pageName = context.getClass().getName();
+                return !TextUtils.isEmpty(pageName) && mAutoByPages.contains(pageName);
+            }
+        } catch (Throwable ignore) {
+
         }
+
         return false;
     }
 

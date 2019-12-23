@@ -17,7 +17,6 @@ import com.analysys.deeplink.DeepLink;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.HeatMap;
 import com.analysys.process.SessionManage;
-import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
 import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.AnalysysUtil;
@@ -60,21 +59,26 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
         mHandler = new Handler(mWorkThread.getLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case TRACK_APP_END:
-                        // 上报数据
-                        trackAppEnd(msg);
-                        break;
-                    case SAVE_END_INFO:
-                        int count = CommonUtils.readCount(filePath);
-                        if (count != 0) {
-                            saveEndInfoCache();
-                            sendEmptyMessageDelayed(SAVE_END_INFO, Constants.TRACK_END_INVALID);
-                        }
-                        break;
-                    default:
-                        break;
+                try {
+                    switch (msg.what) {
+                        case TRACK_APP_END:
+                            // 上报数据
+                            trackAppEnd(msg);
+                            break;
+                        case SAVE_END_INFO:
+                            int count = CommonUtils.readCount(filePath);
+                            if (count != 0) {
+                                saveEndInfoCache();
+                                sendEmptyMessageDelayed(SAVE_END_INFO, Constants.TRACK_END_INVALID);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (Throwable ignore) {
+
                 }
+
             }
         };
     }
@@ -94,7 +98,6 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
 
     @Override
     public void onActivityStarted(final Activity activity) {
-        ANSLog.e("");
         if (context == null) {
             context = activity.getApplicationContext();
         }
@@ -274,8 +277,12 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                 ANSThreadPool.execute(new Runnable() {
                     @Override
                     public void run() {
-                        // 调用AppEnd
-                        appEnd();
+                        try {
+                            // 调用AppEnd
+                            appEnd();
+                        }catch (Throwable ignore) {
+
+                        }
                     }
                 });
             }
@@ -308,7 +315,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     /**
      * 发送应用启动消息
      */
-    private void activityStart(final Context context) {
+    private void activityStart(final Context context) throws Exception{
         int count = CommonUtils.readCount(filePath);
         if (count == 0) {
             // 重置页面来源信息
@@ -410,7 +417,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     /**
      * 页面新增 Count增加
      */
-    private void pageViewIncrease() {
+    private void pageViewIncrease() throws Exception{
         int count = CommonUtils.readCount(filePath);
         count += 1;
         CommonUtils.writeCount(filePath, String.valueOf(count));
@@ -453,24 +460,29 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
      * 上报AppEnd
      */
     private void trackAppEnd(Message msg) {
-        Bundle bundle = msg.getData();
-        if (bundle != null) {
-            String opt = bundle.getString(Constants.LAST_OP_TIME);
-            String endInfo = bundle.getString(Constants.APP_END_INFO);
-            if (!TextUtils.isEmpty(opt) && !TextUtils.isEmpty(endInfo)) {
-                try {
-                    // 获取实时更新数据时间
-                    JSONObject data = new JSONObject(endInfo);
-                    // 1. appEndTrack
-                    AgentProcess.getInstance().appEnd(opt, data);
-                    // 2. 清空config中appEndInfoCache
-                    CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
-                    // 3. 清空页面来源信息
-                    resetReferrer(context);
-                } catch (Throwable e) {
-                    ExceptionUtil.exceptionThrow(e);
+        try {
+            Bundle bundle = msg.getData();
+            if (bundle != null) {
+                String opt = bundle.getString(Constants.LAST_OP_TIME);
+                String endInfo = bundle.getString(Constants.APP_END_INFO);
+                if (!TextUtils.isEmpty(opt) && !TextUtils.isEmpty(endInfo)) {
+                    try {
+                        // 获取实时更新数据时间
+                        JSONObject data = new JSONObject(endInfo);
+                        // 1. appEndTrack
+                        AgentProcess.getInstance().appEnd(opt, data);
+                        // 2. 清空config中appEndInfoCache
+                        CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
+                        // 3. 清空页面来源信息
+                        resetReferrer(context);
+                    } catch (Throwable e) {
+                        ExceptionUtil.exceptionThrow(e);
+                    }
                 }
             }
+        } catch (Throwable ignore) {
+
         }
+
     }
 }
