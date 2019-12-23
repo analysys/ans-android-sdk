@@ -3,10 +3,8 @@ package com.analysys.process;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 
 import com.analysys.AnalysysConfig;
 import com.analysys.AutomaticAcquisition;
@@ -25,7 +23,6 @@ import com.analysys.utils.CrashHandler;
 import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.InternalAgent;
 import com.analysys.utils.LogPrompt;
-import com.analysys.utils.NumberFormat;
 import com.analysys.utils.SharedUtil;
 
 import org.json.JSONException;
@@ -39,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -183,7 +179,7 @@ public class AgentProcess {
      */
     public void appEnd(String eventTime, final JSONObject realTimeField) {
         try {
-            long time = NumberFormat.convertToLong(eventTime);
+            long time = CommonUtils.parseLong(eventTime, 0);
             if (time > 0) {
                 Context context = AnalysysUtil.getContext();
                 if (context != null && realTimeField != null) {

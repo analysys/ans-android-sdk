@@ -21,8 +21,6 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-import com.analysys.AnalysysAgent;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -679,7 +677,7 @@ public class CommonUtils {
     public static int readCount(String path) {
         try {
             String count = readFile(path + Constants.COUNT_FILE_NAME);
-            return NumberFormat.convertToInteger(count);
+            return CommonUtils.parseInt(count, 0);
         } catch (Throwable throwable) {
             return 0;
         }
@@ -1274,7 +1272,7 @@ public class CommonUtils {
             if (!CommonUtils.isMainProcess(context)) {
                 String diff = CommonUtils.getIdFile(context, Constants.SP_DIFF_TIME);
                 if (diff != null) {
-                    Constants.diffTime = Long.valueOf(diff);
+                    Constants.diffTime = CommonUtils.parseLong(diff, 0);
                 }
             }
             return System.currentTimeMillis() + Constants.diffTime;
@@ -1295,6 +1293,30 @@ public class CommonUtils {
                 return "url";
             default:
                 return "0";
+        }
+    }
+
+    public static int parseInt(String value, int defaultValue) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Throwable ignore) {
+            return defaultValue;
+        }
+    }
+
+    public static long parseLong(String value, long defaultValue) {
+        try {
+            return Long.parseLong(value);
+        } catch (Throwable ignore) {
+            return defaultValue;
+        }
+    }
+
+    public static float parseFloat(String value, float defaultValue) {
+        try {
+            return Float.parseFloat(value);
+        } catch (Throwable ignore) {
+            return defaultValue;
         }
     }
 }

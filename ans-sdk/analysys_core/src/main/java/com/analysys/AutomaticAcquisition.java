@@ -24,9 +24,7 @@ import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
-import com.analysys.utils.NumberFormat;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
@@ -343,7 +341,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
         long invalid = 0;
         String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
         if (!CommonUtils.isEmpty(lastOperateTime)) {
-            long aLong = NumberFormat.convertToLong(lastOperateTime);
+            long aLong = CommonUtils.parseLong(lastOperateTime, 0);
             invalid = Math.abs(aLong - System.currentTimeMillis());
         }
         return invalid == 0 || invalid > Constants.BG_INTERVAL_TIME;
@@ -365,7 +363,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                 // 获取应用启动时间
                 String startTime = CommonUtils.getIdFile(context, Constants.APP_START_TIME);
                 if (!TextUtils.isEmpty(startTime)) {
-                    appStartTime = Long.valueOf(startTime);
+                    appStartTime = CommonUtils.parseLong(startTime, 0);
                 }
             }
             realTimeData.put(Constants.DURATION_TIME, time - appStartTime);
