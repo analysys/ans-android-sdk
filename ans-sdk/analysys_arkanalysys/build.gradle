@@ -38,12 +38,12 @@ task delRelease(type: Delete) {
     delete('../release')
 //    delete('../../repo')
 
-    delete('../../repo/cn/com/analysys/analysys_core/')
-    delete('../../repo/cn/com/analysys/analysys_encryption/')
-    delete('../../repo/cn/com/analysys/analysys_push/')
-    delete('../../repo/cn/com/analysys/analysys_visual/')
-    delete('../../repo/cn/com/analysys/analysys_allgro/')
-    delete('../../repo/cn/com/analysys/analysys_arkanalysys/')
+    delete('../../repo/cn/com/analysys/analysys-core/')
+    delete('../../repo/cn/com/analysys/analysys-encryption/')
+    delete('../../repo/cn/com/analysys/analysys-push/')
+    delete('../../repo/cn/com/analysys/analysys-visual/')
+    delete('../../repo/cn/com/analysys/analysys-allgro/')
+    delete('../../repo/cn/com/analysys/analysys-arkanalysys/')
 }
 
 task releaseAar(type: Copy) {
