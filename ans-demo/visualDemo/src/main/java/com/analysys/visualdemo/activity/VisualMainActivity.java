@@ -65,8 +65,8 @@ public class VisualMainActivity extends Activity {
             });
             builder.create().show();
         } else if (id == R.id.crash) {
-            "123".substring(10);
-
+            // 本地测试
+//            "123".substring(10);
         } else if (id == R.id.back) {
             finish();
         } else if (id == R.id.ccAAAA) {
