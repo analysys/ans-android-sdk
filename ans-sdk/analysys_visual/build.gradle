@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    compileOnly project(':ans-sdk:analysys_core')
+    compileOnly project(':analysys_core')
 }
 /**
  * 打jar包

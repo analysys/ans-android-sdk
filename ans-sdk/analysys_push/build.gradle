@@ -30,7 +30,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    compileOnly project(':ans-sdk:analysys_core')
+    compileOnly project(':analysys_core')
 }
 /**
  * 打jar包

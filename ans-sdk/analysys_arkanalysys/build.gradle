@@ -27,11 +27,11 @@ android {
 }
 
 dependencies {
-    api project(':ans-sdk:analysys_core')
-    api project(':ans-sdk:analysys_encryption')
-    api project(':ans-sdk:analysys_push')
-    api project(':ans-sdk:analysys_visual')
-    api project(':ans-sdk:analysys_allgro')
+    api project(':analysys_core')
+    api project(':analysys_encryption')
+    api project(':analysys_push')
+    api project(':analysys_visual')
+    api project(':analysys_allgro')
 }
 
 task delRelease(type: Delete) {
