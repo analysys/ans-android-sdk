@@ -39,7 +39,7 @@ task delRelease(type: Delete) {
 //    delete('../../repo')
 
     delete('../../repo/cn/com/analysys/analysys-core/')
-    delete('../../repo/cn/com/analysys/analysys-encryption/')
+    delete('../../repo/cn/com/analysys/analysys-encrypt/')
     delete('../../repo/cn/com/analysys/analysys-push/')
     delete('../../repo/cn/com/analysys/analysys-visual/')
     delete('../../repo/cn/com/analysys/analysys-allgro/')
