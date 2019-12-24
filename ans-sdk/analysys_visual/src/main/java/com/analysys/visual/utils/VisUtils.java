@@ -5,10 +5,10 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
 
+import com.analysys.utils.CommonUtils;
 import com.analysys.utils.InternalAgent;
 
 import java.lang.reflect.Method;
@@ -71,7 +71,7 @@ public class VisUtils {
                 return id;
             }
             // 通过AndroidID获取ID
-            id = getAndroidID(context);
+            id = CommonUtils.getAndroidID(context);
             if (!InternalAgent.isEmpty(id)) {
                 InternalAgent.setString(context, ID_KEY, id);
                 return id;
@@ -88,16 +88,6 @@ public class VisUtils {
             }
             return id;
         }
-    }
-
-    private static String getAndroidID(Context context) {
-        String id = "";
-        try {
-            id = Settings.System.getString(context.getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
-        } catch (Throwable e) {
-        }
-        return id;
     }
 
     /**

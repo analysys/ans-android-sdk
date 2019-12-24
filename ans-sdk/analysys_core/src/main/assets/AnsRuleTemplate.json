@@ -181,6 +181,11 @@
       "valueType": 0,
       "value": "com.analysys.utils.InternalAgent.getLaunchSource",
       "required": true
+    },
+    "$device_id": {
+      "valueType": 0,
+      "value": "com.analysys.utils.InternalAgent.getDeviceId",
+      "required": true
     }
   }
 }

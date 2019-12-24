@@ -15,6 +15,7 @@ import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
 import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.AdvertisingIdUitls;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
@@ -116,6 +117,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showInitLog(false);
                     }
+                    AdvertisingIdUitls.setAdvertisingId(context);
                 } catch (Throwable ignored) {
                     ExceptionUtil.exceptionThrow(ignored);
                 }

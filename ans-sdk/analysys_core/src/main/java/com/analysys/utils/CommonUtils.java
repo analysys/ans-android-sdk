@@ -15,6 +15,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -813,6 +814,41 @@ public class CommonUtils {
             id = transSaveId(context);
         }
         return id;
+    }
+
+    /**
+     * device id advertisingId>androidid>uuid
+     */
+    public static String getDeviceId(Context context) {
+        // advertising id
+        String id = getIdFile(context, Constants.SP_ADID);
+        if (!TextUtils.isEmpty(id)) {
+            return id;
+        }
+
+        // android id
+        id = getAndroidID(context);
+        if (!TextUtils.isEmpty(id)) {
+            return id;
+        }
+        // uuid
+        id = getIdFile(context, Constants.SP_UUID);
+        if (TextUtils.isEmpty(id)) {
+            id = String.valueOf(java.util.UUID.randomUUID());
+        }
+        setIdFile(context, Constants.SP_UUID, id);
+        return id;
+    }
+
+    /**
+     * 获取android id
+     */
+    public static String getAndroidID(Context context) {
+        try {
+            return Settings.System.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Throwable ignore) {
+            return null;
+        }
     }
 
     /**
