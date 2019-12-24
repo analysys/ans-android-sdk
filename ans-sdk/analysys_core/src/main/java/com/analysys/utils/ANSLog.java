@@ -807,8 +807,8 @@ public class ANSLog {
             obj.put("arg2", message.arg2);
             obj.put("data", parseString(message.getData()));
             obj.put("obj", objectToString(message.obj));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable ignore) {
+
         }
         return format(obj);
     }
@@ -1024,8 +1024,7 @@ public class ANSLog {
                     if (object instanceof Integer || "int".equals(object.getClass().getSimpleName())) {
                         value = (Integer) object;
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Throwable ignore) {
                 }
                 if (flagMap.get(value) == null) {
                     flagMap.put(value, field.getName());
@@ -1055,8 +1054,7 @@ public class ANSLog {
         if (arr != null) {
             try {
                 return isFormat ? (arr.toString(JSON_INDENT)) : arr.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable ignore) {
             }
         }
         return "";
@@ -1076,8 +1074,7 @@ public class ANSLog {
         if (obj != null) {
             try {
                 return isFormat ? obj.toString(JSON_INDENT) : obj.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable ignore) {
             }
         }
         return "";

@@ -90,6 +90,7 @@ public class ViewSnapshot {
                     e);
         } catch (final ExecutionException e) {
             InternalAgent.e(TAG, "Exception thrown during screenshot attempt", e);
+        } catch (Throwable ignore){
         }
 
         final int infoCount = infoList.size();
@@ -403,6 +404,7 @@ public class ViewSnapshot {
                 InternalAgent.e(TAG, "Can't access createSnapshot, using drawCache", e);
             } catch (final ClassCastException e) {
                 InternalAgent.e(TAG, "createSnapshot didn't return a bitmap?", e);
+            } catch (Throwable ignore) {
             }
 
             Boolean originalCacheState = null;
@@ -413,9 +415,9 @@ public class ViewSnapshot {
                     rootView.buildDrawingCache(true);
                     rawBitmap = rootView.getDrawingCache();
                 }
-            } catch (final RuntimeException e) {
+            } catch (Throwable ignore) {
                 InternalAgent.v(TAG, "Can't take a bitmap snapshot of view " + rootView + ", " +
-                        "skipping for now.", e);
+                        "skipping for now.", ignore);
             }
 
             CachedBitmap cachedBitmap = mCachedBitmap.get(info.activityName);
@@ -463,7 +465,7 @@ public class ViewSnapshot {
             if (null == mCached || mCached.getWidth() != width || mCached.getHeight() != height) {
                 try {
                     mCached = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-                } catch (final OutOfMemoryError e) {
+                } catch (Throwable ignore) {
                     mCached = null;
                 }
 

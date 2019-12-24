@@ -18,7 +18,7 @@ import com.analysys.utils.ReflectUtils;
  */
 public class AnsApplication extends Application {
     public static final int DEBUG_MODE = 2;
-    //    public static final String APP_KEY = "04bf9dd9ec538df7";
+//    public static final String APP_KEY = "04bf9dd9ec538df7";
 //    public static final String UPLOAD_URL = "https://arksdk.analysys.cn:4089";
 //    private static final String SOCKET_URL = "wss://arksdk.analysys.cn:4091";
 //    private static final String CONFIG_URL = "https://arksdk.analysys.cn:4089";

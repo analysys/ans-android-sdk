@@ -51,7 +51,7 @@ public class VisUtils {
                 final PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
                 deviceInfo.put("$android_app_version", info.versionName);
                 deviceInfo.put("$android_app_version_code", Integer.toString(info.versionCode));
-            } catch (final PackageManager.NameNotFoundException e) {
+            } catch (Throwable ignore) {
             }
             mDeviceInfo = Collections.unmodifiableMap(deviceInfo);
         }
@@ -113,7 +113,7 @@ public class VisUtils {
                     Class<?> forName = Class.forName("android.os.Build");
                     Method getSerialMethod = forName.getMethod("getSerial");
                     return (String) getSerialMethod.invoke(forName.newInstance());
-                } catch (Throwable e) {
+                } catch (Throwable ignore) {
                 }
             }
             return null;
@@ -133,7 +133,7 @@ public class VisUtils {
                     (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             imei = telephonyMgr.getDeviceId();
             return imei;
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
             return imei;
         }
     }
@@ -149,7 +149,7 @@ public class VisUtils {
             byte[] digest1 = digest.digest((key + timeStamp).getBytes());
             byte[] encode = Base64.encode(digest1, 0, 10, Base64.DEFAULT);
             return new String(encode);
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
             return String.valueOf(System.currentTimeMillis());
         }
     }

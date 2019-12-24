@@ -1,7 +1,6 @@
 #aar的maven包
 ./gradlew clean
 ./gradlew delRelease
-./gradlew analysys_allgro-plugin:uploadArchives
 ./gradlew ans-sdk:analysys_core:uploadArchives
 ./gradlew ans-sdk:analysys_encryption:uploadArchives
 ./gradlew ans-sdk:analysys_push:uploadArchives

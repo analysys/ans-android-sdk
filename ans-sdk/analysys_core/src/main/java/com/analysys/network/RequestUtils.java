@@ -180,7 +180,6 @@ class RequestUtils {
 //                result = sbf.toString();
 //            }
         } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             // 关闭远程连接
             if (connection != null) {

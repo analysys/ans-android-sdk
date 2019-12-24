@@ -21,7 +21,7 @@ public class AnalysysConfig {
     private long diffTime = Constants.ignoreDiffTime;
 
     private boolean autoHeatMap = false;
-
+    
     private boolean autoTrackPageView = true;
     private boolean autoTrackFragmentPageView = false;
     private boolean autoTrackClick = false;

@@ -49,8 +49,8 @@ class PageViewProbe extends ASMHookAdapter {
             if (rootView instanceof ViewGroup) {
                 traverseView(fragmentName, (ViewGroup) rootView);
             }
-        } catch (Exception e) {
-            AllegroUtils.reportCatchException(e);
+        } catch (Throwable ignore) {
+            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -81,8 +81,8 @@ class PageViewProbe extends ASMHookAdapter {
                     autoTrackFragmentPageView(object, hasTrackPvAnn);
                 }
             }
-        } catch (Exception e) {
-            AllegroUtils.reportCatchException(e);
+        } catch (Throwable ignore) {
+            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -120,8 +120,8 @@ class PageViewProbe extends ASMHookAdapter {
                     }
                 }
             }
-        } catch (Exception e) {
-            AllegroUtils.reportCatchException(e);
+        } catch (Throwable ignore) {
+            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -159,8 +159,8 @@ class PageViewProbe extends ASMHookAdapter {
                     }
                 }
             }
-        } catch (Exception e) {
-            AllegroUtils.reportCatchException(e);
+        } catch (Throwable ignore) {
+            AllegroUtils.reportCatchException(ignore);
         }
     }
 
@@ -168,7 +168,7 @@ class PageViewProbe extends ASMHookAdapter {
         try {
             Method getUserVisibleHintMethod = fragment.getClass().getMethod("getUserVisibleHint");
             return (boolean) getUserVisibleHintMethod.invoke(fragment);
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
         }
         return false;
     }
@@ -177,7 +177,7 @@ class PageViewProbe extends ASMHookAdapter {
         try {
             Method isHiddenMethod = fragment.getClass().getMethod("isHidden");
             return !((boolean) isHiddenMethod.invoke(fragment));
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
         }
         return true;
     }
@@ -187,7 +187,7 @@ class PageViewProbe extends ASMHookAdapter {
         try {
             Method isResumedMethod = fragment.getClass().getMethod("isResumed");
             return (boolean) isResumedMethod.invoke(fragment);
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
         }
         return false;
     }
@@ -201,16 +201,16 @@ class PageViewProbe extends ASMHookAdapter {
         Class<?> fragment = null;
         try {
             fragment = Class.forName("android.app.Fragment");
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
         }
         try {
             supportFragmentClass = Class.forName("android.support.v4.app.Fragment");
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
         }
 
         try {
             androidXFragmentClass = Class.forName("androidx.fragment.app.Fragment");
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
         }
 
         if (supportFragmentClass == null && androidXFragmentClass == null && fragment == null) {

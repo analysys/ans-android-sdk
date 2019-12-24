@@ -22,10 +22,26 @@ public class SecondActivity extends AppCompatActivity {
 
         textView = (TextView) findViewById(R.id.textView);
         Intent intent = getIntent();
-        Uri uri = intent.getData();
-        String host = uri.getHost();
-        String path = uri.getPath();
-        String key = uri.getQuery();
+        Uri uri = null;
+        String host = "";
+        String path = "";
+        String key = "";
+        if (intent != null) {
+            uri = intent.getData();
+        }
+
+        if (intent != null && uri != null) {
+            host = uri.getHost();
+        }
+
+        if (intent != null && uri != null) {
+            path = uri.getPath();
+        }
+
+        if (intent != null && uri != null) {
+            key = uri.getQuery();
+        }
+
         textView.setText("host:" + host + ",path:" + path + ",key:" + key);
         if (uri != null) {
             // 判断如果是deepLink启动，设置启动来源为 3

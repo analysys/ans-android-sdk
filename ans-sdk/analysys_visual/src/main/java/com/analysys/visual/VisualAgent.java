@@ -57,7 +57,7 @@ public class VisualAgent {
                     init(context);
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
         }
     }
 
@@ -82,7 +82,7 @@ public class VisualAgent {
                     .append(Constants.PLATFORM_ANDROID);
 
             return sb.toString();
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
             return "";
         }
     }
@@ -113,7 +113,7 @@ public class VisualAgent {
                     init(context);
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
         }
     }
 

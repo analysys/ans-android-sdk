@@ -40,7 +40,6 @@ public class AESEncrypt {
             byte[] result = cipher.doFinal(contents);
             return result;
         } catch (Throwable e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -79,7 +78,6 @@ public class AESEncrypt {
             byte[] result = cipher.doFinal(contents);
             return result;
         } catch (Throwable e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -127,7 +125,6 @@ public class AESEncrypt {
             byte[] enCodeFormat = secretKey.getEncoded();
             return enCodeFormat;
         } catch (Throwable e) {
-            e.printStackTrace();
         }
         return rawpassword;
     }

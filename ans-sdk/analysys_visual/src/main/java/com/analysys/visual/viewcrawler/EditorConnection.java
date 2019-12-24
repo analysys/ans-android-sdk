@@ -105,8 +105,7 @@ class EditorConnection {
                 while (System.currentTimeMillis() - mOpenTime < 3000) {
                     try {
                         Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (Throwable ignore) {
                     }
                     if (mMessageReceived) {
                         break;
@@ -136,8 +135,8 @@ class EditorConnection {
                 } else if ("event_binding_request".equals(type)) {
                     mService.bindEvents(messageJson);
                 }
-            } catch (final JSONException e) {
-                InternalAgent.e(TAG, "JSON parsing failure:" + message, e);
+            } catch (Throwable ignore) {
+                InternalAgent.e(TAG, "JSON parsing failure:" + message, ignore);
             }
         }
 
@@ -171,7 +170,7 @@ class EditorConnection {
                 final byte[] oneByte = new byte[1];
                 oneByte[0] = (byte) b;
                 write(oneByte, 0, 1);
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
             }
         }
 
@@ -179,7 +178,7 @@ class EditorConnection {
         public void write(byte[] b) {
             try {
                 write(b, 0, b.length);
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
             }
         }
 
@@ -201,7 +200,7 @@ class EditorConnection {
         public void close() {
             try {
                 mClient.sendFragmentedFrame(Framedata.Opcode.TEXT, EMPTY_BYTE_BUFFER, true);
-            } catch (Exception e) {
+            } catch (Throwable ignore) {
             }
         }
     }

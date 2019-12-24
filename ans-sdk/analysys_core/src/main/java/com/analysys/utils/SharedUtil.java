@@ -18,49 +18,38 @@ import com.analysys.database.EventTableMetaData;
 public class SharedUtil {
 
     public static boolean getBoolean(Context context, String key, boolean defValue) {
-
         String strValues = getString(context,key,"");
         boolean values = defValue;
         if(!TextUtils.isEmpty(strValues)){
             values =  Boolean.parseBoolean(strValues);
         }
-
         return values;
     }
 
     public static float getFloat(Context context, String key, float defValue) {
-
         float values = defValue;
-
-        String strValues = getString(context,key,"");
-        if(strValues!=null&&!strValues.equals("")&&strValues.length()>0){
-            values = Float.parseFloat(strValues);
+        String strValues = getString(context, key, "");
+        if (!TextUtils.isEmpty(strValues)) {
+            values = CommonUtils.parseFloat(strValues, defValue);
         }
-
         return values;
     }
 
     public static int getInt(Context context, String key, int defValue) {
-
         int values = defValue;
-
-        String strValues = getString(context,key,"");
-        if(strValues!=null&&!strValues.equals("")&&strValues.length()>0){
-            values = Integer.parseInt(strValues);
+        String strValues = getString(context, key, "");
+        if (!TextUtils.isEmpty(strValues)) {
+            values = CommonUtils.parseInt(strValues, defValue);
         }
-
-
         return values;
     }
 
     public static long getLong(Context context, String key, long defValue) {
-
         long values = defValue;
-        String strValues = getString(context,key,"");
-        if(strValues!=null&&!strValues.equals("")&&strValues.length()>0){
-            values = Long.parseLong(strValues);
+        String strValues = getString(context, key, "");
+        if (!TextUtils.isEmpty(strValues)) {
+            values = CommonUtils.parseLong(strValues, defValue);
         }
-
         return values;
     }
 
@@ -75,8 +64,8 @@ public class SharedUtil {
                     values = cursor.getString(0);
                 }
             }
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -118,8 +107,8 @@ public class SharedUtil {
             contentValues.put("values", value);
 
             context.getContentResolver().insert(uri, contentValues);
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
@@ -132,8 +121,8 @@ public class SharedUtil {
             contentValues.put("key",key);
 
             context.getContentResolver().update(uri,contentValues,null,null);
-        }catch (Exception e){
-            ExceptionUtil.exceptionThrow(e);
+        }catch (Throwable ignore){
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 

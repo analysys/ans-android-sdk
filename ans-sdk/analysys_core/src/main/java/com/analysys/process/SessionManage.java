@@ -63,7 +63,7 @@ public class SessionManage {
         if (context != null) {
             String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_LAST_PAGE_CHANGE);
             if (pageEndTime != null) {
-                long endTime = Long.valueOf(pageEndTime);
+                long endTime = CommonUtils.parseLong(pageEndTime, 0);
                 // 上次变动时间到现在是否超过30s
                 return System.currentTimeMillis() - endTime >= Constants.SESSION_INVALID;
             }
