@@ -22,6 +22,11 @@ ans-android-sdk 是一款商用级别的用户行为采集项目，目前支持�
 <application >
 
     ......
+    <provider
+    android:name="com.analysys.database.AnsContentProvider"
+    android:authorities="[应用包名].AnsContentProvider"
+    android:enabled="true"
+    android:exported="false" />
     <!--  设置appKey  -->
     <meta-data
     android:name="ANALYSYS_APPKEY"
@@ -58,7 +63,7 @@ AnalysysAgent.setVisitorConfigURL(context, CONFIG_URL);
 
 3.可视化埋点功能
 
-- 在项目根目录文件gradle.properties 设置 Build_Type=visua
+- 在项目根目录文件gradle.properties 设置 Build_Type=visual
 - 运行apidemo项目，启动后进入可视化demo入口
 - 打开 https://growth.analysys.cn/project-management/visual-choice 左上角选中电商Demo，选Android平台
 - 在app打开的情况下摇一摇，设备连接成功后点击设备进入埋点界面
@@ -71,9 +76,9 @@ AnalysysAgent.setVisitorConfigURL(context, CONFIG_URL);
 
 ## 讨论
 
+扫码后加入官方谈论群，和我们一起探索！
 
-
-可加入官方谈论群，和我们一起探索
+![](./img/ans.png)
 
 
 ## License
