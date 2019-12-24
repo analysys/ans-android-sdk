@@ -19,7 +19,7 @@ import android.text.TextUtils;
 public class AdvertisingIdUitls {
 
     public static void setAdvertisingId(Context context) {
-        if(!CommonUtils.isMainProcess(context)){
+        if (!CommonUtils.isMainProcess(context)) {
             return;
         }
         String adId = CommonUtils.getIdFile(context, Constants.SP_ADID);
@@ -85,9 +85,11 @@ public class AdvertisingIdUitls {
 
         public String getId() {
             String id = null;
-            Parcel data = Parcel.obtain();
-            Parcel reply = Parcel.obtain();
+            Parcel data = null;
+            Parcel reply = null;
             try {
+                data = Parcel.obtain();
+                reply = Parcel.obtain();
                 data.writeInterfaceToken("com.google.android.gms.ads.identifier.internal.IAdvertisingIdService");
                 binder.transact(1, data, reply, 0);
                 reply.readException();
@@ -95,8 +97,11 @@ public class AdvertisingIdUitls {
             } catch (Throwable ignore) {
                 ExceptionUtil.exceptionThrow(ignore);
             } finally {
-                reply.recycle();
-                data.recycle();
+                try {
+                    reply.recycle();
+                    data.recycle();
+                } catch (Throwable ignore) {
+                }
             }
             return id;
         }

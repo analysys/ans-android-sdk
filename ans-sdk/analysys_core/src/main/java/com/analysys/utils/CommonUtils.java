@@ -846,7 +846,7 @@ public class CommonUtils {
     public static String getAndroidID(Context context) {
         try {
             return Settings.System.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
             return null;
         }
     }
