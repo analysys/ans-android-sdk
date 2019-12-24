@@ -817,12 +817,18 @@ public class CommonUtils {
     }
 
     /**
-     * device id androidid>uuid
+     * device id advertisingId>androidid>uuid
      */
     public static String getDeviceId(Context context) {
+        // advertising id
+        String id = getIdFile(context, Constants.SP_ADID);
+        if (!TextUtils.isEmpty(id)) {
+            return id;
+        }
+
         // android id
-        String id = getAndroidID(context);
-        if(!TextUtils.isEmpty(id)){
+        id = getAndroidID(context);
+        if (!TextUtils.isEmpty(id)) {
             return id;
         }
         // uuid
