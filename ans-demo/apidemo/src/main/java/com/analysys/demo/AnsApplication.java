@@ -18,15 +18,19 @@ import com.analysys.utils.ReflectUtils;
  */
 public class AnsApplication extends Application {
     public static final int DEBUG_MODE = 2;
-//    public static final String APP_KEY = "04bf9dd9ec538df7";
+    //    public static final String APP_KEY = "04bf9dd9ec538df7";
 //    public static final String UPLOAD_URL = "https://arksdk.analysys.cn:4089";
 //    private static final String SOCKET_URL = "wss://arksdk.analysys.cn:4091";
 //    private static final String CONFIG_URL = "https://arksdk.analysys.cn:4089";
+//    public static final String APP_KEY = "f1cc0ae3e0d07822";
+//    public static final String UPLOAD_URL = "https://172.81.254.172:4089";
+//    private static final String SOCKET_URL = "wss://172.81.254.172:4091";
+//    private static final String CONFIG_URL = "https://172.81.254.172:4089";
     public static final String APP_KEY = "2709692586aa3e42";
     public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
     private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
     private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
-    private static  AnsApplication instance;
+    private static AnsApplication instance;
 
     private boolean isDebug = true;
 
@@ -80,7 +84,7 @@ public class AnsApplication extends Application {
         // 点击自动上报开关（默认关闭）
         config.setAutoTrackClick(false);
 
-        config.setEnableException(true);
+        config.setAutoTrackCrash(true);
         // 初始化
         AnalysysAgent.init(this, config);
         // 设置数据上传/更新地址

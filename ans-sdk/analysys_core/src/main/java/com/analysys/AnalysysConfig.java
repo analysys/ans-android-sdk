@@ -140,7 +140,7 @@ public class AnalysysConfig {
      * 是否允许配置crash采集
      * @param crashEnable
      */
-    public void setEnableException(boolean crashEnable) {
+    public void setAutoTrackCrash(boolean crashEnable) {
         CrashHandler.getInstance().setEnableCatch(crashEnable);
     }
 
