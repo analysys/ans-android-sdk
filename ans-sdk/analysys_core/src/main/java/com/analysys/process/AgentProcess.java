@@ -117,7 +117,7 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showInitLog(false);
                     }
-                    AdvertisingIdUitls.setAdvertisingId(context);
+                    AdvertisingIdUitls.setAdvertisingId();
                 } catch (Throwable ignored) {
                     ExceptionUtil.exceptionThrow(ignored);
                 }

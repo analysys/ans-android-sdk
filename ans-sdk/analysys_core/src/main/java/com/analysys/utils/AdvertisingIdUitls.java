@@ -18,7 +18,8 @@ import android.text.TextUtils;
  */
 public class AdvertisingIdUitls {
 
-    public static void setAdvertisingId(Context context) {
+    public static void setAdvertisingId() {
+        Context context = AnalysysUtil.getContext();
         if (!CommonUtils.isMainProcess(context)) {
             return;
         }
@@ -38,37 +39,36 @@ public class AdvertisingIdUitls {
                 "com.google.android.gms.ads.identifier.service.START");
         intent.setPackage("com.google.android.gms");
         try {
-            if (context.bindService(intent, connection, Context.BIND_AUTO_CREATE)) {
-                try {
-                    AdvertisingInterface adInterface = new AdvertisingInterface(
-                            connection.getBinder());
-                    String id = adInterface.getId();
-                    if (!TextUtils.isEmpty(id)) {
-                        CommonUtils.setIdFile(context, Constants.SP_ADID, id);
-                    }
-                } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
-                } finally {
-                    context.unbindService(connection);
-                }
-            }
+            context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     private static final class AdvertisingConnection implements ServiceConnection {
-        private IBinder mBinder;
-
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mBinder = service;
+            Context context = AnalysysUtil.getContext();
+            if (context == null) {
+                return;
+            }
+            try {
+                AdvertisingInterface adInterface = new AdvertisingInterface(service);
+                String id = adInterface.getId();
+                if (!TextUtils.isEmpty(id)) {
+                    CommonUtils.setIdFile(context, Constants.SP_ADID, id);
+                }
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
+            } finally {
+                try {
+                    context.unbindService(this);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
+                }
+            }
         }
 
         public void onServiceDisconnected(ComponentName name) {
-        }
-
-        public IBinder getBinder() {
-            return mBinder;
         }
     }
 
