@@ -1,11 +1,9 @@
 apply plugin: 'maven'
+apply plugin: 'signing'
 
-//def maven_version = rootProject.ext.version
-//def maven_groupId = "cn.com.analysys"
-//def maven_type = 'aar'
 
-version = rootProject.ext.version
-group = 'cn.com.analysys'
+def maven_version = rootProject.ext.version
+def maven_groupId = 'cn.com.analysys'
 
 def maven_artifactId = project.name
 if(project.name.equals("analysys_allgro")){
@@ -22,43 +20,94 @@ if(project.name.equals("analysys_allgro")){
     maven_artifactId = "analysys-visual"
 }
 
-
 uploadArchives {
     repositories {
         mavenDeployer {
+
             repository(url: uri('../../repo'))
 
             pom.project {
                 name maven_artifactId
-//                groupId maven_groupId
+                groupId maven_groupId
                 artifactId maven_artifactId
-//                version maven_version
-//                packaging maven_type
-                url 'https://github.com/analysys/ans-android-sdk'
-                description maven_artifactId
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        name 'analysys'
-                        email 'analysys@analysys.com.cn'
-                        url 'https://ark.analysys.cn'
-                    }
-                }
-
-                scm {
-                    connection 'https://github.com/analysys/ans-android-sdk'
-                    developerConnection 'https://github.com/analysys/ans-android-sdk'
-                    url 'https://github.com/analysys/ans-android-sdk'
-                }
+                version maven_version
+                packaging 'aar'
             }
         }
-
-
     }
 }
 
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+//                authentication(userName: maven_username, password: maven_userpassword)
+//            }
+//
+//
+//            pom.project {
+//                name maven_artifactId
+//                groupId maven_groupId
+//                artifactId maven_artifactId
+//                version maven_version
+//                packaging 'aar'
+//                url 'https://github.com/analysys/ans-android-sdk'
+//                description maven_artifactId
+//                licenses {
+//                    license {
+//                        name 'The Apache Software License, Version 2.0'
+//                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        name 'analysys'
+//                        email 'analysys@analysys.com.cn'
+//                        url 'https://ark.analysys.cn'
+//                    }
+//                }
+//
+//                scm {
+//                    connection 'https://github.com/analysys/ans-android-sdk'
+//                    developerConnection 'https://github.com/analysys/ans-android-sdk'
+//                    url 'https://github.com/analysys/ans-android-sdk'
+//                }
+//            }
+//        }
+//
+//
+//    }
+//}
+
+// 进行数字签名
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+
+task androidJavadocs(type: Javadoc) {
+    // 设置源码所在的位置
+    source = android.sourceSets.main.java.sourceFiles
+}
+
+// 生成javadoc.jar
+task androidJavadocsJar(type: Jar) {
+    // 指定文档名称
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+// 生成sources.jar
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+}
+
+
+// 产生相关配置文件的任务
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
+}
