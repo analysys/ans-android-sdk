@@ -18,6 +18,7 @@ import android.util.DisplayMetrics;
 import android.util.JsonWriter;
 
 import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.CommonUtils;
 import com.analysys.utils.InternalAgent;
 import com.analysys.visual.utils.Constants;
 import com.analysys.visual.utils.EGJSONUtils;
@@ -178,33 +179,15 @@ public class ViewCrawler {
         }
     }
 
-    private class EmulatorConnector implements Runnable {
-        private volatile boolean mStopped;
-
-        public EmulatorConnector() {
-            //            mStopped = true;
-            mStopped = false;
-        }
-
-        @Override
-        public void run() {
-            if (!mStopped) {
-                final Message message = mMessageThreadHandler.obtainMessage
-                        (MESSAGE_CONNECT_TO_EDITOR);
-                mMessageThreadHandler.sendMessage(message);
-            }
-
-            mMessageThreadHandler.postDelayed(this, EMULATOR_CONNECT_ATTEMPT_INTERVAL_MILLIS);
-        }
+    private class EmulatorConnector {
 
         public void start() {
-            mStopped = false;
-            mMessageThreadHandler.post(this);
+            final Message message = mMessageThreadHandler.obtainMessage(MESSAGE_CONNECT_TO_EDITOR);
+            mMessageThreadHandler.sendMessageDelayed(message, EMULATOR_CONNECT_ATTEMPT_INTERVAL_MILLIS);
         }
 
         public void stop() {
-            mStopped = true;
-            mMessageThreadHandler.removeCallbacks(this);
+            mMessageThreadHandler.removeMessages(MESSAGE_CONNECT_TO_EDITOR);
         }
     }
 
@@ -509,6 +492,7 @@ public class ViewCrawler {
                 j.name("scaled_density").value(mScaledDensity);
                 j.name("width").value(width);
                 j.name("height").value(height);
+                j.name("process_name").value(CommonUtils.getProcessName());
                 for (final Map.Entry<String, String> entry : mDeviceInfo.entrySet()) {
                     j.name(entry.getKey()).value(entry.getValue());
                 }

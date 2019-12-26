@@ -1355,4 +1355,29 @@ public class CommonUtils {
             return defaultValue;
         }
     }
+
+    public static String getProcessName() {
+        try {
+            ActivityManager activityManager = (ActivityManager) AnalysysUtil.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.RunningAppProcessInfo> runningApps = null;
+            if (activityManager != null) {
+                runningApps = activityManager.getRunningAppProcesses();
+            }
+            if (runningApps == null) {
+                return "";
+            }
+            String process = "";
+            for (ActivityManager.RunningAppProcessInfo proInfo : runningApps) {
+                if (proInfo.pid == android.os.Process.myPid()) {
+                    if (proInfo.processName != null) {
+                        process = proInfo.processName;
+                    }
+                }
+            }
+            return process;
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+            return "";
+        }
+    }
 }
