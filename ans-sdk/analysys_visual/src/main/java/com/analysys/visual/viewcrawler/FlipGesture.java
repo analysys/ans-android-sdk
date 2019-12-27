@@ -3,6 +3,9 @@ package com.analysys.visual.viewcrawler;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.os.Build;
+
+import java.util.Locale;
 
 /**
  * 增加摇一摇功能，传感器先感知摇一摇，如果触发回调，则返回； 如果未触发，则该次onSensorChanged后续执行翻转屏幕的操作 add by
@@ -10,7 +13,7 @@ import android.hardware.SensorEventListener;
  */
 class FlipGesture implements SensorEventListener {
 
-    private final static long INTERVAL_TIME = 1000 * 5;
+    private static long INTERVAL_TIME = 1000 * 5;
     private static final String TAG = "FlipGesture";
     private static long TIGGER_TIME = 0L;
 
@@ -28,16 +31,23 @@ class FlipGesture implements SensorEventListener {
     private boolean mDataOverrided;
 
     //摇动过程中产生的最大差值
-    private static final int SHAKE_THRESHOLD = 30;
+    private static int SHAKE_THRESHOLD = 30;
     //摇动过程中产生的不同方向最大差值比值
-    private static final int SHAKE_DIV_THRESHOLD = 10;
+    private static int SHAKE_DIV_THRESHOLD = 10;
     //翻转检测中xy两个方向最大变动
-    private static final int FLIP_THRESHOLD_XY = 5;
+    private static int FLIP_THRESHOLD_XY = 5;
     //翻转检测中z方向最小变动
-    private static final int FLIP_THRESHOLD_Z = 15;
+    private static int FLIP_THRESHOLD_Z = 15;
 
     public FlipGesture(OnFlipGestureListener listener) {
         mListener = listener;
+        if (isInEmulator()) {
+            SHAKE_THRESHOLD = 1;
+            SHAKE_DIV_THRESHOLD = 1;
+            FLIP_THRESHOLD_XY = 1;
+            FLIP_THRESHOLD_Z = 1;
+            INTERVAL_TIME = 1000 * 30;
+        }
     }
 
     private boolean shakeOffOrFlip(float[] values) {
@@ -144,5 +154,30 @@ class FlipGesture implements SensorEventListener {
 
     public interface OnFlipGestureListener {
         void onFlipGesture();
+    }
+
+    private boolean isInEmulator() {
+        if (!"goldfish".equals(Build.HARDWARE.toLowerCase()) && !"ranchu".equals(Build.HARDWARE.toLowerCase())) {
+            return false;
+        }
+
+        if (!Build.BRAND.toLowerCase().startsWith("generic") && !"android".equals(Build.BRAND.toLowerCase())
+                && !"google".equals(Build.BRAND.toLowerCase())) {
+            return false;
+        }
+
+        if (!Build.DEVICE.toLowerCase().startsWith("generic")) {
+            return false;
+        }
+
+        if (!Build.PRODUCT.toLowerCase().contains("sdk")) {
+            return false;
+        }
+
+        if (!Build.MODEL.toLowerCase(Locale.US).contains("sdk")) {
+            return false;
+        }
+
+        return true;
     }
 }
