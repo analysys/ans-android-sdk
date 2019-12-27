@@ -11,7 +11,7 @@
 #./gradlew uploadArchives
 
 #aar和jar包
-./gradlew releaseMapping
+./gradlew zipMapping
 ./gradlew makeJar
 
 #zip包

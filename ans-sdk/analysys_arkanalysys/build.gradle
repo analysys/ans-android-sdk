@@ -80,6 +80,13 @@ task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
     into '../release/mapping/'
 }
 
+task zipMapping(type: Zip,dependsOn: ['releaseMapping']) {
+    from '../release/mapping/'
+
+    baseName = "analysys-pass-mapping-${releaseTimeVariable}-${rootProject.ext.version}"
+    destinationDir file("../release/zip")
+}
+
 
 for (int i = 0; i < moduleName.size(); i++) {
     def endName = "${moduleName[i]}".replace("_","-")
