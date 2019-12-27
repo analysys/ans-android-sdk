@@ -167,7 +167,7 @@ task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
 //        include("repo/")
 //    }
 
-    baseName = "analysys-pass-android-${releaseTimeVariable}"
+    baseName = "analysys-pass-android-${releaseTimeVariable}-${rootProject.ext.version}"
     destinationDir file("../release/zip")
 
 }
