@@ -8,14 +8,6 @@ if(apidemo_type.toBoolean()){
 
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'analysys'
-            keyPassword '12345678'
-            storeFile file('../key/key.store')
-            storePassword '12345678'
-        }
-    }
     compileSdkVersion 28
 
     defaultConfig {
