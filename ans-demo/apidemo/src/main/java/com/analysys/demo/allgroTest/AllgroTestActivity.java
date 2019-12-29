@@ -3,11 +3,11 @@ package com.analysys.demo.allgroTest;
 import android.os.Bundle;
 import android.view.View;
 
-import com.analysys.demo.R;
+import com.analysys.apidemo.R;
+import com.analysys.apidemo.databinding.ActivityTestAllgroBinding;
 import com.analysys.demo.allgroTest.fragment.FragmentOne;
 import com.analysys.demo.allgroTest.fragment.FragmentThree;
 import com.analysys.demo.allgroTest.fragment.FragmentTwo;
-import com.analysys.demo.databinding.ActivityTestAllgroBinding;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;

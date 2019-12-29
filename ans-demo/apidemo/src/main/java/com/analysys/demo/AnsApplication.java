@@ -7,6 +7,7 @@ import android.os.StrictMode;
 import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
 import com.analysys.EncryptEnum;
+import com.analysys.apidemo.BuildConfig;
 import com.analysys.utils.ReflectUtils;
 
 /**

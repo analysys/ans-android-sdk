@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.analysys.demo"
+    package="com.analysys.apidemo"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
-        android:name=".AnsApplication"
+        android:name="com.analysys.demo.AnsApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,7 +21,7 @@
         android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
 
-        <activity android:name=".MainActivity">
+        <activity android:name="com.analysys.demo.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,19 +29,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WebViewActivity"
+            android:name="com.analysys.demo.WebViewActivity"
             android:process=":WebView" />
-        <activity android:name=".UserSettingActivity" />
-        <activity android:name=".EventActivity" />
-        <activity android:name=".PropertyActivity" />
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".HeatMapTestActivity" />
+        <activity android:name="com.analysys.demo.UserSettingActivity" />
+        <activity android:name="com.analysys.demo.EventActivity" />
+        <activity android:name="com.analysys.demo.PropertyActivity" />
+        <activity android:name="com.analysys.demo.ProfileActivity" />
+        <activity android:name="com.analysys.demo.HeatMapTestActivity" />
         <activity
-            android:name=".SingleProcessTestActivity"
+            android:name="com.analysys.demo.SingleProcessTestActivity"
             android:process=":singleProcess" />
-        <activity android:name=".allgroTest.AllgroTestActivity" />
-        <activity android:name=".allgroTest.AllgroMainActivity" />
-        <activity android:name=".allgroTest.TabTestActivity" />
+        <activity android:name="com.analysys.demo.allgroTest.AllgroTestActivity" />
+        <activity android:name="com.analysys.demo.allgroTest.AllgroMainActivity" />
+        <activity android:name="com.analysys.demo.allgroTest.TabTestActivity" />
 
         <meta-data
             android:name="ANALYSYS_AUTO_COLLECTION_MAC"

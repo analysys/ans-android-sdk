@@ -6,7 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TabHost;
 
-import com.analysys.demo.R;
+import com.analysys.apidemo.R;
 
 
 public class TabTestActivity extends TabActivity {//继承的是TabActivity

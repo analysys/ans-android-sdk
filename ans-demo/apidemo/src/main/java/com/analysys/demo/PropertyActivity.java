@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.analysys.AnalysysAgent;
+import com.analysys.apidemo.R;
 import com.analysys.hybrid.HybridBridge;
 
 import java.util.HashMap;

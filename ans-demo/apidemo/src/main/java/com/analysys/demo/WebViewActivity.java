@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.analysys.ANSAutoPageTracker;
 import com.analysys.AnalysysAgent;
+import com.analysys.apidemo.R;
 
 import java.util.Map;
 
