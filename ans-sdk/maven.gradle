@@ -5,6 +5,10 @@ apply plugin: 'signing'
 def maven_version = rootProject.ext.version
 def maven_groupId = 'cn.com.analysys'
 
+//下面的version和group必须有，gradle打包的pom文件依赖这个版本号和group
+version = rootProject.ext.version
+group = maven_groupId
+
 def maven_artifactId = project.name
 if(project.name.equals("analysys_allgro")){
     maven_artifactId = "analysys-allgro"
