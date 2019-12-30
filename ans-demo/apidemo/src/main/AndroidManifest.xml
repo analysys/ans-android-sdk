@@ -49,6 +49,10 @@
         <meta-data
             android:name="ANALYSYS_AUTO_COLLECTION_IMEI"
             android:value="false"/>
+
+<!--        <meta-data-->
+<!--            android:name="ANALYSYS_KEYSTONE"-->
+<!--            android:value="analysys.crt"/>-->
     </application>
 
 </manifest>
