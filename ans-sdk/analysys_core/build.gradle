@@ -12,7 +12,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        buildConfigField "String", "SDK_VERSION", "\"${version}\""
+        buildConfigField "String", "SDK_VERSION", "\"${rootProject.ext.version}\""
         minSdkVersion rootProject.ext.minSdkVersion
     }
 
