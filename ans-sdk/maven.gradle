@@ -5,6 +5,9 @@ apply plugin: 'signing'
 def maven_version = rootProject.ext.version
 def maven_groupId = 'cn.com.analysys'
 
+version = maven_version
+group = maven_groupId
+
 def maven_artifactId = project.name
 if(project.name.equals("analysys_allgro")){
     maven_artifactId = "analysys-allgro"
