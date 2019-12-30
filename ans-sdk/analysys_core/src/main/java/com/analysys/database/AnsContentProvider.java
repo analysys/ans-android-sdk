@@ -87,23 +87,62 @@ public class AnsContentProvider extends ContentProvider {
             }
             break;
             case EventTableMetaData.TABLE_SP_DIR: {
-
-                String spKey = null;
-                if (projection != null && projection.length >= 1) {
-                    spKey = projection[0];
-                }
-
-                checkSp();
-
-                if (mContext != null) {
-                    SharedPreferences sharedPreferences = sharedPreferencesHelp.getPreferences(mContext);
-                    if (sharedPreferences != null && spKey != null) {
-                        String spValues = sharedPreferences.getString(spKey, selection);
-                        MatrixCursor matrixCursor = new MatrixCursor(new String[]{"column_name"});
-                        matrixCursor.addRow(new Object[]{spValues});
-
-                        cursor = matrixCursor;
+                String spValues = "";
+                try {
+                    String spKey = null;
+                    String type = null;
+                    if (projection != null && projection.length >= 2) {
+                        spKey = projection[0];
+                        type = projection[1];
                     }
+
+                    checkSp();
+
+                    if (mContext != null) {
+                        SharedPreferences sharedPreferences = sharedPreferencesHelp.getPreferences(mContext);
+                        if (sharedPreferences != null && spKey != null) {
+
+                            if(type!=null){
+
+                                if(type.equals("boolean")){
+                                    if(sharedPreferences.contains(spKey)){
+                                        boolean spbool = sharedPreferences.getBoolean(spKey,false);
+                                        spValues = String.valueOf(spbool);
+                                    }
+
+                                } else if(type.equals("int")){
+                                    if(sharedPreferences.contains(spKey)){
+                                        int spint = sharedPreferences.getInt(spKey,0);
+                                        spValues = String.valueOf(spint);
+                                    }
+
+                                } else if(type.equals("float")){
+                                    if(sharedPreferences.contains(spKey)){
+                                        float spfloat = sharedPreferences.getFloat(spKey,0f);
+                                        spValues = String.valueOf(spfloat);
+                                    }
+
+                                } else if(type.equals("long")) {
+                                    if(sharedPreferences.contains(spKey)){
+                                        long splong = sharedPreferences.getLong(spKey,0l);
+                                        spValues = String.valueOf(splong);
+                                    }
+
+                                } else if(type.equals("string")){
+                                    if(sharedPreferences.contains(spKey)) {
+                                        spValues = sharedPreferences.getString(spKey, selection);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
+                } finally {
+                    MatrixCursor matrixCursor = new MatrixCursor(new String[]{"column_name"});
+                    matrixCursor.addRow(new Object[]{spValues});
+
+                    cursor = matrixCursor;
                 }
             }
             break;
@@ -189,12 +228,27 @@ public class AnsContentProvider extends ContentProvider {
             }
             break;
             case EventTableMetaData.TABLE_SP_DIR: {
-                checkSp();
-                if (mContext != null && sharedPreferencesHelp != null) {
-                    SharedPreferences.Editor editor = sharedPreferencesHelp.getEditor(mContext);
-                    if (editor != null) {
-                        editor.putString(values.getAsString("key"), values.getAsString("values")).commit();
+
+                try {
+                    checkSp();
+                    if (mContext != null && sharedPreferencesHelp != null) {
+                        SharedPreferences.Editor editor = sharedPreferencesHelp.getEditor(mContext);
+                        if (editor != null) {
+                            if(values.getAsString("type").equals("boolean")){
+                                editor.putBoolean(values.getAsString("key"),values.getAsBoolean("values")).commit();
+                            } else if(values.getAsString("type").equals("int")){
+                                editor.putInt(values.getAsString("key"),values.getAsInteger("values")).commit();
+                            } else if (values.getAsString("type").equals("float")){
+                                editor.putFloat(values.getAsString("key"),values.getAsFloat("values")).commit();
+                            } else if (values.getAsString("type").equals("long")){
+                                editor.putLong(values.getAsString("key"),values.getAsLong("values")).commit();
+                            }else if(values.getAsString("type").equals("string")){
+                                editor.putString(values.getAsString("key"), values.getAsString("values")).commit();
+                            }
+                        }
                     }
+                }catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
 
             }

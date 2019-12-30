@@ -83,7 +83,7 @@ task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
 task zipMapping(type: Zip,dependsOn: ['releaseMapping']) {
     from '../release/mapping/'
 
-    baseName = "analysys-pass-mapping-${releaseTimeVariable}-${rootProject.ext.version}"
+    baseName = "analysys-pass-mapping-${releaseTimeVariable}"
     destinationDir file("../release/zip")
 }
 
@@ -114,7 +114,8 @@ for (int i = 0; i < moduleName.size(); i++) {
 
     task "jar${moduleName[i]}"(type: Jar, dependsOn: ["unZipJar${moduleName[i]}"]) {
         from("../release/jar/tmp/${endName}/")
-        baseName = "${endName}".replace("_${rootProject.ext.version}", "")
+        println("endName:"+endName)
+        baseName = "${endName}".replace("-${rootProject.ext.version}", "")
         destinationDir = file("../release/jar/")
 
 
@@ -161,13 +162,15 @@ task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
     from("../release/") {
         include("aar/")
         include("jar/")
+        exclude("jar/analysys-allgro-*")
+
     }
 
 //    from("../../") {
 //        include("repo/")
 //    }
 
-    baseName = "analysys-pass-android-${releaseTimeVariable}-${rootProject.ext.version}"
+    baseName = "analysys-pass-android-${releaseTimeVariable}"
     destinationDir file("../release/zip")
 
 }
