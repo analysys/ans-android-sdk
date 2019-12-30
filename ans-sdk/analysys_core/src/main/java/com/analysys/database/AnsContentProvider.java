@@ -87,6 +87,7 @@ public class AnsContentProvider extends ContentProvider {
             }
             break;
             case EventTableMetaData.TABLE_SP_DIR: {
+                String spValues = "";
                 try {
                     String spKey = null;
                     String type = null;
@@ -102,7 +103,7 @@ public class AnsContentProvider extends ContentProvider {
                         if (sharedPreferences != null && spKey != null) {
 
                             if(type!=null){
-                                String spValues = "";
+
                                 if(type.equals("boolean")){
                                     if(sharedPreferences.contains(spKey)){
                                         boolean spbool = sharedPreferences.getBoolean(spKey,false);
@@ -132,19 +133,16 @@ public class AnsContentProvider extends ContentProvider {
                                         spValues = sharedPreferences.getString(spKey, selection);
                                     }
                                 }
-
-                                MatrixCursor matrixCursor = new MatrixCursor(new String[]{"column_name"});
-                                matrixCursor.addRow(new Object[]{spValues});
-
-                                cursor = matrixCursor;
                             }
-
-
-
                         }
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
+                } finally {
+                    MatrixCursor matrixCursor = new MatrixCursor(new String[]{"column_name"});
+                    matrixCursor.addRow(new Object[]{spValues});
+
+                    cursor = matrixCursor;
                 }
             }
             break;
