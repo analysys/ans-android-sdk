@@ -18,37 +18,57 @@ import com.analysys.database.EventTableMetaData;
 public class SharedUtil {
 
     public static boolean getBoolean(Context context, String key, boolean defValue) {
-        String strValues = getString(context,key,"","boolean");
         boolean values = defValue;
-        if(!TextUtils.isEmpty(strValues)){
-            values =  Boolean.parseBoolean(strValues);
+        try {
+            String strValues = getString(context,key,"","boolean");
+
+            if(!TextUtils.isEmpty(strValues)){
+                values =  Boolean.parseBoolean(strValues);
+            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return values;
     }
 
     public static float getFloat(Context context, String key, float defValue) {
         float values = defValue;
-        String strValues = getString(context, key, "","float");
-        if (!TextUtils.isEmpty(strValues)) {
-            values = CommonUtils.parseFloat(strValues, defValue);
+        try {
+            String strValues = getString(context, key, "","float");
+            if (!TextUtils.isEmpty(strValues)) {
+                values = CommonUtils.parseFloat(strValues, defValue);
+            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
+
         return values;
     }
 
     public static int getInt(Context context, String key, int defValue) {
         int values = defValue;
-        String strValues = getString(context, key, "","int");
-        if (!TextUtils.isEmpty(strValues)) {
-            values = CommonUtils.parseInt(strValues, defValue);
+
+        try {
+            String strValues = getString(context, key, "","int");
+            if (!TextUtils.isEmpty(strValues)) {
+                values = CommonUtils.parseInt(strValues, defValue);
+            }
+        } catch (Throwable ignore){
+            ExceptionUtil.exceptionThrow(ignore);
         }
+
         return values;
     }
 
     public static long getLong(Context context, String key, long defValue) {
         long values = defValue;
-        String strValues = getString(context, key, "","long");
-        if (!TextUtils.isEmpty(strValues)) {
-            values = CommonUtils.parseLong(strValues, defValue);
+        try {
+            String strValues = getString(context, key, "","long");
+            if (!TextUtils.isEmpty(strValues)) {
+                values = CommonUtils.parseLong(strValues, defValue);
+            }
+        }catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return values;
     }
