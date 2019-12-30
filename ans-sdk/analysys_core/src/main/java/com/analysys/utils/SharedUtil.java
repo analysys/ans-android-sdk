@@ -18,47 +18,71 @@ import com.analysys.database.EventTableMetaData;
 public class SharedUtil {
 
     public static boolean getBoolean(Context context, String key, boolean defValue) {
-        String strValues = getString(context,key,"");
         boolean values = defValue;
-        if(!TextUtils.isEmpty(strValues)){
-            values =  Boolean.parseBoolean(strValues);
+        try {
+            String strValues = getString(context,key,"","boolean");
+
+            if(!TextUtils.isEmpty(strValues)){
+                values =  Boolean.parseBoolean(strValues);
+            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return values;
     }
 
     public static float getFloat(Context context, String key, float defValue) {
         float values = defValue;
-        String strValues = getString(context, key, "");
-        if (!TextUtils.isEmpty(strValues)) {
-            values = CommonUtils.parseFloat(strValues, defValue);
+        try {
+            String strValues = getString(context, key, "","float");
+            if (!TextUtils.isEmpty(strValues)) {
+                values = CommonUtils.parseFloat(strValues, defValue);
+            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
+
         return values;
     }
 
     public static int getInt(Context context, String key, int defValue) {
         int values = defValue;
-        String strValues = getString(context, key, "");
-        if (!TextUtils.isEmpty(strValues)) {
-            values = CommonUtils.parseInt(strValues, defValue);
+
+        try {
+            String strValues = getString(context, key, "","int");
+            if (!TextUtils.isEmpty(strValues)) {
+                values = CommonUtils.parseInt(strValues, defValue);
+            }
+        } catch (Throwable ignore){
+            ExceptionUtil.exceptionThrow(ignore);
         }
+
         return values;
     }
 
     public static long getLong(Context context, String key, long defValue) {
         long values = defValue;
-        String strValues = getString(context, key, "");
-        if (!TextUtils.isEmpty(strValues)) {
-            values = CommonUtils.parseLong(strValues, defValue);
+        try {
+            String strValues = getString(context, key, "","long");
+            if (!TextUtils.isEmpty(strValues)) {
+                values = CommonUtils.parseLong(strValues, defValue);
+            }
+        }catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return values;
     }
 
     public static String getString(Context context, String key, String defValue) {
+        return getString(context, key, defValue, "string");
+    }
+
+    private static String getString(Context context, String key, String defValue,String type) {
         String values = null;
         Cursor cursor = null;
         try {
             Uri uri = EventTableMetaData.getTABLE_SP(context);
-            cursor = context.getContentResolver().query(uri, new String[]{key}, defValue, null, null);
+            cursor = context.getContentResolver().query(uri, new String[]{key,type}, defValue, null, null);
             if (cursor != null && cursor.getCount() >= 1) {
                 if (cursor.moveToPosition(0)) {
                     values = cursor.getString(0);
@@ -81,20 +105,60 @@ public class SharedUtil {
 
     public static void setBoolean(Context context, String key, boolean value) {
 
-        setString(context,key,String.valueOf(value));
+        try {
+            Uri uri = EventTableMetaData.getTABLE_SP(context);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("key", key);
+            contentValues.put("values", value);
+            contentValues.put("type","boolean");
+
+            context.getContentResolver().insert(uri, contentValues);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
     }
 
     public static void setFloat(Context context, String key, float value) {
-        setString(context,key,String.valueOf(value));
+        try {
+            Uri uri = EventTableMetaData.getTABLE_SP(context);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("key", key);
+            contentValues.put("values", value);
+            contentValues.put("type","float");
+
+            context.getContentResolver().insert(uri, contentValues);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
     }
 
     public static void setInt(Context context, String key, int value) {
-        setString(context,key,String.valueOf(value));
+        try {
+            Uri uri = EventTableMetaData.getTABLE_SP(context);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("key", key);
+            contentValues.put("values", value);
+            contentValues.put("type","int");
+
+            context.getContentResolver().insert(uri, contentValues);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
+
     }
 
     public static void setLong(Context context, String key, long value) {
+        try {
+            Uri uri = EventTableMetaData.getTABLE_SP(context);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("key", key);
+            contentValues.put("values", value);
+            contentValues.put("type","long");
 
-        setString(context,key,String.valueOf(value));
+            context.getContentResolver().insert(uri, contentValues);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
 
     }
 
@@ -105,6 +169,7 @@ public class SharedUtil {
             ContentValues contentValues = new ContentValues();
             contentValues.put("key", key);
             contentValues.put("values", value);
+            contentValues.put("type","string");
 
             context.getContentResolver().insert(uri, contentValues);
         } catch (Throwable ignore) {

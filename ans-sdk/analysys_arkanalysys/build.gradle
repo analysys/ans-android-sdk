@@ -49,7 +49,7 @@ task delRelease(type: Delete) {
 task releaseAar(type: Copy) {
 
     for (int i = 0; i < moduleName.size; i++) {
-        def tmpName = "${moduleName[i]}".replace("_${version}", "")
+        def tmpName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
         from("../${tmpName}/build/outputs/aar/") {
             rename("${tmpName}-release.aar", "${moduleName[i]}.aar")
 
@@ -65,7 +65,7 @@ task releaseAar(type: Copy) {
 task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
 
     for (int i = 0; i < moduleName.size; i++) {
-        def tmpName = "${moduleName[i]}".replace("_${version}", "")
+        def tmpName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
         from("../${tmpName}/build/outputs/mapping/release/") {
             include('mapping.txt')
             rename('mapping.txt', "mapping-${moduleName[i]}.txt")
@@ -100,7 +100,7 @@ for (int i = 0; i < moduleName.size(); i++) {
 
     task "jar${moduleName[i]}"(type: Jar, dependsOn: ["unZipJar${moduleName[i]}"]) {
         from("../release/jar/tmp/${moduleName[i]}/")
-        baseName = "${moduleName[i]}".replace("_${version}", "")
+        baseName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
         destinationDir = file("../release/jar/")
 
 
@@ -152,7 +152,7 @@ task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
         include("repo/")
     }
 
-    baseName = "analysys-pass-android-${releaseTimeVariable}"
+    baseName = "analysys-pass-android-${releaseTimeVariable}-${rootProject.ext.version}"
     destinationDir file("../release/zip")
 
 }
