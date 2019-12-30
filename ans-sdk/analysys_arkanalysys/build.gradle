@@ -161,6 +161,8 @@ task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
     from("../release/") {
         include("aar/")
         include("jar/")
+        exclude("jar/analysys-allgro-*")
+
     }
 
 //    from("../../") {
