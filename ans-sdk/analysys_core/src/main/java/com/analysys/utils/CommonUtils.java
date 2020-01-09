@@ -187,7 +187,7 @@ public class CommonUtils {
                 continue;
             }
             String sKey = key.toString();
-            map.put(sKey, jsonObject.optString(sKey));
+            map.put(sKey, jsonObject.opt(sKey));
         }
         return map;
     }
