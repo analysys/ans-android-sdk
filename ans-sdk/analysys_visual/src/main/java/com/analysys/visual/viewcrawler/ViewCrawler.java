@@ -18,6 +18,7 @@ import android.util.DisplayMetrics;
 import android.util.JsonWriter;
 
 import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.CommonUtils;
 import com.analysys.utils.InternalAgent;
 import com.analysys.visual.VisualAgent;
 import com.analysys.visual.utils.Constants;
@@ -241,7 +242,7 @@ public class ViewCrawler {
         private void installConnectionSensor() {
             if (isInEmulator()) {
                 mEmulatorConnector.start();
-            } else if (!(mIsSensorRegistered || !VisualAgent.isInDebug())) {
+            } else if (!mIsSensorRegistered && CommonUtils.isMainProcess(mContext) && VisualAgent.isInDebug()) {
                 final SensorManager sensorManager =
                         (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
                 final Sensor accelerometer =
@@ -256,7 +257,7 @@ public class ViewCrawler {
         private void uninstallConnectionSensor() {
             if (isInEmulator()) {
                 mEmulatorConnector.stop();
-            } else if (mIsSensorRegistered && VisualAgent.isInDebug()) {
+            } else if (mIsSensorRegistered && CommonUtils.isMainProcess(mContext) && VisualAgent.isInDebug()) {
                 final SensorManager sensorManager = (SensorManager) mContext.getSystemService
                         (Context.SENSOR_SERVICE);
                 sensorManager.unregisterListener(mFlipGesture);
