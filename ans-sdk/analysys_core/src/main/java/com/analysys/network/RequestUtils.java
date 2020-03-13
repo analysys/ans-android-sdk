@@ -3,8 +3,8 @@ package com.analysys.network;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.analysys.utils.ANSLog;
 import com.analysys.utils.CommonUtils;
+import com.analysys.utils.ExceptionUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -70,20 +70,21 @@ class RequestUtils {
             } else if (HttpURLConnection.HTTP_ENTITY_TOO_LARGE == connection.getResponseCode()) {
                 response = "413";
             }
-        } catch (Throwable e) {
-            ANSLog.e(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
         } finally {
             if (is != null) {
                 try {
                     is.close();
-                } catch (Throwable e) {
-
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionPrint(ignore);
                 }
             }
             if (bos != null) {
                 try {
                     bos.close();
-                } catch (Throwable e) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionPrint(ignore);
                 }
             }
         }
@@ -126,8 +127,8 @@ class RequestUtils {
             } else {
                 return null;
             }
-        } catch (Throwable e) {
-            ANSLog.e(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -135,7 +136,8 @@ class RequestUtils {
             if (outputStream != null) {
                 try {
                     outputStream.close();
-                } catch (Throwable e) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionPrint(ignore);
                 }
             }
         }
@@ -179,7 +181,8 @@ class RequestUtils {
 //                }
 //                result = sbf.toString();
 //            }
-        } catch (Exception e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
         } finally {
             // 关闭远程连接
             if (connection != null) {

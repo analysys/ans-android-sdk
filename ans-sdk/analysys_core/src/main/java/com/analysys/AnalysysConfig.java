@@ -26,6 +26,12 @@ public class AnalysysConfig {
     private boolean autoTrackFragmentPageView = false;
     private boolean autoTrackClick = false;
 
+
+
+    private boolean autoTrackDeviceId = false;
+
+
+
     /**
      * 获取 App key
      */
@@ -140,7 +146,7 @@ public class AnalysysConfig {
      * 是否允许配置crash采集
      * @param crashEnable
      */
-    public void setEnableException(boolean crashEnable) {
+    public void setAutoTrackCrash(boolean crashEnable) {
         CrashHandler.getInstance().setEnableCatch(crashEnable);
     }
 
@@ -189,6 +195,18 @@ public class AnalysysConfig {
 
     public void setAutoTrackClick(boolean isTrackClick) {
         autoTrackClick =isTrackClick;
+    }
+
+    /**
+     * 设置device_id是否采集，默认不采集
+     * @param autoTrackDeviceId
+     */
+    public void setAutoTrackDeviceId(boolean autoTrackDeviceId){
+            this.autoTrackDeviceId = autoTrackDeviceId;
+    }
+
+    public boolean isAutoTrackDeviceId() {
+        return autoTrackDeviceId;
     }
 
 }

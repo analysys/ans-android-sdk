@@ -133,16 +133,30 @@ public class SharedUtil {
     }
 
     public static void setInt(Context context, String key, int value) {
+        Uri uri = null;
+        ContentValues contentValues = null;
         try {
-            Uri uri = EventTableMetaData.getTABLE_SP(context);
-            ContentValues contentValues = new ContentValues();
+            uri = EventTableMetaData.getTABLE_SP(context);
+            contentValues = new ContentValues();
             contentValues.put("key", key);
             contentValues.put("values", value);
             contentValues.put("type","int");
 
             context.getContentResolver().insert(uri, contentValues);
         } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
+            if (ignore != null && ignore.getMessage().contains("IllegalArgumentException")) {
+                try {
+                    if (uri != null && contentValues != null) {
+                        context.getContentResolver().insert(uri, contentValues);
+                    }
+                } catch (Throwable ignore1) {
+                    ExceptionUtil.exceptionThrow(ignore1);
+                }
+
+            } else {
+                ExceptionUtil.exceptionThrow(ignore);
+            }
+
         }
 
     }

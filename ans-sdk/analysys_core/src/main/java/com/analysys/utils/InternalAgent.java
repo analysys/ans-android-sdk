@@ -3,6 +3,10 @@ package com.analysys.utils;
 import android.content.Context;
 import android.os.Build;
 
+import com.analysys.AnalysysAgent;
+import com.analysys.AnalysysConfig;
+import com.analysys.network.NetworkUtils;
+import com.analysys.process.AgentProcess;
 import com.analysys.process.SessionManage;
 
 import java.util.Locale;
@@ -98,7 +102,7 @@ public class InternalAgent {
      * 网路状态
      */
     public static String getNetwork(Context context) {
-        return CommonUtils.networkType(context);
+        return NetworkUtils.networkType(context,true);
     }
 
     /**
@@ -201,6 +205,17 @@ public class InternalAgent {
     }
 
     /**
+     * 获取device id
+     */
+    public static String getDeviceId(Context context) {
+        if(AgentProcess.getInstance().getConfig().isAutoTrackDeviceId()){
+            return CommonUtils.getDeviceId(context);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 获取应用启动来源
      */
     public static String getLaunchSource(Context context) {
@@ -219,12 +234,12 @@ public class InternalAgent {
     }
 
     public static String networkType(Context context) {
-        return CommonUtils.networkType(context);
+        return NetworkUtils.networkType(context,true);
     }
 
     public static boolean isNetworkAvailable(Context context) {
 
-        return CommonUtils.isNetworkAvailable(context);
+        return NetworkUtils.isNetworkAvailable(context);
     }
 
     /** check **/

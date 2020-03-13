@@ -51,7 +51,7 @@ android {
 
 dependencies {
     //个推
-    implementation 'com.getui:sdk:2.13.0.0'
+    implementation 'com.getui:sdk:2.13.3.0'
     //极光
     implementation 'cn.jiguang.sdk:jpush:3.1.8'
     // 此处以JPush 3.1.1 版本为例。
@@ -59,12 +59,26 @@ dependencies {
     // 此处以JCore 1.1.9 版本为例。
     implementation 'com.android.support:multidex:1.0.3'
 
+    //阿里云推送
+    implementation 'com.aliyun.ams:alicloud-android-push:3.1.6'
+
+    //信鸽jar，不包含厂商通道
+    implementation  'com.tencent.xinge:xinge:4.3.7-release'
+    //jg包
+    implementation'com.tencent.jg:jg:1.1'
+    //wup包
+    implementation 'com.tencent.wup:wup:1.0.0.E-Release'
+    //mid包，minSdkVersion 14
+    implementation 'com.tencent.mid:mid:4.0.7-Release'
+
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
 
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
 
-    implementation project(':ans-sdk:analysys_core')
+    implementation project(':analysys_core')
+    implementation project(':analysys_push')
 
 }

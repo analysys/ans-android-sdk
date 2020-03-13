@@ -22,4 +22,14 @@ public class ExceptionUtil {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * 异常打印
+     * @param e
+     */
+    public static void exceptionPrint(Throwable e) {
+        if(BuildConfig.DEBUG) {
+            e.printStackTrace();
+        }
+    }
 }

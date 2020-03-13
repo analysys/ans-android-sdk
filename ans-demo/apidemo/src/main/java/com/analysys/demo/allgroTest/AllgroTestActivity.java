@@ -3,11 +3,11 @@ package com.analysys.demo.allgroTest;
 import android.os.Bundle;
 import android.view.View;
 
-import com.analysys.demo.R;
+import com.analysys.apidemo.R;
+import com.analysys.apidemo.databinding.ActivityTestAllgroBinding;
 import com.analysys.demo.allgroTest.fragment.FragmentOne;
 import com.analysys.demo.allgroTest.fragment.FragmentThree;
 import com.analysys.demo.allgroTest.fragment.FragmentTwo;
-import com.analysys.demo.databinding.ActivityTestAllgroBinding;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -96,19 +96,14 @@ public class AllgroTestActivity extends AppCompatActivity implements ViewPager.O
      */
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn1:
-                //参数一是ViewPager的position,参数二为是否有滑动效果
-                mDataBinding.viewPager.setCurrentItem(0, true);
-                break;
-            case R.id.btn2:
-                mDataBinding.viewPager.setCurrentItem(1, true);
-                break;
-            case R.id.btn3:
-                mDataBinding.viewPager.setCurrentItem(2, true);
-                break;
-            default:
-                break;
+        int id = view.getId();
+        if(id == R.id.btn1) {
+            //参数一是ViewPager的position,参数二为是否有滑动效果
+            mDataBinding.viewPager.setCurrentItem(0, true);
+        } else if (id == R.id.btn2){
+            mDataBinding.viewPager.setCurrentItem(1, true);
+        } else if (id == R.id.btn3) {
+            mDataBinding.viewPager.setCurrentItem(2, true);
         }
     }
 

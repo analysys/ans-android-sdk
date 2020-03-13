@@ -15,6 +15,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -83,7 +84,8 @@ public class CommonUtils {
             if (!TextUtils.isEmpty(type)) {
                 return appInfo.metaData.getString(type);
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -98,7 +100,8 @@ public class CommonUtils {
             if (!TextUtils.isEmpty(type)) {
                 return appInfo.metaData.getBoolean(type);
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return true;
     }
@@ -187,7 +190,7 @@ public class CommonUtils {
                 continue;
             }
             String sKey = key.toString();
-            map.put(sKey, jsonObject.optString(sKey));
+            map.put(sKey, jsonObject.opt(sKey));
         }
         return map;
     }
@@ -240,7 +243,8 @@ public class CommonUtils {
                     Constants.PLATFORM + "|" + appId + "|" + sdkVersion + "|" + policyVersion +
                             "|" + appVersion;
             return new String(Base64.encode(spv.getBytes(), Base64.DEFAULT));
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -326,7 +330,8 @@ public class CommonUtils {
             } else {
                 return false;
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return true;
     }
@@ -358,34 +363,6 @@ public class CommonUtils {
         return context.getPackageName().equals(process);
     }
 
-    /**
-     * 获取网络类型
-     */
-    public static String networkType(Context context) {
-        String netType = "";
-        // 检测权限
-        if (!checkPermission(context, Manifest.permission.ACCESS_NETWORK_STATE)) {
-            return "Unknown";
-        }
-        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context
-                .CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = null;
-        if (connMgr != null) {
-            networkInfo = connMgr.getActiveNetworkInfo();
-        }
-
-        if (networkInfo == null) {
-            return netType;
-        }
-        int nType = networkInfo.getType();
-        if (nType == ConnectivityManager.TYPE_WIFI) {
-            netType = "WIFI";
-        } else if (nType == ConnectivityManager.TYPE_MOBILE) {
-            int nSubType = networkInfo.getSubtype();
-            return String.valueOf(nSubType);
-        }
-        return netType;
-    }
 
     /**
      * 检测权限
@@ -405,7 +382,8 @@ public class CommonUtils {
                     int rest = (Integer) invoke;
                     result = rest == PackageManager.PERMISSION_GRANTED;
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         } else {
             PackageManager pm = context.getPackageManager();
@@ -423,32 +401,12 @@ public class CommonUtils {
     public static String getAppKey(Context context) {
         try {
             return SharedUtil.getString(context, Constants.SP_APP_KEY, null);
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
 
-    /**
-     * 检测当的网络状态
-     *
-     * @param context Context
-     * @return true 表示网络可用
-     */
-    public static boolean isNetworkAvailable(Context context) {
-        if (!checkPermission(context, Manifest.permission.ACCESS_NETWORK_STATE)) {
-            return false;
-        }
-        ConnectivityManager connectivity = (ConnectivityManager)
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivity != null) {
-            NetworkInfo networkInfo = connectivity.getActiveNetworkInfo();
-            if (networkInfo != null && networkInfo.isConnected()) {
-                // 当前网络是连接的
-                return networkInfo.getState() == NetworkInfo.State.CONNECTED;
-            }
-        }
-        return false;
-    }
 
     /**
      * 两个json合并,source 参数合并到 dest参数
@@ -480,7 +438,8 @@ public class CommonUtils {
                 sb.append(line);
             }
             reader.close();
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             CloseUtils.closeItQuietly(is);
         }
@@ -499,7 +458,8 @@ public class CommonUtils {
             method.setAccessible(true);
             Object object = cl.newInstance();
             return method.invoke(object, objects);
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -515,7 +475,8 @@ public class CommonUtils {
             //类中的成员变量为private,必须进行此操作
             method.setAccessible(true);
             return method.invoke(null, objects);
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -531,7 +492,8 @@ public class CommonUtils {
             method.setAccessible(true);
             Object object = cl.newInstance();
             return method.invoke(object);
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -565,7 +527,8 @@ public class CommonUtils {
             } else {
                 json.put(key, value);
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -597,7 +560,9 @@ public class CommonUtils {
                 byte[] bytes = new byte[size];
                 inputStream.read(bytes);
                 return new String(bytes);
-            } catch (Throwable ignored) {
+            } catch (Throwable ignore) {
+                //文件可能不存在的异常
+                ExceptionUtil.exceptionPrint(ignore);
             } finally {
                 CloseUtils.closeItQuietly(inputStream);
             }
@@ -612,7 +577,8 @@ public class CommonUtils {
         boolean result = true;
         try {
             Class.forName(packageName + "." + className);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             result = false;
         }
         return result;
@@ -636,7 +602,8 @@ public class CommonUtils {
                 }
                 writeFile(filePath, String.valueOf(job));
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
 
         }
     }
@@ -655,7 +622,8 @@ public class CommonUtils {
                 JSONObject job = new JSONObject(info);
                 return job.optString(key);
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
 //            writeFile(filePath, null);
         }
         return null;
@@ -667,7 +635,8 @@ public class CommonUtils {
     public static void writeCount(String path, String content) {
         try {
             writeFile(path + Constants.COUNT_FILE_NAME, content);
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -677,8 +646,12 @@ public class CommonUtils {
     public static int readCount(String path) {
         try {
             String count = readFile(path + Constants.COUNT_FILE_NAME);
+            if(TextUtils.isEmpty(count)){
+                return 0;
+            }
             return CommonUtils.parseInt(count, 0);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return 0;
         }
     }
@@ -701,12 +674,16 @@ public class CommonUtils {
         }
         try {
             File file = new File(filePath);
+
+            if (TextUtils.isEmpty(content)) {
+                file.delete();
+                return;
+            }
+
             if (!file.exists()) {
                 file.createNewFile();
             }
-            if (TextUtils.isEmpty(content)) {
-                file.delete();
-            }
+
             randomAccessFile = new RandomAccessFile(file, "rw");
             fileChannel = randomAccessFile.getChannel();
             final FileLock fileLock = fileChannel.lock(0L, Long.MAX_VALUE, false);
@@ -717,7 +694,8 @@ public class CommonUtils {
                     fileLock.release();
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             CloseUtils.closeItQuietly(randomAccessFile);
             CloseUtils.closeItQuietly(fileChannel);
@@ -736,7 +714,8 @@ public class CommonUtils {
         try {
             File file = new File(filePath);
             if (!file.exists()) {
-                file.createNewFile();
+//                file.createNewFile();
+                return null;
             }
             randomAccessFile = new RandomAccessFile(file, "rw");
             fileChannel = randomAccessFile.getChannel();
@@ -749,7 +728,8 @@ public class CommonUtils {
                     return new String(buf, "utf-8");
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             CloseUtils.closeItQuietly(fileChannel);
             CloseUtils.closeItQuietly(randomAccessFile);
@@ -788,7 +768,8 @@ public class CommonUtils {
                     SharedUtil.setString(context, Constants.SP_CHANNEL, channel);
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return channel;
     }
@@ -813,6 +794,42 @@ public class CommonUtils {
             id = transSaveId(context);
         }
         return id;
+    }
+
+    /**
+     * device id advertisingId>androidid>uuid
+     */
+    public static String getDeviceId(Context context) {
+        // advertising id
+        String id = SharedUtil.getString(context, Constants.SP_ADID, null);
+        if (!TextUtils.isEmpty(id)) {
+            return id;
+        }
+
+        // android id
+        id = getAndroidID(context);
+        if (!TextUtils.isEmpty(id)) {
+            return id;
+        }
+        // uuid
+        id = getIdFile(context, Constants.SP_UUID);
+        if (TextUtils.isEmpty(id)) {
+            id = String.valueOf(java.util.UUID.randomUUID());
+        }
+        setIdFile(context, Constants.SP_UUID, id);
+        return id;
+    }
+
+    /**
+     * 获取android id
+     */
+    public static String getAndroidID(Context context) {
+        try {
+            return Settings.System.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+            return null;
+        }
     }
 
     /**
@@ -851,7 +868,8 @@ public class CommonUtils {
             final PackageInfo packageInfo = packageManager.
                     getPackageInfo(context.getPackageName(), 0);
             return packageInfo.versionName;
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return Constants.EMPTY;
         }
     }
@@ -860,21 +878,25 @@ public class CommonUtils {
      * 获取当前的运营商
      */
     public static String getCarrierName(Context context) {
-        if (checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
-            TelephonyManager mTelephonyMgr = (TelephonyManager)
-                    context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (mTelephonyMgr != null) {
-                String imsi = mTelephonyMgr.getSubscriberId();
-                if (!isEmpty(imsi)) {
-                    if (imsi.startsWith("46000") || imsi.startsWith("46002")) {
-                        return "中国移动";
-                    } else if (imsi.startsWith("46001")) {
-                        return "中国联通";
-                    } else if (imsi.startsWith("46003")) {
-                        return "中国电信";
+        try {
+            if (checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
+                TelephonyManager mTelephonyMgr = (TelephonyManager)
+                        context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (mTelephonyMgr != null) {
+                    String imsi = mTelephonyMgr.getSubscriberId();
+                    if (!isEmpty(imsi)) {
+                        if (imsi.startsWith("46000") || imsi.startsWith("46002")) {
+                            return "中国移动";
+                        } else if (imsi.startsWith("46001")) {
+                            return "中国联通";
+                        } else if (imsi.startsWith("46003")) {
+                            return "中国电信";
+                        }
                     }
                 }
             }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
         }
         return null;
     }
@@ -979,7 +1001,8 @@ public class CommonUtils {
                     return telephonyMgr.getDeviceId();
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return Constants.EMPTY;
     }
@@ -996,7 +1019,8 @@ public class CommonUtils {
             } else {
                 return getMacByJavaAPI();
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return Constants.EMPTY;
     }
@@ -1121,7 +1145,8 @@ public class CommonUtils {
                 String dd = String.valueOf(new StringBuffer(subB + subA).reverse());
                 return new String(Base64.decode(dd, Base64.NO_WRAP));
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -1137,7 +1162,8 @@ public class CommonUtils {
             if (app != null) {
                 return (Application) app;
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -1179,7 +1205,8 @@ public class CommonUtils {
                 return new HashMap<>();
             }
             return new HashMap<>(map);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return new HashMap<>();
         }
     }
@@ -1225,7 +1252,8 @@ public class CommonUtils {
                     }
             }, null);
             return sslContext.getSocketFactory();
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -1259,7 +1287,8 @@ public class CommonUtils {
                 sslContext.init(null, trustManagers, null);
                 return sslContext.getSocketFactory();
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -1298,25 +1327,62 @@ public class CommonUtils {
 
     public static int parseInt(String value, int defaultValue) {
         try {
+            if(TextUtils.isEmpty(value)){
+                return defaultValue;
+            }
             return Integer.parseInt(value);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return defaultValue;
         }
     }
 
     public static long parseLong(String value, long defaultValue) {
         try {
+            if(TextUtils.isEmpty(value)){
+                return defaultValue;
+            }
             return Long.parseLong(value);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return defaultValue;
         }
     }
 
     public static float parseFloat(String value, float defaultValue) {
         try {
+            if(TextUtils.isEmpty(value)){
+                return defaultValue;
+            }
             return Float.parseFloat(value);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return defaultValue;
+        }
+    }
+
+    public static String getProcessName() {
+        try {
+            ActivityManager activityManager = (ActivityManager) AnalysysUtil.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.RunningAppProcessInfo> runningApps = null;
+            if (activityManager != null) {
+                runningApps = activityManager.getRunningAppProcesses();
+            }
+            if (runningApps == null) {
+                return "";
+            }
+            String process = "";
+            for (ActivityManager.RunningAppProcessInfo proInfo : runningApps) {
+                if (proInfo.pid == android.os.Process.myPid()) {
+                    if (proInfo.processName != null) {
+                        process = proInfo.processName;
+                    }
+                }
+            }
+            return process;
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+            return "";
         }
     }
 }

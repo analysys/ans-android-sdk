@@ -3,8 +3,11 @@ package com.analysys;
 import android.content.Context;
 import android.view.View;
 
+import com.analysys.database.TableAllInfo;
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
+import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.Constants;
 import com.analysys.utils.CrashHandler;
 import com.analysys.utils.ExceptionUtil;
@@ -241,12 +244,12 @@ public class AnalysysAgent {
      * 添加多属性事件
      *
      * @param eventName 事件名称,以字母或$开头,可以包含大小写字母/数字/ _ /$,不支持中文和乱码,长度必须小于99字符
-     * @param eventInfo 事件属性,最多包含100条,
+     * @param properties 事件属性,最多包含100条,
      * 且key以字母或 $ 开头,包括大小写字母/数字/ _ / $,最大长度99字符,不支持乱码和中文,
      * value支持部分类型：String/Number/boolean/集合/数组,若为字符串,最大长度255字符
      */
-    public static void track(Context context, String eventName, Map<String, Object> eventInfo) {
-        AgentProcess.getInstance().track(eventName, eventInfo);
+    public static void track(Context context, String eventName, Map<String, Object> properties) {
+        AgentProcess.getInstance().track(eventName, properties);
     }
 
     /**
@@ -262,12 +265,12 @@ public class AnalysysAgent {
      * 添加页面信息
      *
      * @param pageName 页面标识,字符串,最大长度255字符
-     * @param pageInfo 页面信息,最多包含100条,
+     * @param properties 页面信息,最多包含100条,
      * 且key以字母或 $ 开头,包括大小写字母/数字/ _ / $,最大长度99字符,不支持乱码和中文,
      * value支持部分类型：String/Number/boolean/集合/数组,若为字符串,最大长度255字符
      */
-    public static void pageView(Context context, String pageName, Map<String, Object> pageInfo) {
-        AgentProcess.getInstance().pageView(context, pageName, pageInfo);
+    public static void pageView(Context context, String pageName, Map<String, Object> properties) {
+        AgentProcess.getInstance().pageView(context, pageName, properties);
     }
 
     /**
@@ -608,9 +611,51 @@ public class AnalysysAgent {
             Class<?> threadClazz = Class.forName("com.analysys.allgro.AllegroUtils");
             Method method = threadClazz.getMethod("setViewIdResourceName", View.class, String.class);
             System.out.println(method.invoke(null, view, id));
-        } catch (Exception e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
+    }
+
+    /**
+     * 清除本地缓存的所有事件
+     */
+    public static void cleanDBCache() {
+        ANSThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                Context context = AnalysysUtil.getContext();
+                if (context != null) {
+                    TableAllInfo.getInstance(context).deleteAll();
+                }
+            }
+        });
+    }
+
+    /**
+     * 设置网络发送策略
+     * @param networkType
+     */
+    public static void setUploadNetworkType(int networkType) {
+        AgentProcess.getInstance().setUploadNetworkType(networkType);
+    }
+
+
+    /**
+     * 网络发送策略
+     */
+    public interface AnalysysNetworkType {
+
+        //不允许上传
+        int AnalysysNetworkNONE = 0;
+
+        //允许移动网络上传
+        int AnalysysNetworkWWAN = 1 << 1;
+
+        //允许wifi网络
+        int AnalysysNetworkWIFI = 1 << 2;
+
+        //允许所有网络
+        int AnalysysNetworkALL = 0xFF;
     }
 }
 

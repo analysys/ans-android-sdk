@@ -48,10 +48,8 @@ public class ANSThreadPool {
             if (!DatabaseHodler.DB_EXECUTORS.isShutdown()) {
                 getDBExecutor().execute(task);
             }
-        } catch (Throwable e) {
-            if (DEBUG) {
-                ANSLog.e(e);
-            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -63,9 +61,10 @@ public class ANSThreadPool {
             if (!NetHodler.NET_EXECUTORS.isShutdown()) {
                 getNetExecutor().execute(task);
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             if (DEBUG) {
-                ANSLog.e(e);
+                ANSLog.e(ignore);
             }
         }
     }
@@ -100,6 +99,7 @@ public class ANSThreadPool {
             }
             executor.awaitTermination(MAX_WAIT_SECONDS, TimeUnit.SECONDS);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -119,10 +119,8 @@ public class ANSThreadPool {
             NetHodler.NET_EXECUTORS.shutdown();
             try {
                 NetHodler.NET_EXECUTORS.awaitTermination(10, TimeUnit.SECONDS);
-            } catch (Throwable e) {
-                if (DEBUG) {
-                    //ANSLog.e(e);
-                }
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
     }
@@ -132,10 +130,8 @@ public class ANSThreadPool {
             DatabaseHodler.DB_EXECUTORS.shutdown();
             try {
                 DatabaseHodler.DB_EXECUTORS.awaitTermination(10, TimeUnit.SECONDS);
-            } catch (Throwable e) {
-                if (DEBUG) {
-                    //ANSLog.e(e);
-                }
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
     }

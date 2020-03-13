@@ -180,13 +180,13 @@ public class TopVisualMainActivity extends Activity {
     public void sendToServer(View view) {
     }
 
-    public void sameLayoutOne(View view) {
-        Intent intent = new Intent(this, LoginActivityA.class);
-        startActivity(intent);
-    }
-
-    public void sameLayoutTwo(View view) {
-        Intent intent = new Intent(this, LoginActivityB.class);
-        startActivity(intent);
-    }
+//    public void sameLayoutOne(View view) {
+//        Intent intent = new Intent(this, LoginActivityA.class);
+//        startActivity(intent);
+//    }
+//
+//    public void sameLayoutTwo(View view) {
+//        Intent intent = new Intent(this, LoginActivityB.class);
+//        startActivity(intent);
+//    }
 }

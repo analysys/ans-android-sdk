@@ -5,6 +5,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.analysys.apidemo.R;
+
 /**
  * Description: 测试独立进程
  * Author: fengzeyuan

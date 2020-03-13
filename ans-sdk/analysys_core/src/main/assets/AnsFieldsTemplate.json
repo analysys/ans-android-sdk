@@ -12,7 +12,8 @@
       "$lib_version",
       "$platform",
       "$debug",
-      "$is_login"
+      "$is_login",
+      "$device_id"
     ]
   },
   "$startup": {

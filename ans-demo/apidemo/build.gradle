@@ -1,15 +1,13 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.analysys.android.plugin'
+if(apidemo_type.toBoolean()){
+    apply plugin: 'com.android.application'
+    apply plugin: 'com.analysys.android.plugin'
+} else {
+    apply plugin: 'com.android.library'
+}
+
+
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'analysys'
-            keyPassword '12345678'
-            storeFile file('../key/key.store')
-            storePassword '12345678'
-        }
-    }
     compileSdkVersion 28
 
     defaultConfig {
@@ -18,7 +16,10 @@ android {
 
         buildConfigField("String", "Build_Type", "\"${Build_Type}\"")
 
-        applicationId "com.analysys.demo"
+        if(apidemo_type.toBoolean()){
+            applicationId "com.analysys.demo"
+        }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // 个推相关配置
@@ -56,29 +57,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-
-    analysysConfig {
-        lambdaEnabled = true
+    if(apidemo_type.toBoolean()){
+        analysysConfig {
+            lambdaEnabled = true
+        }
     }
 
     dataBinding {
         enabled = true
     }
-
 }
 
 dependencies {
 
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test:core:1.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
+    api project(':analysys_arkanalysys')
 
-    api project(':ans-sdk:analysys_arkanalysys')
-
-    api project(':ans-demo:compatibilityDemo')
-    api project(':ans-demo:visualDemo')
+    api project(':compatibilityDemo')
+    api project(':visualDemo')
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

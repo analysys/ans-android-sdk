@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.analysys.AnalysysAgent;
+import com.analysys.apidemo.R;
 
 import java.util.ArrayList;
 import java.util.List;

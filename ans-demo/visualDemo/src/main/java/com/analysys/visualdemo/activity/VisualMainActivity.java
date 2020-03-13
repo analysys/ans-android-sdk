@@ -17,6 +17,28 @@ public class VisualMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setTitle("可视化测试主页面");
         setContentView(R.layout.activity_visual_main);
+        findViewById(R.id.flybutton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(VisualMainActivity.this);
+                builder.setMessage("确认退出吗？");
+                builder.setTitle("提示");
+                builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        VisualMainActivity.this.finish();
+                    }
+                });
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.create().show();
+            }
+        });
     }
 
     public void onClick(View v) {
@@ -46,27 +68,9 @@ public class VisualMainActivity extends Activity {
         } else if (id == R.id.btnTestActivty) {
             in = new Intent(this, TestActivity.class);
             startActivity(in);
-        } else if (id == R.id.flybutton) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("确认退出吗？");
-            builder.setTitle("提示");
-            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    VisualMainActivity.this.finish();
-                }
-            });
-            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            builder.create().show();
         } else if (id == R.id.crash) {
-            "123".substring(10);
-
+            // 本地测试
+//            "123".substring(10);
         } else if (id == R.id.back) {
             finish();
         } else if (id == R.id.ccAAAA) {

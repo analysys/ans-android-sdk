@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
 
 import java.security.MessageDigest;
 import java.util.Random;
@@ -140,7 +141,8 @@ public class SessionManage {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(val.getBytes());
             m = md5.digest();
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return getString(m);
     }

@@ -61,8 +61,8 @@ public class HybridBridge {
                     }
                 }
             }
-        } catch (Throwable ignored) {
-            ExceptionUtil.exceptionThrow(ignored);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -264,9 +264,16 @@ public class HybridBridge {
 
     @SuppressWarnings("unused")
     private void alias(Context context, JSONArray array) {
-        String aliasId = array.optString(0);
-        String originalId = array.optString(1);
-        AnalysysAgent.alias(context, aliasId, originalId);
+        if (array != null) {
+            if (array.length() == 2) {
+                String aliasId = array.optString(0);
+                String originalId = array.optString(1);
+                AnalysysAgent.alias(context, aliasId, originalId);
+            } else if (array.length() == 1) {
+                String aliasId = array.optString(0);
+                AnalysysAgent.alias(context, aliasId);
+            }
+        }
     }
 
     /**

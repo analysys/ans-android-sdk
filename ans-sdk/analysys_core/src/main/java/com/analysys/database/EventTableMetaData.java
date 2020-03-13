@@ -13,7 +13,7 @@ import android.net.Uri;
 public class EventTableMetaData {
 
     //表名
-    public static final String TABLE_FZ = "e_fz";
+    public static final String TABLE_FZ = DBConfig.TableAllInfo.TABLE_NAME;
     public static final String TABLE_SP = "sp";
 
 

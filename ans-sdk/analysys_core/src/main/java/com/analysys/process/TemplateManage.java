@@ -53,7 +53,7 @@ public class TemplateManage {
     /**
      * 初始化模板
      */
-    public static void initMould(Context context) throws Exception {
+    public static void initMould(Context context) throws Throwable {
         if (ruleMould == null) {
             fieldsMould = mergeFieldsMould(context);
             ruleMould = mergeRuleMould(context);
@@ -78,7 +78,7 @@ public class TemplateManage {
     /**
      * 合并字段模板
      */
-    private static JSONObject mergeFieldsMould(Context context) throws Exception {
+    private static JSONObject mergeFieldsMould(Context context) throws Throwable {
         JSONObject defaultMould = null;
         String defaultJson = CommonUtils.getMould(context, ANS_FIELDS_MOULD);
         String customerJson = CommonUtils.getMould(context, CUSTOMER_FIELDS_MOULD);
@@ -98,7 +98,7 @@ public class TemplateManage {
     /**
      * 合并基础模板到事件模板
      */
-    private static void mergeSharedMould(JSONObject defaultMould) throws JSONException {
+    private static void mergeSharedMould(JSONObject defaultMould) throws Throwable {
         if (!CommonUtils.isEmpty(defaultMould)) {
             Iterator<String> keys = defaultMould.keys();
             JSONObject baseMould = defaultMould.optJSONObject(MM_BASE);
@@ -117,7 +117,7 @@ public class TemplateManage {
      * 合并基础事件模板和定制事件模板
      */
     private static void mergeCustomerMould(JSONObject defaultEvent,
-                                           JSONObject customerEvent) throws JSONException {
+                                           JSONObject customerEvent) throws Throwable {
         if (customerEvent != null) {
             Iterator<String> keys = customerEvent.keys();
             String key = null;
@@ -141,7 +141,7 @@ public class TemplateManage {
      * 合并基础公共模板和定制公共模板
      */
     private static void mergeFields(JSONObject defaultMould,
-                                    JSONObject customerMould) throws JSONException {
+                                    JSONObject customerMould) throws Throwable {
         JSONArray defaultOuter = defaultMould.optJSONArray(MM_OUTER);
         JSONArray customerOuter = customerMould.optJSONArray(MM_OUTER);
         if (defaultOuter == null) {
@@ -161,7 +161,7 @@ public class TemplateManage {
     /**
      * 合并规则模板
      */
-    private static JSONObject mergeRuleMould(Context context) throws JSONException {
+    private static JSONObject mergeRuleMould(Context context) throws Throwable {
         JSONObject defaultRule = null;
         String defaultJson = CommonUtils.getMould(context, ANS_RULE_MOULD);
         String customerJson = CommonUtils.getMould(context, CUSTOMER_RULE_MOULD);
@@ -192,7 +192,7 @@ public class TemplateManage {
      * 合并默认、定制两个模板
      */
     private static void mergeEventRule(JSONObject defaultRule,
-                                       JSONObject customerRule) throws JSONException {
+                                       JSONObject customerRule) throws Throwable {
         if (customerRule != null && defaultRule != null) {
             Iterator<String> keys = customerRule.keys();
             String key = null;

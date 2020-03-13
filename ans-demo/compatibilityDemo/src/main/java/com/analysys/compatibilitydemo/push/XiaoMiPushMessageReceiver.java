@@ -3,6 +3,7 @@ package com.analysys.compatibilitydemo.push;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.analysys.AnalysysAgent;
 import com.analysys.push.PushProvider;
@@ -77,6 +78,7 @@ public class XiaoMiPushMessageReceiver extends PushMessageReceiver {
         List<String> arguments = message.getCommandArguments();
         String cmdArg1 = ((arguments != null && arguments.size() > 0) ? arguments.get(0) : null);
         String cmdArg2 = ((arguments != null && arguments.size() > 1) ? arguments.get(1) : null);
+        Log.e("XiaoMiPushMessageReceiver","cmdArg1:"+cmdArg1+",cmdArg2:"+cmdArg2);
         if (MiPushClient.COMMAND_REGISTER.equals(command)) {
             if (message.getResultCode() == ErrorCode.SUCCESS) {
             }

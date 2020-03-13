@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+
+<!--    信鸽推送配置-->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">182.254.116.117</domain>
+        <domain includeSubdomains="true">pingma.qq.com</domain>
+    </domain-config>
+
+<!--    阿里云推送配置-->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

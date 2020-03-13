@@ -12,9 +12,12 @@ import com.analysys.process.AgentProcess;
 import com.analysys.process.LifeCycleConfig;
 import com.analysys.strategy.BaseSendStatus;
 import com.analysys.strategy.PolicyManager;
+import com.analysys.utils.ANSLog;
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.LogPrompt;
 import com.analysys.utils.SharedUtil;
 
@@ -160,7 +163,8 @@ public class UploadManager {
                 } else {
                     LogPrompt.showErrLog(LogPrompt.URL_ERR);
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
     }
@@ -169,7 +173,14 @@ public class UploadManager {
      * 数据上传
      */
     private void uploadData(String url) throws IOException, JSONException {
-        if (CommonUtils.isNetworkAvailable(mContext)) {
+        String network = NetworkUtils.networkType(AnalysysUtil.getContext(),false);
+        int uploadNetworkType = AgentProcess.getInstance().getUploadNetworkType();
+        if (!NetworkUtils.isUploadPolicy(network, uploadNetworkType)) {
+            ANSLog.d("网络类型控制不上传");
+            return;
+        }
+
+        if (NetworkUtils.isNetworkAvailable(mContext)) {
             JSONArray eventArray = TableAllInfo.getInstance(mContext).select();
             // 上传数据检查校验
             eventArray = checkUploadData(eventArray);
@@ -282,8 +293,8 @@ public class UploadManager {
                 returnInfo = RequestUtils.postRequestHttps(mContext, url, dataInfo, spv, headInfo);
             }
             policyAnalysis(analysisStrategy(returnInfo));
-        } catch (Throwable ignored) {
-
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -344,7 +355,8 @@ public class UploadManager {
                 return new JSONObject(unzip);
             }
             return new JSONObject(policy);
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+//            ExceptionUtil.exceptionThrow(ignore);
             try {
                 return new JSONObject(policy);
             } catch (Throwable e1) {
@@ -383,9 +395,11 @@ public class UploadManager {
                 reUpload();
             }
         } catch (Throwable throwable) {
+            ExceptionUtil.exceptionThrow(throwable);
             try {
                 reUpload();
             } catch (Throwable ignored) {
+                ExceptionUtil.exceptionThrow(ignored);
             }
         }
     }

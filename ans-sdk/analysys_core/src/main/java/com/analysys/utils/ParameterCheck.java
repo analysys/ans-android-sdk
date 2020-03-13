@@ -36,7 +36,8 @@ public class ParameterCheck {
                 return;
             }
             LogBean.setCode(Constants.CODE_SUCCESS);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -65,7 +66,8 @@ public class ParameterCheck {
                         LogPrompt.FRONT + getSubString(key) + LogPrompt.RESERVED_ERR);
                 return;
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -76,25 +78,28 @@ public class ParameterCheck {
         try {
             if (CommonUtils.isEmpty(value)) {
                 LogBean.setDetails(Constants.CODE_FAILED, LogPrompt.VALUE_EMPTY);
-            }
-            if (value instanceof Number || value instanceof Boolean) {
-            } else if (value instanceof String) {
-                String sValue = String.valueOf(value);
-                if (!checkValueLength(sValue)) {
-                    setLengthErr(sValue);
-                    LogBean.setValue(getSubValue(sValue));
-                    return;
-                }
-            } else if (value.getClass().isArray()) {
-                checkArray(value);
-            } else if (value instanceof List<?>) {
-                checkList((List<Object>) value);
-            } else if (value instanceof JSONArray) {
-                checkJsonArray((JSONArray) value);
             } else {
-                LogBean.setDetails(Constants.CODE_FAILED, LogPrompt.TYPE_ERROR);
+                if (value instanceof Number || value instanceof Boolean) {
+                } else if (value instanceof String) {
+                    String sValue = String.valueOf(value);
+                    if (!checkValueLength(sValue)) {
+                        setLengthErr(sValue);
+                        LogBean.setValue(getSubValue(sValue));
+                        return;
+                    }
+                } else if (value.getClass().isArray()) {
+                    checkArray(value);
+                } else if (value instanceof List<?>) {
+                    checkList((List<Object>) value);
+                } else if (value instanceof JSONArray) {
+                    checkJsonArray((JSONArray) value);
+                } else {
+                    LogBean.setDetails(Constants.CODE_FAILED, LogPrompt.TYPE_ERROR);
+                }
             }
-        } catch (Throwable e) {
+
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 

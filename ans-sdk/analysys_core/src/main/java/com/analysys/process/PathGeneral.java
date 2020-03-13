@@ -6,8 +6,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import com.analysys.utils.ANSLog;
+import com.analysys.utils.ExceptionUtil;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ import java.util.List;
 public class PathGeneral {
     private boolean isDebug = false;
     private int mContentID = -1;
+    private int mViewIdx = -1;
     private ArrayList<JSONObject> mTempPath;
     /**
      * 结束标志
@@ -55,9 +56,9 @@ public class PathGeneral {
      * 6. view_class: 来源 view.getClass().getCanonicalName() 自己和父节点的类名字
      * </pre>
      */
-    public String general(View view) {
+    public String general(View view, int viewIdx) {
         try {
-            if (isFinalPoint(view)) {
+            if (isFinalPoint(view) || viewIdx < 0) {
                 return null;
             }
             // 备用ID清空
@@ -68,6 +69,7 @@ public class PathGeneral {
             } else {
                 mTempPath = new ArrayList<>();
             }
+            mViewIdx = viewIdx;
             // 获取可变性path
             getDynamicPath(view);
             if (mTempPath.size() > 0 && mContentID != -1) {
@@ -81,7 +83,8 @@ public class PathGeneral {
                 mTempPath.clear();
             }
             mContentID = -1;
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             //ANSLog.e(e);
         }
         return String.valueOf(mTempPath);
@@ -97,7 +100,8 @@ public class PathGeneral {
             o.put("index", 0);
             o.put("id", mContentID);
             mTempPath.add(o);
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             //ANSLog.e(e);
         }
     }
@@ -122,7 +126,8 @@ public class PathGeneral {
                     getDynamicPath((View) vvp);
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             //ANSLog.e(e);
         }
     }
@@ -139,7 +144,6 @@ public class PathGeneral {
             if (obj == null) {
                 obj = new JSONObject();
             }
-            int index = 0;
             // 基于cd和tag可并存原则，只要非空都获取
             CharSequence contentDescription = view.getContentDescription();
             if (!TextUtils.isEmpty(contentDescription)) {
@@ -157,7 +161,7 @@ public class PathGeneral {
             if (TextUtils.isEmpty(contentDescription)) {
                 int viewId = view.getId();
                 if (viewId != -1) {
-                    String mpid = SystemIds.getInstance().nameForId(viewId);
+                    String mpid = SystemIds.getInstance().nameFromId(view.getResources(), viewId);
                     if (!TextUtils.isEmpty(mpid)) {
                         obj.put("mp_id_name", mpid);
                         obj.put("index", 0);
@@ -165,9 +169,10 @@ public class PathGeneral {
                 }
             }
             if (obj.length() == 0) {
-                updateIndexWhenUseViewClass(obj, view, index);
+                updateIndexWhenUseViewClass(obj, view);
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             //ANSLog.e(e);
         }
     }
@@ -175,13 +180,13 @@ public class PathGeneral {
     /**
      * 根据view_class定位的时候回去index
      */
-    private void updateIndexWhenUseViewClass(JSONObject obj, View view, int index) throws JSONException {
+    private void updateIndexWhenUseViewClass(JSONObject obj, View view) throws Throwable {
         // 当三个id都没有的时候，去类型
         String clazz = view.getClass().getCanonicalName();
         if (!TextUtils.isEmpty(clazz)) {
             obj.put("view_class", clazz);
             // 只有使用view_class时,才获取兄弟排序
-            obj.put("index", getIndex(view));
+            obj.put("index", mViewIdx);
         }
     }
 
@@ -192,7 +197,7 @@ public class PathGeneral {
      * 获取类名称: getCanonicalName()
      * 获取父类父类: getSuperclass()
      */
-    private int getIndex(View view) {
+    public int getIndex(View view) {
         int index = 0;
         // 获取自己类型名称
         String selfClass = view.getClass().getCanonicalName();
@@ -234,8 +239,8 @@ public class PathGeneral {
     protected boolean isFinalPoint(View view) {
         int viewId = view.getId();
         if (viewId != -1) {
-            String mpid = SystemIds.getInstance().nameForId(viewId);
-            if (!TextUtils.isEmpty(mpid) && "android:content".equals(mpid)) {
+            String mpid = SystemIds.getInstance().nameFromId(view.getResources(), viewId);
+            if (!TextUtils.isEmpty(mpid) && ("android:content".equals(mpid) || "android:id/content".equals(mpid))) {
                 mContentID = viewId;
                 return true;
             }
@@ -248,7 +253,8 @@ public class PathGeneral {
             } else {
                 return checkClass(view);
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+//            ExceptionUtil.exceptionThrow(ignore);
             return checkClass(view);
         }
     }

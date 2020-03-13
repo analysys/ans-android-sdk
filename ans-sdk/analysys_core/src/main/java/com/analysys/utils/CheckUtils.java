@@ -66,7 +66,8 @@ public class CheckUtils {
             if (!CommonUtils.isEmpty(key) && !CommonUtils.isEmpty(value)) {
                 map.put(key, value);
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             //ANSLog.e(e);
         }
     }

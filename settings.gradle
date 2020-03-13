@@ -1,4 +1,17 @@
 //demo
-include 'ans-demo:apidemo', 'ans-demo:visualDemo', 'ans-demo:compatibilityDemo'
+include ':apidemo', ':visualDemo', ':compatibilityDemo'
 //sdk
-include 'ans-sdk:analysys_core', 'ans-sdk:analysys_encryption', 'ans-sdk:analysys_push', 'ans-sdk:analysys_visual', 'ans-sdk:analysys_allgro','ans-sdk:analysys_arkanalysys'
+include ':analysys_core' , ':analysys_encryption', ':analysys_push', ':analysys_visual', ':analysys_allgro',':analysys_arkanalysys'
+include ':analysys_arkanalysys_no_op'
+
+project(':analysys_core').projectDir = new File(settingsDir, './ans-sdk/analysys_core')
+project(':analysys_encryption').projectDir = new File(settingsDir, './ans-sdk/analysys_encryption')
+project(':analysys_push').projectDir = new File(settingsDir, './ans-sdk/analysys_push')
+project(':analysys_visual').projectDir = new File(settingsDir, './ans-sdk/analysys_visual')
+project(':analysys_allgro').projectDir = new File(settingsDir, './ans-sdk/analysys_allgro')
+project(':analysys_arkanalysys').projectDir = new File(settingsDir, './ans-sdk/analysys_arkanalysys')
+project(':analysys_arkanalysys_no_op').projectDir = new File(settingsDir, './ans-sdk/analysys_arkanalysys_no_op')
+
+project(':compatibilityDemo').projectDir = new File(settingsDir, './ans-demo/compatibilityDemo')
+project(':visualDemo').projectDir = new File(settingsDir, './ans-demo/visualDemo')
+project(':apidemo').projectDir = new File(settingsDir, './ans-demo/apidemo')

@@ -51,7 +51,8 @@ public class AnalysysUtil {
                     return (Application) app;
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }

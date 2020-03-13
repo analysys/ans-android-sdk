@@ -12,6 +12,22 @@ import java.lang.reflect.Method;
 public class ReflectUtils {
 
     /**
+     * 反射获取某个类
+     * @param name
+     * @return
+     */
+    public static Class<?> getClassByName(String name) {
+        Class<?> clz = null;
+        try {
+            clz = Class.forName(name);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
+            return null;
+        }
+        return clz;
+    }
+
+    /**
      * 调用无参静态函数
      */
     public static Object invokeStaticMethod(Class<?> clz, String methodName) {
@@ -26,6 +42,7 @@ public class ReflectUtils {
         try {
             clz = Class.forName(clzName);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
             return null;
         }
         return invokeMethod(clz, null, methodName, new Class[]{paramType}, new Object[]{paramValue});
@@ -61,6 +78,7 @@ public class ReflectUtils {
             try {
                 method = clz.getDeclaredMethod(methodName, paramTypes);
             } catch (Throwable ignore) {
+                ExceptionUtil.exceptionPrint(ignore);
             }
             if (method == null) {
                 if (clz == Object.class) {
@@ -85,6 +103,7 @@ public class ReflectUtils {
             return null;
         }
         try {
+            method.setAccessible(true);
             return method.invoke(obj, paramValues);
         } catch (Throwable ignore) {
         }
@@ -121,6 +140,7 @@ public class ReflectUtils {
             field.setAccessible(true);
             return field.get(obj);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
         }
         return null;
     }
@@ -172,7 +192,7 @@ public class ReflectUtils {
             field.setAccessible(true);
             field.set(obj, fieldValue);
         } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
+            ExceptionUtil.exceptionPrint(ignore);
         }
     }
 
@@ -187,7 +207,7 @@ public class ReflectUtils {
                     return true;
                 }
             } catch (Throwable ignore) {
-                ExceptionUtil.exceptionThrow(ignore);
+                ExceptionUtil.exceptionPrint(ignore);
             }
         }
         return false;

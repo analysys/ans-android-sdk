@@ -33,6 +33,8 @@ import android.widget.ToggleButton;
 import com.analysys.ANSAutoPageTracker;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
+import com.analysys.utils.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -58,7 +60,8 @@ public class AllegroUtils {
                     idString = getIdResourceName(view.getId());
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return idString;
     }
@@ -71,7 +74,7 @@ public class AllegroUtils {
 
             String ids = (String) view.getTag((R.id.analysys_tag_view_id));
         }catch (Throwable ignore){
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -81,7 +84,8 @@ public class AllegroUtils {
             if (id != View.NO_ID) {
                 idString = AnalysysUtil.getContext().getResources().getResourceEntryName(id);
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return idString;
     }
@@ -162,7 +166,8 @@ public class AllegroUtils {
                     if (!TextUtils.isEmpty(viewText)) {
                         viewText = viewText.toString().substring(0, viewText.length() - 1);
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         }
@@ -197,6 +202,7 @@ public class AllegroUtils {
             }
             return (String) method.invoke(view);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return "UNKNOWN";
         }
     }
@@ -209,15 +215,15 @@ public class AllegroUtils {
      */
     private static String getViewTypeByReflect(View view) {
         Class<?> compatClass;
-        compatClass = getClassByName("android.widget.Switch");
+        compatClass = ReflectUtils.getClassByName("android.widget.Switch");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "Switch";
         }
-        compatClass = getClassByName("android.support.v7.widget.SwitchCompat");
+        compatClass = ReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "SwitchCompat";
         }
-        compatClass = getClassByName("android.support.design.widget.NavigationView");
+        compatClass = ReflectUtils.getClassByName("android.support.design.widget.NavigationView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "SwitchCompat";
         }
@@ -238,44 +244,42 @@ public class AllegroUtils {
             for (int i = 0; i < childCount; ++i) {
                 final View child = root.getChildAt(i);
 
-                if (child.getVisibility() != View.VISIBLE) {
-                    continue;
-                }
+                if (child != null) {
+                    if (child.getVisibility() != View.VISIBLE) {
+                        continue;
+                    }
 
-                if (child instanceof ViewGroup) {
-                    traverseView(stringBuilder, (ViewGroup) child);
-                } else {
-                    String viewText = getViewText(child);
-                    if (!TextUtils.isEmpty(viewText)) {
-                        stringBuilder.append(viewText);
-                        stringBuilder.append("-");
+                    if (child instanceof ViewGroup) {
+                        traverseView(stringBuilder, (ViewGroup) child);
+                    } else {
+                        String viewText = getViewText(child);
+                        if (!TextUtils.isEmpty(viewText)) {
+                            stringBuilder.append(viewText);
+                            stringBuilder.append("-");
+                        }
                     }
                 }
             }
             return stringBuilder.toString();
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return stringBuilder != null ? stringBuilder.toString() : "";
         }
     }
 
     private static String getViewText(View child) {
+        if (child == null) {
+            return "";
+        }
         if (child instanceof EditText) {
             return "";
         }
         try {
             Class<?> switchCompatClass = null;
-            try {
-                switchCompatClass = Class.forName("android.support.v7.widget.SwitchCompat");
-            } catch (Throwable ignore) {
-                //ignored
-            }
+            switchCompatClass = ReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
 
             if (switchCompatClass == null) {
-                try {
-                    switchCompatClass = Class.forName("androidx.appcompat.widget.SwitchCompat");
-                } catch (Throwable ignore) {
-                    //ignored
-                }
+                switchCompatClass = ReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
             }
 
             CharSequence viewText = null;
@@ -327,6 +331,7 @@ public class AllegroUtils {
                 return viewText.toString();
             }
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return "";
     }
@@ -339,19 +344,19 @@ public class AllegroUtils {
      */
     private static String getViewGroupTypeByReflect(View view) {
         Class<?> compatClass;
-        compatClass = getClassByName("android.support.v7.widget.CardView");
+        compatClass = ReflectUtils.getClassByName("android.support.v7.widget.CardView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "CardView";
         }
-        compatClass = getClassByName("androidx.cardview.widget.CardView");
+        compatClass = ReflectUtils.getClassByName("androidx.cardview.widget.CardView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "CardView";
         }
-        compatClass = getClassByName("android.support.design.widget.NavigationView");
+        compatClass = ReflectUtils.getClassByName("android.support.design.widget.NavigationView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "NavigationView";
         }
-        compatClass = getClassByName("com.google.android.material.navigation.NavigationView");
+        compatClass = ReflectUtils.getClassByName("com.google.android.material.navigation.NavigationView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "NavigationView";
         }
@@ -373,22 +378,10 @@ public class AllegroUtils {
             Class<?> supportFragmentClass = null;
             Class<?> androidXFragmentClass = null;
             Class<?> fragment = null;
-            try {
-                fragment = Class.forName("android.app.Fragment");
-            } catch (Throwable ignore) {
-                //ignored
-            }
-            try {
-                supportFragmentClass = Class.forName("android.support.v4.app.Fragment");
-            } catch (Throwable ignore) {
-                //ignored
-            }
+            fragment = ReflectUtils.getClassByName("android.app.Fragment");
+            supportFragmentClass = ReflectUtils.getClassByName("android.support.v4.app.Fragment");
 
-            try {
-                androidXFragmentClass = Class.forName("androidx.fragment.app.Fragment");
-            } catch (Throwable ignore) {
-                //ignored
-            }
+            androidXFragmentClass = ReflectUtils.getClassByName("androidx.fragment.app.Fragment");
 
             if (supportFragmentClass == null && androidXFragmentClass == null && fragment == null) {
                 return false;
@@ -400,6 +393,7 @@ public class AllegroUtils {
                 return true;
             }
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             //ignored
         }
         return false;
@@ -411,16 +405,21 @@ public class AllegroUtils {
      * @return String[0]=url  String[1]=title
      */
     public static Map<String, Object> getPageInfo(Object pageObj) {
-        Map<String, Object> pageInfo = new HashMap<>();
+        Map<String, Object> pageInfo = new HashMap<>(3);
         try {
+            if (pageObj == null) {
+                return pageInfo;
+            }
             if (pageObj instanceof ANSAutoPageTracker) {
                 ANSAutoPageTracker autoPageTracker = (ANSAutoPageTracker) pageObj;
                 Map<String, Object> map = autoPageTracker.registerPageProperties();
                 String url = autoPageTracker.registerPageUrl();
-                if (!TextUtils.isEmpty(url)) {
+                if (map != null && !TextUtils.isEmpty(url)) {
                     map.put(Constants.PAGE_URL, url);
                 }
-                pageInfo.putAll(map);
+                if (map != null && map.size() > 0) {
+                    pageInfo.putAll(map);
+                }
             }
 
             if (pageObj instanceof Activity) {
@@ -477,6 +476,7 @@ public class AllegroUtils {
             pageInfo.put(Constants.PAGE_WIDTH, pageHeightAndWidth[1]);
 
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return pageInfo;
     }
@@ -503,6 +503,7 @@ public class AllegroUtils {
                         return Class.forName(pageName).newInstance();
                     }
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
                 // 尝试获取activity
                 Activity activity = getActivityFromView(v);
@@ -511,6 +512,7 @@ public class AllegroUtils {
                 }
             }
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         // 最后的尝试
         return AnalysysUtil.getCurActivity();
@@ -565,6 +567,7 @@ public class AllegroUtils {
 
                 return activityTitle;
             } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
                 return null;
             }
         }
@@ -600,27 +603,22 @@ public class AllegroUtils {
                         }
                     }
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                     //ignored
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
 
     private static Class<?> compatActivity() {
         Class<?> appCompatActivityClass = null;
-        try {
-            appCompatActivityClass = Class.forName("android.support.v7.app.AppCompatActivity");
-        } catch (Throwable ignore) {
-            //ignored
-        }
+        appCompatActivityClass = ReflectUtils.getClassByName("android.support.v7.app.AppCompatActivity");
+
         if (appCompatActivityClass == null) {
-            try {
-                appCompatActivityClass = Class.forName("androidx.appcompat.app.AppCompatActivity");
-            } catch (Throwable ignore) {
-                //ignored
-            }
+            appCompatActivityClass = ReflectUtils.getClassByName("androidx.appcompat.app.AppCompatActivity");
         }
         return appCompatActivityClass;
     }
@@ -651,6 +649,7 @@ public class AllegroUtils {
                     pageInfo[1] = view.getWidth();
                 }
             } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
         return pageInfo;
@@ -696,6 +695,7 @@ public class AllegroUtils {
             Method getActivityMethod = fragment.getClass().getMethod("getActivity");
             return (Activity) getActivityMethod.invoke(fragment);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             //ignored
         }
         return getCurAc();
@@ -777,19 +777,6 @@ public class AllegroUtils {
         return "";
     }
 
-
-    // --------- 反射 -------------------
-
-    private static Class<?> getClassByName(String name) {
-        Class<?> compatClass;
-        try {
-            compatClass = Class.forName(name);
-        } catch (Throwable ignore) {
-            return null;
-        }
-        return compatClass;
-    }
-
     /**
      * 获取对象字段值
      */
@@ -799,6 +786,7 @@ public class AllegroUtils {
             field.setAccessible(true);
             return field.get(obj);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
     }
@@ -819,24 +807,9 @@ public class AllegroUtils {
             method.setAccessible(true);
             return method.invoke(obj, params);
         } catch (Throwable ignore) {
+//            ExceptionUtil.exceptionThrow(ignore);
         }
         return null;
-    }
-
-    /**
-     * 上报捕获的异常
-     * @param throwable 
-     */
-    public static void reportCatchException(Throwable  throwable) {
-        if (BuildConfig.ENABLE_BUGLY) {
-            try {
-                Class clazz = Class.forName("com.tencent.bugly.crashreport.CrashReport");
-                Method postCatchedException = clazz.getMethod("postCatchedException", Throwable.class);
-                postCatchedException.invoke(null, throwable);
-            } catch (Throwable ignore) {
-
-            }
-        }
     }
 }
 

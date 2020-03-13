@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import com.analysys.deeplink.DeepLink;
+import com.analysys.network.NetworkUtils;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.HeatMap;
 import com.analysys.process.SessionManage;
@@ -76,7 +77,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                             break;
                     }
                 } catch (Throwable ignore) {
-
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
 
             }
@@ -140,7 +141,8 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                 if (activity != null) {
                     try {
                         HeatMap.getInstance().initPageInfo(activity);
-                    } catch (Throwable ignored) {
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
                     activity.getWindow().getDecorView().post(new Runnable() {
                         @Override
@@ -148,7 +150,8 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                             try {
                                 HeatMap.getInstance()
                                         .hookDecorViewClick(activity.getWindow().getDecorView());
-                            } catch (Throwable ignored) {
+                            } catch (Throwable ignore) {
+                                ExceptionUtil.exceptionThrow(ignore);
                             }
                         }
                     });
@@ -179,7 +182,8 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                             pageView(activity);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -188,7 +192,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     /**
      * 页面自动采集
      */
-    private void pageView(Activity activity) throws Exception {
+    private void pageView(Activity activity) throws Throwable {
         if (activity != null && canTrackPageView(activity.getClass().getName())) {
             Map<String, Object> properties = getRegisterProperties(activity);
             if (!properties.containsKey(Constants.PAGE_URL)) {
@@ -281,7 +285,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                             // 调用AppEnd
                             appEnd();
                         }catch (Throwable ignore) {
-
+                            ExceptionUtil.exceptionThrow(ignore);
                         }
                     }
                 });
@@ -373,9 +377,13 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                     appStartTime = CommonUtils.parseLong(startTime, 0);
                 }
             }
-            realTimeData.put(Constants.DURATION_TIME, time - appStartTime);
+            long durationTime = time - appStartTime;
+            if (durationTime < 0) {
+                durationTime = 0;
+            }
+            realTimeData.put(Constants.DURATION_TIME, durationTime);
             // 读取网络状态
-            realTimeData.put(Constants.NETWORK_TYPE, CommonUtils.networkType(context));
+            realTimeData.put(Constants.NETWORK_TYPE, NetworkUtils.networkType(context,true));
             // 是否首日启动
             realTimeData.put(Constants.FIRST_DAY, CommonUtils.isFirstDay(context));
             // 是否校验
@@ -391,8 +399,8 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                             Base64.NO_WRAP)));
             // 存储最后一次操作时间
             CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
-        } catch (Throwable e) {
-
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -475,13 +483,13 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                         CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
                         // 3. 清空页面来源信息
                         resetReferrer(context);
-                    } catch (Throwable e) {
-                        ExceptionUtil.exceptionThrow(e);
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
                 }
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }

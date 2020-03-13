@@ -328,8 +328,8 @@ public class ANSLog {
                 }
                 sb.append(wrapperString(""));// .append("\n");
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return sb.toString();
     }
@@ -599,8 +599,9 @@ public class ANSLog {
                 Object subObject = null;
                 try {
                     subObject = field.get(o);
-                } catch (IllegalAccessException e) {
-                    subObject = e;
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
+                    subObject = ignore;
                 } finally {
                     if (subObject != null) {
 
@@ -613,11 +614,13 @@ public class ANSLog {
                                 try {
                                     JSONObject temp = new JSONObject(s);
                                     obj.put(field.getName(), temp);
-                                } catch (Throwable e) {
+                                } catch (Throwable ignore) {
+                                    ExceptionUtil.exceptionThrow(ignore);
                                     try {
                                         JSONArray arr = new JSONArray(s);
                                         obj.put(field.getName(), arr);
                                     } catch (Throwable e2) {
+                                        ExceptionUtil.exceptionThrow(e2);
                                         obj.put(field.getName(), s);
                                     }
                                 }
@@ -632,8 +635,8 @@ public class ANSLog {
                     }
                 }
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -747,7 +750,8 @@ public class ANSLog {
                 obj.put("toString", object.toString());
             }
             return format(obj);
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
             return object.toString();
         }
     }
@@ -767,8 +771,8 @@ public class ANSLog {
             try {
                 Object fieldValue = f.get(activity);
                 obj.put(f.getName(), objectToString(fieldValue));
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
 
@@ -808,7 +812,7 @@ public class ANSLog {
             obj.put("data", parseString(message.getData()));
             obj.put("obj", objectToString(message.obj));
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return format(obj);
     }
@@ -832,8 +836,8 @@ public class ANSLog {
                 } else {
                     obj.put(objectToString(key), "null");
                 }
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
         return format(obj);
@@ -857,8 +861,8 @@ public class ANSLog {
             for (String key : bundle.keySet()) {
                 try {
                     bun.put(key, objectToString(bundle.get(key)));
-                } catch (Throwable e) {
-                    e.printStackTrace();
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
             return format(bun);
@@ -872,8 +876,8 @@ public class ANSLog {
             for (String key : bundle.keySet()) {
                 try {
                     bun.put(key, objectToString(bundle.get(key)));
-                } catch (Throwable e) {
-                    e.printStackTrace();
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
             return format(bun);
@@ -917,6 +921,7 @@ public class ANSLog {
                 }
             }
         } catch (Throwable e) {
+            ExceptionUtil.exceptionThrow(e);
             return src;
         }
     }
@@ -954,14 +959,14 @@ public class ANSLog {
                     sb.append("\n");
                 }
             }
-        } catch (Throwable error) {
-            error.printStackTrace();
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             if (sw != null) {
                 try {
                     sw.close();
                 } catch (Throwable e1) {
-                    e1.printStackTrace();
+                    ExceptionUtil.exceptionThrow(e1);
                 }
             }
             if (pw != null) {
@@ -1003,8 +1008,8 @@ public class ANSLog {
             if (!TextUtils.isEmpty(flags)) {
                 obj.put("Flags", intent.getType());
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (Throwable ignore) {
+           ExceptionUtil.exceptionThrow(ignore);
         }
 
         return format(obj);
@@ -1025,6 +1030,7 @@ public class ANSLog {
                         value = (Integer) object;
                     }
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
                 if (flagMap.get(value) == null) {
                     flagMap.put(value, field.getName());
@@ -1055,6 +1061,7 @@ public class ANSLog {
             try {
                 return isFormat ? (arr.toString(JSON_INDENT)) : arr.toString();
             } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
         return "";
@@ -1075,6 +1082,7 @@ public class ANSLog {
             try {
                 return isFormat ? obj.toString(JSON_INDENT) : obj.toString();
             } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
         return "";

@@ -1,0 +1,31 @@
+apply plugin: 'com.android.library'
+apply from: "../maven.gradle"
+
+android {
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro', 'proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility rootProject.ext.sourceJavaVersion
+        targetCompatibility rootProject.ext.targetJavaVersion
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+}
+
+dependencies {
+}
+

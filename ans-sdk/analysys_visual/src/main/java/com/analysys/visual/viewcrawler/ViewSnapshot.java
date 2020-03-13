@@ -139,7 +139,7 @@ public class ViewSnapshot {
         if (-1 == viewId) {
             viewIdName = null;
         } else {
-            viewIdName = mResourceIds.nameForId(viewId);
+            viewIdName = mResourceIds.nameForId(view.getResources(), viewId);
         }
 
         j.beginObject();

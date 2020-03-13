@@ -33,7 +33,9 @@ public class GeTuiIntentService extends GTIntentService {
     @Override
     public void onReceiveClientId(Context context, String clientid) {
         Log.e(TAG, "onReceiveClientId -> " + "clientid = " + clientid);
-        AnalysysAgent.setPushID(context, PushProvider.GETUI, clientid);
+        if(clientid!=null){
+            AnalysysAgent.setPushID(context, PushProvider.GETUI, clientid);
+        }
     }
 
     @Override
@@ -51,19 +53,19 @@ public class GeTuiIntentService extends GTIntentService {
 
     @Override
     public void onReceiveCommandResult(Context context, GTCmdMessage gtCmdMessage) {
-
+        Log.e(TAG,"onReceiveCommandResult:"+gtCmdMessage.toString());
     }
 
     @Override
     public void onNotificationMessageArrived(Context context, GTNotificationMessage
             gtNotificationMessage) {
-
+        Log.e(TAG,"onNotificationMessageArrived:"+gtNotificationMessage.toString());
     }
 
     @Override
     public void onNotificationMessageClicked(Context context,
                                              GTNotificationMessage gtNotificationMessage) {
-
+        Log.e(TAG,"onNotificationMessageClicked:"+gtNotificationMessage.toString());
     }
 
     @Override

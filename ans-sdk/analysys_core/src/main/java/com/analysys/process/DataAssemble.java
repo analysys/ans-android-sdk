@@ -3,14 +3,15 @@ package com.analysys.process;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.LogPrompt;
 import com.analysys.utils.SharedUtil;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -39,14 +40,14 @@ public class DataAssemble {
     }
 
     /**
-     * 获取完整上传Json数据
+     * 获取完整上传Json数据，务必保证是在线程中调用，否则会导致阻塞
      * 参数1.API名称
      * 参数2.eventName
      * 参数3.用户传参
      * 参数4.默认采集
      * 参数5.eventName track事件使用
      */
-    public JSONObject getEventData(Object... values) throws JSONException {
+    public JSONObject getEventData(Object... values) throws Throwable {
         if (values != null && mContext != null) {
             String apiName = String.valueOf(values[0]);
             String eventName = String.valueOf(values[1]);
@@ -56,7 +57,9 @@ public class DataAssemble {
                 String eventInfo = String.valueOf(values[4]);
                 if (!CheckUtils.checkTrackEventName(eventName, eventInfo)) {
                     LogPrompt.showLog(apiName, LogBean.getLog());
-                    return null;
+
+                    //当校验不合格的时候数据还是发送，只是打印日志
+//                    return null;
                 }
                 eventName = eventInfo;
             }
@@ -105,7 +108,7 @@ public class DataAssemble {
      * 添加通用属性
      */
     private void mergeSuperProperty(String eventName,
-                                    Map<String, Object> xContextMap) throws JSONException {
+                                    Map<String, Object> xContextMap) throws Throwable {
         if (!Constants.ALIAS.equals(eventName) && !eventName.startsWith(Constants.PROFILE)) {
 
             Map mapSuper = AgentProcess.getInstance().getSuperProperty();
@@ -128,7 +131,7 @@ public class DataAssemble {
      * 通过遍历字段模板填充数据
      */
     private JSONObject fillData(String eventName, JSONObject eventMould,
-                                Map<String, Object> xContextMap) throws JSONException {
+                                Map<String, Object> xContextMap) throws Throwable {
         JSONObject allJob = null;
         JSONArray outerKeysArray = eventMould.optJSONArray(OUTER);
         String outFields = null;

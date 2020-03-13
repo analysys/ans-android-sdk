@@ -16,6 +16,8 @@ import com.analysys.process.AgentProcess;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
+import com.analysys.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -50,7 +52,7 @@ class PageViewProbe extends ASMHookAdapter {
                 traverseView(fragmentName, (ViewGroup) rootView);
             }
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -82,7 +84,7 @@ class PageViewProbe extends ASMHookAdapter {
                 }
             }
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -121,7 +123,7 @@ class PageViewProbe extends ASMHookAdapter {
                 }
             }
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -160,34 +162,31 @@ class PageViewProbe extends ASMHookAdapter {
                 }
             }
         } catch (Throwable ignore) {
-            AllegroUtils.reportCatchException(ignore);
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     private static boolean fragmentGetUserVisibleHint(Object fragment) {
-        try {
-            Method getUserVisibleHintMethod = fragment.getClass().getMethod("getUserVisibleHint");
-            return (boolean) getUserVisibleHintMethod.invoke(fragment);
-        } catch (Throwable ignore) {
+        Object obj = ReflectUtils.invokeMethod(fragment, "getUserVisibleHint");
+        if (obj != null) {
+            return true;
         }
         return false;
     }
 
     private static boolean fragmentIsShow(Object fragment) {
-        try {
-            Method isHiddenMethod = fragment.getClass().getMethod("isHidden");
-            return !((boolean) isHiddenMethod.invoke(fragment));
-        } catch (Throwable ignore) {
+        Object obj = ReflectUtils.invokeMethod(fragment, "isHidden");
+        if (obj != null) {
+            return true;
         }
         return true;
     }
 
 
     private static boolean fragmentIsResumed(Object fragment) {
-        try {
-            Method isResumedMethod = fragment.getClass().getMethod("isResumed");
-            return (boolean) isResumedMethod.invoke(fragment);
-        } catch (Throwable ignore) {
+        Object obj = ReflectUtils.invokeMethod(fragment, "isResumed");
+        if (obj != null) {
+            return true;
         }
         return false;
     }
@@ -199,19 +198,9 @@ class PageViewProbe extends ASMHookAdapter {
         Class<?> supportFragmentClass = null;
         Class<?> androidXFragmentClass = null;
         Class<?> fragment = null;
-        try {
-            fragment = Class.forName("android.app.Fragment");
-        } catch (Throwable ignore) {
-        }
-        try {
-            supportFragmentClass = Class.forName("android.support.v4.app.Fragment");
-        } catch (Throwable ignore) {
-        }
-
-        try {
-            androidXFragmentClass = Class.forName("androidx.fragment.app.Fragment");
-        } catch (Throwable ignore) {
-        }
+        fragment = ReflectUtils.getClassByName("android.app.Fragment");
+        supportFragmentClass = ReflectUtils.getClassByName("android.support.v4.app.Fragment");
+        androidXFragmentClass = ReflectUtils.getClassByName("androidx.fragment.app.Fragment");
 
         if (supportFragmentClass == null && androidXFragmentClass == null && fragment == null) {
             return true;
@@ -229,7 +218,7 @@ class PageViewProbe extends ASMHookAdapter {
     //  ------------------------------------ PageView Hook -------------------------------------------
 
 
-    private void autoTrackFragmentPageView(Object pageObj, boolean hasTrackPvAnn) throws Exception {
+    private void autoTrackFragmentPageView(Object pageObj, boolean hasTrackPvAnn) throws Throwable {
         if (!checkFragmentPVEnable(pageObj, hasTrackPvAnn)) {
             return;
         }
@@ -260,12 +249,14 @@ class PageViewProbe extends ASMHookAdapter {
         final int childCount = root.getChildCount();
         for (int i = 0; i < childCount; ++i) {
             final View child = root.getChildAt(i);
-            child.setTag(R.id.analysys_tag_fragment_name, fragmentName);
-            if (child instanceof ViewGroup && !(child instanceof ListView ||
-                    child instanceof GridView ||
-                    child instanceof Spinner ||
-                    child instanceof RadioGroup)) {
-                traverseView(fragmentName, (ViewGroup) child);
+            if (child != null) {
+                child.setTag(R.id.analysys_tag_fragment_name, fragmentName);
+                if (child instanceof ViewGroup && !(child instanceof ListView ||
+                        child instanceof GridView ||
+                        child instanceof Spinner ||
+                        child instanceof RadioGroup)) {
+                    traverseView(fragmentName, (ViewGroup) child);
+                }
             }
         }
     }

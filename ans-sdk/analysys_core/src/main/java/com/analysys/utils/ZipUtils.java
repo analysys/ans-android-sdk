@@ -53,23 +53,27 @@ public class ZipUtils {
             }
             return out.toString();
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             if (gzip != null) {
                 try {
                     gzip.close();
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
             if (in != null) {
                 try {
                     in.close();
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
             if (out != null) {
                 try {
                     out.close();
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         }

@@ -27,7 +27,8 @@ public final class CloseUtils {
             if (closeable != null) {
                 try {
                     closeable.close();
-                } catch (IOException e) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         }
@@ -46,7 +47,8 @@ public final class CloseUtils {
             if (closeable != null) {
                 try {
                     closeable.close();
-                } catch (IOException ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         }

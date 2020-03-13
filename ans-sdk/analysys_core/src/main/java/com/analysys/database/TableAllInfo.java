@@ -49,8 +49,8 @@ public class TableAllInfo {
             try {
                 Uri uri = EventTableMetaData.getTableFZ(mContext);
                 mContext.getContentResolver().insert(uri, values);
-            } catch (Throwable e) {
-                ExceptionUtil.exceptionThrow(e);
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
     }
@@ -76,8 +76,8 @@ public class TableAllInfo {
             String sortOrder = DBConfig.TableAllInfo.Column.ID + " asc " + " LIMIT 0," + Constants.MAX_SEND_COUNT;
             cursor = mContext.getContentResolver().query(uri, projection,null,null,sortOrder);
 
-            if (cursor != null && cursor.getCount() > 0) {
-                while (cursor.moveToNext()) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
                     String info = cursor.getString(
                             cursor.getColumnIndexOrThrow(DBConfig.TableAllInfo.Column.INFO));
                     int id = cursor.getInt(
@@ -88,11 +88,11 @@ public class TableAllInfo {
                         continue;
                     }
                     array.put(new JSONObject(info));
-                }
+                } while (cursor.moveToNext());
             }
             return array;
-        } catch (Throwable e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -113,7 +113,7 @@ public class TableAllInfo {
 
                 Uri uri = EventTableMetaData.getTableFZ(mContext);
                 cursor = mContext.getContentResolver().query(uri,null,null,null,null);
-                if(cursor!=null){
+                if (cursor != null) {
                     count = cursor.getCount();
                 }
             }
@@ -129,7 +129,7 @@ public class TableAllInfo {
         return count;
     }
 
-    /**
+    /*
      * 删除数据
      */
     public void deleteData() {
@@ -140,8 +140,8 @@ public class TableAllInfo {
 
             Uri uri = EventTableMetaData.getTableFZ(mContext);
             mContext.getContentResolver().delete(uri,DBConfig.TableAllInfo.Column.SIGN + "=?",new String[]{String.valueOf(DBConfig.Status.FLAG_UPLOADING)});
-        } catch (Throwable e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -159,17 +159,14 @@ public class TableAllInfo {
             String sortOrder = DBConfig.TableAllInfo.Column.ID + " desc "+" LIMIT 0," + count;
             cursor = mContext.getContentResolver().query(uri,new String[]{DBConfig.TableAllInfo.Column.ID},null,null,sortOrder);
 
-
-            if (cursor != null && cursor.getCount() > 0) {
-                while (cursor.moveToNext()) {
-
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
                     int id = cursor.getInt(cursor.getColumnIndexOrThrow(
                             DBConfig.TableAllInfo.Column.ID));
 
-                    mContext.getContentResolver().delete(uri,DBConfig.TableAllInfo.Column.ID + "=?",new String[]{String.valueOf(id)});
-                }
+                    mContext.getContentResolver().delete(uri, DBConfig.TableAllInfo.Column.ID + "=?", new String[]{String.valueOf(id)});
+                } while (cursor.moveToNext());
             }
-
         } catch (Throwable e) {
             ExceptionUtil.exceptionThrow(e);
         } finally {
@@ -191,8 +188,8 @@ public class TableAllInfo {
             Uri uri = EventTableMetaData.getTableFZ(mContext);
             mContext.getContentResolver().delete(uri,null,null);
 
-        } catch (Throwable e) {
-            ExceptionUtil.exceptionThrow(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 

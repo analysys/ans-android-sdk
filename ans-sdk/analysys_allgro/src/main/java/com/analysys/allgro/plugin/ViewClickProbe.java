@@ -18,6 +18,8 @@ import android.widget.TabHost;
 import com.analysys.allgro.AllegroUtils;
 import com.analysys.process.AgentProcess;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
+import com.analysys.utils.ReflectUtils;
 
 import org.json.JSONException;
 
@@ -41,6 +43,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             trackMenuItem(null, menuItem, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -72,6 +75,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -83,17 +87,18 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             boolean isTab = false;
-            try {
-                Class<?> tabCLass = Class.forName("android.support.design.widget.TabLayout$Tab");
+
+            Class<?> tabCLass = ReflectUtils.getClassByName("android.support.design.widget.TabLayout$Tab");
+            if (tabCLass != null) {
                 isTab = tabCLass.isInstance(tab);
-            } catch (Throwable ignore) {
             }
 
-            try {
-                Class<?> tabCLass = Class.forName("com.google.android.material.tabs.TabLayout$Tab");
+
+            tabCLass = ReflectUtils.getClassByName("com.google.android.material.tabs.TabLayout$Tab");
+            if (tabCLass != null) {
                 isTab = tabCLass.isInstance(tab);
-            } catch (Throwable ignore) {
             }
+
 
             if (!isTab) {
                 return;
@@ -133,6 +138,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -145,16 +151,20 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Object pageObj = AllegroUtils.getPageObjFromView(null);
-            TabHost tabHost = (TabHost) Class.forName(TabHost.class.getName()).newInstance();
-            if (!checkTrackClickEnable(pageObj, tabHost, hasTrackClickAnn)) {
-                return;
-            }
+            Class<?> tabClass = ReflectUtils.getClassByName(TabHost.class.getName());
+            if (tabClass != null) {
+                TabHost tabHost = (TabHost) tabClass.newInstance();
+                if (!checkTrackClickEnable(pageObj, tabHost, hasTrackClickAnn)) {
+                    return;
+                }
 
-            Map<String, Object> elementInfo = new HashMap<>();
-            elementInfo.put(Constants.ELEMENT_TYPE, "TabHost");
-            elementInfo.put(Constants.ELEMENT_CONTENT, tabName);
-            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
+                Map<String, Object> elementInfo = new HashMap<>();
+                elementInfo.put(Constants.ELEMENT_TYPE, "TabHost");
+                elementInfo.put(Constants.ELEMENT_CONTENT, tabName);
+                autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
+            }
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -212,13 +222,15 @@ class ViewClickProbe extends ASMHookAdapter {
                 Class<?> androidXAlertDialogClass = null;
                 Class<?> currentAlertDialogClass;
                 try {
-                    supportAlertDialogClass = Class.forName("android.support.v7.app.AlertDialog");
+                    supportAlertDialogClass = ReflectUtils.getClassByName("android.support.v7.app.AlertDialog");
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
 
                 try {
-                    androidXAlertDialogClass = Class.forName("androidx.appcompat.app.AlertDialog");
+                    androidXAlertDialogClass = ReflectUtils.getClassByName("androidx.appcompat.app.AlertDialog");
                 } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
 
                 if (supportAlertDialogClass == null && androidXAlertDialogClass == null) {
@@ -231,12 +243,13 @@ class ViewClickProbe extends ASMHookAdapter {
                     currentAlertDialogClass = androidXAlertDialogClass;
                 }
 
-                if (currentAlertDialogClass.isInstance(dialog)) {
+                if (currentAlertDialogClass != null && currentAlertDialogClass.isInstance(dialog)) {
                     Button button = null;
                     try {
                         Method getButtonMethod = dialog.getClass().getMethod("getButton", int.class);
                         button = (Button) getButtonMethod.invoke(dialog, which);
                     } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
 
                     if (button != null) {
@@ -261,12 +274,14 @@ class ViewClickProbe extends ASMHookAdapter {
                                 elementInfo.put(Constants.ELEMENT_POSITION, which);
                             }
                         } catch (Throwable ignore) {
+                            ExceptionUtil.exceptionThrow(ignore);
                         }
                     }
                 }
             }
             autoTrackClick(dialog, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -283,6 +298,7 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_CONTENT, isOpen ? "Open" : "Close");
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -308,6 +324,7 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_POSITION, parent.indexOfChild(childView) + "");
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -338,6 +355,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -368,6 +386,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -397,6 +416,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
             trackListView(parent, v, groupPosition, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -425,10 +445,11 @@ class ViewClickProbe extends ASMHookAdapter {
 
             autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
         } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
-    private void autoTrackClick(Object pageObj, Map<String, Object> elementInfo, boolean hasTrackClickAnn) throws JSONException {
+    private void autoTrackClick(Object pageObj, Map<String, Object> elementInfo, boolean hasTrackClickAnn) throws Throwable {
         if (pageObj != null) {
             // 获取页面相关信息
             elementInfo.putAll(AllegroUtils.getPageInfo(pageObj));

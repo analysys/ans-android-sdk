@@ -8,8 +8,6 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.RadioGroup;
 
-import com.analysys.process.SystemIds;
-
 
 /**
  * Description:
@@ -20,7 +18,7 @@ import com.analysys.process.SystemIds;
 public class ASMHookAdapter implements ASMHookInterface {
 
     ASMHookAdapter() {
-        SystemIds.getInstance().parserId();
+//        SystemIds.getInstance().parserId();
     }
 
     @Override

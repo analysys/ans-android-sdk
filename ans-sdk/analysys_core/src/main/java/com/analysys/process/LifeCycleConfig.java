@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.JsonReader;
 
 import com.analysys.utils.CommonUtils;
+import com.analysys.utils.ExceptionUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +42,8 @@ public class LifeCycleConfig {
                 uploadHeadJson = configJson.optJSONObject("Upload");
                 encryptJson = configJson.optJSONObject("Encrypt");
             }
-        } catch (Throwable throwable) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 

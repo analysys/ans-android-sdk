@@ -20,7 +20,6 @@ public class JPushBroadcastReceiver extends BroadcastReceiver {
     PushListener listener = new PushListener() {
         @Override
         public void execute(String action, String jsonParams) {
-            Toast.makeText(mContext, jsonParams.toString(), Toast.LENGTH_LONG).show();
             Log.e("EgPushTAG", "通知被点击");
         }
     };

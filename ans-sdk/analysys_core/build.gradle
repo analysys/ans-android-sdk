@@ -12,14 +12,14 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        buildConfigField "String", "SDK_VERSION", "\"${rootProject.ext.version}\""
+        buildConfigField "String", "SDK_VERSION", "\"${version}\""
         minSdkVersion rootProject.ext.minSdkVersion
     }
 
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro','proguard-custom.pro','proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
         }
     }

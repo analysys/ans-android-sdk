@@ -27,32 +27,34 @@ android {
 }
 
 dependencies {
-    api project(':ans-sdk:analysys_core')
-    api project(':ans-sdk:analysys_encryption')
-    api project(':ans-sdk:analysys_push')
-    api project(':ans-sdk:analysys_visual')
-    api project(':ans-sdk:analysys_allgro')
+    api project(':analysys_core')
+    api project(':analysys_encryption')
+    api project(':analysys_push')
+    api project(':analysys_visual')
+    api project(':analysys_allgro')
 }
 
 task delRelease(type: Delete) {
     delete('../release')
-//    delete('../../repo')
+    delete('../../repo')
 
-    delete('../../repo/cn/com/analysys/analysys-core/')
-    delete('../../repo/cn/com/analysys/analysys-encrypt/')
-    delete('../../repo/cn/com/analysys/analysys-push/')
-    delete('../../repo/cn/com/analysys/analysys-visual/')
-    delete('../../repo/cn/com/analysys/analysys-allgro/')
-    delete('../../repo/cn/com/analysys/analysys-arkanalysys/')
+//    delete('../../repo/cn/com/analysys/analysys-core/')
+//    delete('../../repo/cn/com/analysys/analysys-encrypt/')
+//    delete('../../repo/cn/com/analysys/analysys-push/')
+//    delete('../../repo/cn/com/analysys/analysys-visual/')
+//    delete('../../repo/cn/com/analysys/analysys-allgro/')
+//    delete('../../repo/cn/com/analysys/analysys-arkanalysys/')
 }
 
 task releaseAar(type: Copy) {
 
     for (int i = 0; i < moduleName.size; i++) {
         def tmpName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
-        from("../${tmpName}/build/outputs/aar/") {
-            rename("${tmpName}-release.aar", "${moduleName[i]}.aar")
 
+        def endName = "${moduleName[i]}".replace("_","-")
+        from("../${tmpName}/build/outputs/aar/") {
+            rename("${tmpName}-release.aar", "${endName}.aar")
+            exclude("${tmpName}-release.aar.asc")
         }
     }
 
@@ -65,42 +67,55 @@ task releaseAar(type: Copy) {
 task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
 
     for (int i = 0; i < moduleName.size; i++) {
+
         def tmpName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
+
+        def endName = "${moduleName[i]}".replace("_","-")
         from("../${tmpName}/build/outputs/mapping/release/") {
             include('mapping.txt')
-            rename('mapping.txt', "mapping-${moduleName[i]}.txt")
+            rename('mapping.txt', "mapping-${endName}.txt")
         }
     }
 
     into '../release/mapping/'
 }
 
+task zipMapping(type: Zip,dependsOn: ['releaseMapping']) {
+    from '../release/mapping/'
+
+    baseName = "analysys-pass-mapping-${releaseTimeVariable}"
+    destinationDir file("../release/zip")
+}
+
 
 for (int i = 0; i < moduleName.size(); i++) {
+    def endName = "${moduleName[i]}".replace("_","-")
 
     task "unZipAAR${moduleName[i]}"(type: Copy) {
-        from(zipTree("../release/aar/${moduleName[i]}.aar"))
-        into "../release/jar/${moduleName[i]}"
+        from(zipTree("../release/aar/${endName}.aar"))
+        into "../release/jar/${endName}"
     }
 
     task "unZipClasses${moduleName[i]}"(type: Copy, dependsOn: ["unZipAAR${moduleName[i]}"]) {
-        from(zipTree("../release/jar/${moduleName[i]}/classes.jar"))
-        into "../release/jar/${moduleName[i]}/classes/"
+        from(zipTree("../release/jar/${endName}/classes.jar"))
+        into "../release/jar/${endName}/classes/"
     }
 
     task "unZipJar${moduleName[i]}"(type: Copy, dependsOn: ["unZipClasses${moduleName[i]}"]) {
-        from("../release/jar/${moduleName[i]}/classes/")
-        from("../release/jar/${moduleName[i]}") {
+        from("../release/jar/${endName}/classes/")
+        from("../release/jar/${endName}") {
             include('assets/')
         }
-        into "../release/jar/tmp/${moduleName[i]}/"
+        into "../release/jar/tmp/${endName}/"
 
         includeEmptyDirs = false
     }
 
+
     task "jar${moduleName[i]}"(type: Jar, dependsOn: ["unZipJar${moduleName[i]}"]) {
-        from("../release/jar/tmp/${moduleName[i]}/")
-        baseName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
+        from("../release/jar/tmp/${endName}/")
+        println("endName:"+endName)
+        baseName = "${endName}".replace("-${rootProject.ext.version}", "")
         destinationDir = file("../release/jar/")
 
 
@@ -115,7 +130,8 @@ for (int i = 0; i < moduleName.size(); i++) {
     }
 
     task "jarclean${moduleName[i]}"(type: Delete, dependsOn: ["jar${moduleName[i]}"]) {
-        delete("../release/jar/${moduleName[i]}")
+
+        delete("../release/jar/${endName}")
         delete("../release/jar/tmp")
     }
 }
@@ -146,13 +162,15 @@ task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
     from("../release/") {
         include("aar/")
         include("jar/")
+        exclude("jar/analysys-allgro-*")
+
     }
 
-    from("../../") {
-        include("repo/")
-    }
+//    from("../../") {
+//        include("repo/")
+//    }
 
-    baseName = "analysys-pass-android-${releaseTimeVariable}-${rootProject.ext.version}"
+    baseName = "analysys-pass-android-${releaseTimeVariable}"
     destinationDir file("../release/zip")
 
 }

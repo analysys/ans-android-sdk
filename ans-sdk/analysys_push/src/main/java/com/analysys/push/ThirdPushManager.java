@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.analysys.AnalysysAgent;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.InternalAgent;
 
 import org.json.JSONObject;
@@ -32,6 +33,7 @@ public class ThirdPushManager {
         cachePushIds.put(PushProvider.GETUI, "");
         cachePushIds.put(PushProvider.BAIDU, "");
         cachePushIds.put(PushProvider.XIAOMI, "");
+        cachePushIds.put(PushProvider.ALIYUN, "");
 
         cachePushIds.put(PushProvider.HUAWEI, "");
         cachePushIds.put(PushProvider.OPPO, "");
@@ -80,8 +82,8 @@ public class ThirdPushManager {
                 cachePushIds.put(provider, pushId);
                 AnalysysAgent.profileSet(mContext, provider, pushId);
             }
-        } catch (Throwable e) {
-            InternalAgent.e(e);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -138,7 +140,8 @@ public class ThirdPushManager {
                     InternalAgent.e("推送信息下发的Action值不在规定范围[1,2,3,4]内,error:" +
                             actionType);
                 }
-            } catch (Throwable e) {
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
                 InternalAgent.e("推送信息下发的Action值不在规定范围[1,2,3,4]内,error:" +
                         actionType);
             }
@@ -151,7 +154,8 @@ public class ThirdPushManager {
             customParams.put(Constants.PUSH_EVENT_CAMPID_SOURCE, campaignSource);
             customParams.put(Constants.PUSH_EVENT_CAMPID_CONTENT, campaignContent);
             customParams.put(Constants.PUSH_EVENT_CAMPID_TERM, campaignTerm);
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return customParams;
     }
@@ -179,7 +183,8 @@ public class ThirdPushManager {
                 default:
                     break;
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -198,7 +203,8 @@ public class ThirdPushManager {
                 AnalysysAgent.track(mContext, InternalAgent.PUSH_EVENT_PROCESS_SUCCESS,
                         customParams);
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
         if (listener != null) {
@@ -223,7 +229,8 @@ public class ThirdPushManager {
                 AnalysysAgent.track(mContext, InternalAgent.PUSH_EVENT_PROCESS_SUCCESS,
                         customParams);
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         if (listener != null) {
             listener.execute(activity, cpd);
@@ -247,7 +254,8 @@ public class ThirdPushManager {
                 mContext.startActivity(intent);
                 AnalysysAgent.track(mContext, InternalAgent.PUSH_EVENT_PROCESS_SUCCESS, customParams);
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         if (listener != null) {
             listener.execute(action, cpd);

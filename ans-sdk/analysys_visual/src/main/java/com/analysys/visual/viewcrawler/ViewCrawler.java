@@ -18,7 +18,9 @@ import android.util.DisplayMetrics;
 import android.util.JsonWriter;
 
 import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.CommonUtils;
 import com.analysys.utils.InternalAgent;
+import com.analysys.visual.VisualAgent;
 import com.analysys.visual.utils.Constants;
 import com.analysys.visual.utils.EGJSONUtils;
 import com.analysys.visual.utils.EgPair;
@@ -29,18 +31,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -87,6 +86,7 @@ public class ViewCrawler {
     private final Handler mMainThreadHandler;
 
     private SensorHelper mSensorHelper;
+
     public ViewCrawler(Context context) {
         mContext = context;
         mEditState = new EditState();
@@ -119,7 +119,7 @@ public class ViewCrawler {
 
     /**
      * 记录当前界面是否有dialog在显示
-     * */
+     */
     private boolean mIsDlgShowing;
 
     private long CHECK_DLG_DELAY = 500;
@@ -178,36 +178,6 @@ public class ViewCrawler {
         }
     }
 
-    private class EmulatorConnector implements Runnable {
-        private volatile boolean mStopped;
-
-        public EmulatorConnector() {
-            //            mStopped = true;
-            mStopped = false;
-        }
-
-        @Override
-        public void run() {
-            if (!mStopped) {
-                final Message message = mMessageThreadHandler.obtainMessage
-                        (MESSAGE_CONNECT_TO_EDITOR);
-                mMessageThreadHandler.sendMessage(message);
-            }
-
-            mMessageThreadHandler.postDelayed(this, EMULATOR_CONNECT_ATTEMPT_INTERVAL_MILLIS);
-        }
-
-        public void start() {
-            mStopped = false;
-            mMessageThreadHandler.post(this);
-        }
-
-        public void stop() {
-            mStopped = true;
-            mMessageThreadHandler.removeCallbacks(this);
-        }
-    }
-
     private ActivityLifecycleUtils.BaseLifecycleCallback mLifecycleCallback = new ActivityLifecycleUtils.BaseLifecycleCallback() {
         @Override
         public void onActivityResumed(Activity activity) {
@@ -218,12 +188,10 @@ public class ViewCrawler {
     private class SensorHelper implements FlipGesture.OnFlipGestureListener {
 
         private final FlipGesture mFlipGesture;
-        private final EmulatorConnector mEmulatorConnector;
         private boolean mIsSensorRegistered;
 
         public SensorHelper() {
             mFlipGesture = new FlipGesture(this);
-            mEmulatorConnector = new EmulatorConnector();
             installConnectionSensor();
             if (ActivityLifecycleUtils.getCurrentActivity() != null) {
                 mEditState.onActivityResumed();
@@ -238,9 +206,7 @@ public class ViewCrawler {
         }
 
         private void installConnectionSensor() {
-            if (isInEmulator()) {
-                mEmulatorConnector.start();
-            } else if (!mIsSensorRegistered) {
+            if (!mIsSensorRegistered && CommonUtils.isMainProcess(mContext) && VisualAgent.isInDebug()) {
                 final SensorManager sensorManager =
                         (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
                 final Sensor accelerometer =
@@ -253,9 +219,7 @@ public class ViewCrawler {
         }
 
         private void uninstallConnectionSensor() {
-            if (isInEmulator()) {
-                mEmulatorConnector.stop();
-            } else if (mIsSensorRegistered) {
+            if (mIsSensorRegistered && CommonUtils.isMainProcess(mContext) && VisualAgent.isInDebug()) {
                 final SensorManager sensorManager = (SensorManager) mContext.getSystemService
                         (Context.SENSOR_SERVICE);
                 sensorManager.unregisterListener(mFlipGesture);
@@ -263,31 +227,6 @@ public class ViewCrawler {
                 mIsSensorRegistered = false;
             }
             ActivityLifecycleUtils.removeCallback(mLifecycleCallback);
-        }
-
-        private boolean isInEmulator() {
-            if (!"goldfish".equals(Build.HARDWARE.toLowerCase()) && !"ranchu".equals(Build.HARDWARE.toLowerCase())) {
-                return false;
-            }
-
-            if (!Build.BRAND.toLowerCase().startsWith("generic") && !"android".equals(Build.BRAND.toLowerCase())
-                    && !"google".equals(Build.BRAND.toLowerCase())) {
-                return false;
-            }
-
-            if (!Build.DEVICE.toLowerCase().startsWith("generic")) {
-                return false;
-            }
-
-            if (!Build.PRODUCT.toLowerCase().contains("sdk")) {
-                return false;
-            }
-
-            if (!Build.MODEL.toLowerCase(Locale.US).contains("sdk")) {
-                return false;
-            }
-
-            return true;
         }
     }
 
@@ -304,8 +243,8 @@ public class ViewCrawler {
         public ViewCrawlerHandler(Context context, Looper looper) {
             super(looper);
             mSnapshot = null;
-            String resourcePackage = context.getPackageName();
-            final ResourceIds resourceIds = new BaseResourceReader.Ids(resourcePackage, context);
+//            String resourcePackage = context.getPackageName();
+            final ResourceIds resourceIds = new BaseResourceReader();
 
             mProtocol = new EditProtocol(resourceIds);
             mOriginalEventBindings = new HashSet<>();
@@ -319,6 +258,28 @@ public class ViewCrawler {
             mStartLock.unlock();
         }
 
+        private void tryConnectToEditor() {
+            //TODO 限制主进程连接，不需要判断了，待优化：多进程使用单一出口连接
+//            try {
+//                // 多进程情况下只上传top activity快照
+//                ActivityManager activityManager = (ActivityManager) AnalysysUtil.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+//                List<ActivityManager.RunningTaskInfo> runTaskInfos = activityManager.getRunningTasks(1);
+//                if (runTaskInfos != null && runTaskInfos.size() == 1) {
+//                    String topName = runTaskInfos.get(0).topActivity.getClassName();
+//                    Activity current = ActivityLifecycleUtils.getCurrentActivity();
+//                    if (current == null || !current.getClass().getName().equals(topName)) {
+//                        return;
+//                    }
+//                }
+//            } catch (Throwable ignore) {
+//                InternalAgent.e(TAG, "getRunningTasks failure", ignore);
+//            }
+            connectToEditor();
+            if (!isConnected()) {
+                mSensorHelper.installConnectionSensor();
+            }
+        }
+
         @Override
         public void handleMessage(Message msg) {
 
@@ -330,10 +291,7 @@ public class ViewCrawler {
                         loadKnownChanges();
                         break;
                     case MESSAGE_CONNECT_TO_EDITOR:
-                        connectToEditor();
-                        if (!isConnected()) {
-                            mSensorHelper.installConnectionSensor();
-                        }
+                        tryConnectToEditor();
                         break;
                     case MESSAGE_SEND_DEVICE_INFO:
                         sendDeviceInfo();
@@ -509,6 +467,7 @@ public class ViewCrawler {
                 j.name("scaled_density").value(mScaledDensity);
                 j.name("width").value(width);
                 j.name("height").value(height);
+                j.name("process_name").value(CommonUtils.getProcessName());
                 for (final Map.Entry<String, String> entry : mDeviceInfo.entrySet()) {
                     j.name(entry.getKey()).value(entry.getValue());
                 }
@@ -558,7 +517,6 @@ public class ViewCrawler {
                 return;
             }
             // ELSE config is valid:
-
 
 
             final OutputStream out = mEditorConnection.getBufferedOutputStream();

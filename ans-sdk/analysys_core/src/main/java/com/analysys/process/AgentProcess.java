@@ -6,6 +6,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
 import com.analysys.AutomaticAcquisition;
 import com.analysys.database.TableAllInfo;
@@ -15,6 +16,7 @@ import com.analysys.push.PushListener;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ANSThreadPool;
 import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.AdvertisingIdUitls;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
@@ -64,10 +66,39 @@ public class AgentProcess {
         return Holder.INSTANCE;
     }
 
+    private int mUploadPolicy = AnalysysAgent.AnalysysNetworkType.AnalysysNetworkALL;
+
+
+    /**
+     * 只能初始化一次
+     */
+    private boolean mInited;
+
+    /**
+     * 设置网络上传策略
+     * @param networkType
+     */
+    public void setUploadNetworkType(int networkType) {
+        mUploadPolicy = networkType;
+    }
+
+    /**
+     * 获取网络上传策略
+     * @return
+     */
+    public int getUploadNetworkType() {
+        return mUploadPolicy;
+    }
+
     /**
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
     public void init(final Context context, final AnalysysConfig config) {
+        if (mInited) {
+            ANSLog.e("多次调用AnalysysAgent.init，请保证只初始化一次");
+            return;
+        }
+        mInited = true;
         AnalysysUtil.init(context);
         CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
             @Override
@@ -116,8 +147,9 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showInitLog(false);
                     }
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                    AdvertisingIdUitls.setAdvertisingId();
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -169,8 +201,8 @@ public class AgentProcess {
                     sendFirstInstall(context);
                 }
             }
-        } catch (Throwable ignored) {
-            ExceptionUtil.exceptionThrow(ignored);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -193,6 +225,7 @@ public class AgentProcess {
                 }
             }
         } catch (Throwable ignored) {
+            ExceptionUtil.exceptionThrow(ignored);
         }
     }
 
@@ -257,7 +290,8 @@ public class AgentProcess {
                             Constants.PAGE_VIEW, pageInfo, null);
                     trackEvent(context,
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -266,7 +300,7 @@ public class AgentProcess {
     /**
      * 页面信息处理
      */
-    public void autoCollectPageView(final Map<String, Object> pageInfo) throws Exception {
+    public void autoCollectPageView(final Map<String, Object> pageInfo) throws Throwable {
         Context context = AnalysysUtil.getContext();
         if (context != null) {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
@@ -287,8 +321,8 @@ public class AgentProcess {
                         Constants.API_APP_CLICK, Constants.APP_CLICK, null, screenInfo);
                 trackEvent(context, Constants.API_APP_CLICK, Constants.APP_CLICK, eventData);
             }
-        } catch (Throwable ignored) {
-            ExceptionUtil.exceptionThrow(ignored);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -297,7 +331,7 @@ public class AgentProcess {
      *
      * @param clickInfo 点击上报信息
      */
-    public void autoTrackViewClick(final Map<String, Object> clickInfo) throws JSONException {
+    public void autoTrackViewClick(final Map<String, Object> clickInfo) throws Throwable {
         Context context = AnalysysUtil.getContext();
         if (context != null) {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(Constants.API_USER_CLICK, Constants.USER_CLICK, null, clickInfo);
@@ -315,7 +349,7 @@ public class AgentProcess {
                 try {
                     Map<String, Object> eventInfo = CommonUtils.deepCopy(eventDetail);
                     Context context = AnalysysUtil.getContext();
-                    if (context == null) {
+                    if (context == null || eventName == null) {
                         LogPrompt.showLog(Constants.API_TRACK, false);
                         return;
                     }
@@ -331,8 +365,8 @@ public class AgentProcess {
                                 eventInfo, null, eventName);
                     }
                     trackEvent(context, Constants.API_TRACK, eventName, eventData);
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -419,8 +453,8 @@ public class AgentProcess {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
                     }
-                } catch (Throwable throwable) {
-                    ExceptionUtil.exceptionThrow(throwable);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -488,7 +522,8 @@ public class AgentProcess {
                         trackEvent(context, Constants.API_PROFILE_SET,
                                 Constants.PROFILE_SET, eventData);
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -556,8 +591,8 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_INCREMENT, false);
                     }
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -597,8 +632,8 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_APPEND, false);
                     }
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -655,8 +690,8 @@ public class AgentProcess {
                     } else {
                         LogPrompt.showLog(Constants.API_PROFILE_UNSET, false);
                     }
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -681,7 +716,8 @@ public class AgentProcess {
                     trackEvent(context, Constants.API_PROFILE_DELETE,
                             Constants.PROFILE_DELETE, eventData);
 
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -767,8 +803,8 @@ public class AgentProcess {
                         }
                         saveSuperProperty(context, propertyInfo,type);
                     }
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
 
@@ -820,8 +856,8 @@ public class AgentProcess {
                 map.putAll(CommonUtils.jsonToMap(mergeSuper));
             }
 
-        } catch (Throwable ignored) {
-            ExceptionUtil.exceptionThrow(ignored);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return map;
     }
@@ -888,8 +924,8 @@ public class AgentProcess {
                                     Constants.API_UNREGISTER_SUPER_PROPERTY, true);
                         }
                     }
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -920,8 +956,8 @@ public class AgentProcess {
                         LogPrompt.showLog(
                                 Constants.API_CLEAR_SUPER_PROPERTIES, true);
                     }
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -1000,7 +1036,8 @@ public class AgentProcess {
                         LogPrompt.showLog(Constants.API_RESET, true);
                         sendProfileSetOnce(context, 1);
                     }
-                } catch (Throwable throwable) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                     LogPrompt.showLog(Constants.API_RESET, false);
                 }
             }
@@ -1087,7 +1124,8 @@ public class AgentProcess {
                     return properties;
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return new HashMap<>();
     }
@@ -1103,7 +1141,8 @@ public class AgentProcess {
                     HybridBridge.getInstance().execute(decodedURL, view);
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -1127,7 +1166,8 @@ public class AgentProcess {
                         setUserAgentString.invoke(webSettings, Constants.HYBRID_AGENT);
                     }
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
             }
         }
     }
@@ -1151,7 +1191,8 @@ public class AgentProcess {
                     }
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -1170,7 +1211,8 @@ public class AgentProcess {
                             setVisualUrl(context, LifeCycleConfig.visualBase.optString(START), url);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -1191,7 +1233,8 @@ public class AgentProcess {
                             setVisualUrl(context, LifeCycleConfig.visual.optString(START), url);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         }, isAsync);
@@ -1214,7 +1257,8 @@ public class AgentProcess {
                                     url);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         }, isAsync);
@@ -1238,7 +1282,8 @@ public class AgentProcess {
                                     context, provider, pushId);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -1262,7 +1307,8 @@ public class AgentProcess {
                                     context, campaign, isClick, listener);
                         }
                     }
-                } catch (Throwable ignored) {
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
             }
         });
@@ -1272,12 +1318,14 @@ public class AgentProcess {
      * 存储 upload url
      */
     private void saveUploadUrl(Context context, String uploadUrl) throws MalformedURLException {
+
+        changeUrlResetUser(context, uploadUrl);
+        SharedUtil.setString(context, Constants.SP_USER_URL, uploadUrl);
+
         // 判断是否进行时间校准且为主进程
         if (Constants.isTimeCheck && CommonUtils.isMainProcess(context)) {
             UploadManager.getInstance(context).sendGetTimeMessage();
         }
-        changeUrlResetUser(context, uploadUrl);
-        SharedUtil.setString(context, Constants.SP_USER_URL, uploadUrl);
     }
 
     /**
@@ -1352,7 +1400,7 @@ public class AgentProcess {
     /**
      * 渠道归因
      */
-    private void sendFirstInstall(Context context) throws Exception {
+    private void sendFirstInstall(Context context) throws Throwable {
         if (context != null) {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
                     Constants.API_FIRST_INSTALL, Constants.FIRST_INSTALL,
@@ -1385,7 +1433,7 @@ public class AgentProcess {
     /**
      * 首次安装后是否发送profile_set_once
      */
-    private void sendProfileSetOnce(Context context, int type) throws Exception {
+    private void sendProfileSetOnce(Context context, int type) throws Throwable {
         if (Constants.isAutoProfile) {
             Map<String, Object> profileInfo = new HashMap<>();
             if (type == 0) {
@@ -1493,7 +1541,7 @@ public class AgentProcess {
      * 校验数据是否符合上传格式
      */
     private boolean checkoutEvent(JSONObject eventData) {
-        if (CommonUtils.isEmpty(eventData.optString(Constants.APP_ID))) {
+        if (eventData == null || CommonUtils.isEmpty(eventData.optString(Constants.APP_ID))) {
             LogPrompt.keyFailed();
             return false;
         }
@@ -1537,7 +1585,7 @@ public class AgentProcess {
                 }
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
@@ -1553,7 +1601,7 @@ public class AgentProcess {
                 }
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
@@ -1617,7 +1665,7 @@ public class AgentProcess {
                 }
             }
         } catch (Exception ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -1633,7 +1681,7 @@ public class AgentProcess {
                 }
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
@@ -1668,7 +1716,7 @@ public class AgentProcess {
                 }
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -1687,7 +1735,7 @@ public class AgentProcess {
                 }
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
@@ -1701,7 +1749,7 @@ public class AgentProcess {
                 return !TextUtils.isEmpty(name) && mAutoByByViewTypes.contains(name.hashCode());
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
         return false;
@@ -1720,7 +1768,7 @@ public class AgentProcess {
                 return !TextUtils.isEmpty(name) && mIgnoreByViewTypes.contains(name.hashCode());
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
         return false;
     }

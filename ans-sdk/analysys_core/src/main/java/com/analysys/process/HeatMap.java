@@ -22,9 +22,10 @@ import android.widget.ToggleButton;
 import com.analysys.utils.ANSThreadPool;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
+import com.analysys.utils.ReflectUtils;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -42,8 +44,8 @@ import java.util.Map;
  */
 public class HeatMap {
 
-    public Map<String, Object> pageInfo = null;
-    private Map<String, Object> clickInfo = null;
+    public ConcurrentHashMap<String, Object> pageInfo = null;
+    private ConcurrentHashMap<String, Object> clickInfo = null;
     private float rx = 0, ry = 0, x = 0, y = 0;
 
     public static HeatMap getInstance() {
@@ -51,14 +53,14 @@ public class HeatMap {
     }
 
     private HeatMap() {
-        SystemIds.getInstance().parserId();
+//        SystemIds.getInstance().parserId();
     }
 
     /**
      * 初始化页面宽高分辨率等信息
      */
     public void initPageInfo(Activity activity) {
-        pageInfo = new HashMap<>();
+        pageInfo = new ConcurrentHashMap<>();
         if (activity != null) {
             pageInfo.put(Constants.PAGE_URL, activity.getClass().getName());
             DisplayMetrics metrics = new DisplayMetrics();
@@ -134,27 +136,34 @@ public class HeatMap {
     }
 
     private void setCoordinate(final View v, final MotionEvent event) {
-        if (isTouch(event)) {
+        final float rawX = event.getRawX();
+        final float rawY = event.getRawY();
+        if (isTouch(rawX, rawY)) {
             x = event.getX();
             y = event.getY();
+            final int viewIdx = PathGeneral.getInstance().getIndex(v);
 
             ANSThreadPool.heatMapExecute(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         if (clickInfo == null) {
-                            clickInfo = new HashMap<>();
+                            clickInfo = new ConcurrentHashMap<>();
                         } else {
                             clickInfo.clear();
                         }
                         setClickCoordinate();
-                        boolean isAddPath = setPath(v);
+                        final String path = PathGeneral.getInstance().general(v, viewIdx);
+                        boolean isAddPath = setPath(path);
                         if (isAddPath) {
+                            rx = rawX;
+                            ry = rawY;
                             setClickContent(v);
                             clickInfo.putAll(pageInfo);
                             AgentProcess.getInstance().pageTouchInfo(clickInfo);
                         }
-                    } catch (Throwable ignored) {
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
                 }
             });
@@ -164,16 +173,12 @@ public class HeatMap {
     /**
      * 过滤多层touch事件
      */
-    private boolean isTouch(MotionEvent event) {
-        float rowX = event.getRawX();
-        float rowY = event.getRawY();
-        if ((rx == 0 || ry == 0) || (rx != rowX || ry != rowY)) {
-            rx = rowX;
-            ry = rowY;
+    private boolean isTouch(float rawX, float rawY) {
+        if ((rx == 0 || ry == 0) || (rx != rawX || ry != rawY)) {
+            return true;
         } else {
             return false;
         }
-        return true;
     }
 
     /**
@@ -205,8 +210,7 @@ public class HeatMap {
         }
     }
 
-    private boolean setPath(View v) throws JSONException {
-        String path = PathGeneral.getInstance().general(v);
+    private boolean setPath(String path) throws Throwable {
         if (!TextUtils.isEmpty(path) && !CommonUtils.isEmpty(new JSONArray(path))) {
             clickInfo.put(Constants.ELEMENT_PATH, path.replaceAll(" ", ""));
             return true;
@@ -216,17 +220,9 @@ public class HeatMap {
 
     private String getContent(View view) throws Exception {
         Class<?> compatClass = null;
-        try {
-            compatClass = Class.forName("android.support.v7.widget.SwitchCompat");
-        } catch (Throwable ignored) {
-
-        }
+        compatClass = ReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
         if (compatClass == null) {
-            try {
-                compatClass = Class.forName("androidx.appcompat.widget.SwitchCompat");
-            } catch (Throwable ignored) {
-
-            }
+            compatClass = ReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
         }
         CharSequence charSequence = null;
         if (compatClass != null
@@ -295,7 +291,8 @@ public class HeatMap {
                         if (isTackHeatMap(v)) {
                             setCoordinate(v, event);
                         }
-                    } catch (Throwable ignored) {
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
                 }
 //            boolean x1 = patch(v, event);
@@ -308,7 +305,7 @@ public class HeatMap {
                     return onTouchListener.onTouch(v, event);
                 }
             } catch (Throwable ignore) {
-
+                ExceptionUtil.exceptionThrow(ignore);
             }
             return false;
         }
@@ -348,7 +345,7 @@ public class HeatMap {
                 mIgnoreByPages.addAll(pages);
             }
         }catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
@@ -363,7 +360,7 @@ public class HeatMap {
                 mAutoByPages.addAll(pages);
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
     }
@@ -382,7 +379,7 @@ public class HeatMap {
                 return isInAutoList(v); // 命中白名单
             }
         }catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
         return true;
@@ -410,7 +407,7 @@ public class HeatMap {
                 return !TextUtils.isEmpty(pageName) && mIgnoreByPages.contains(pageName);
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
         return false;
@@ -429,7 +426,7 @@ public class HeatMap {
                 return !TextUtils.isEmpty(pageName) && mAutoByPages.contains(pageName);
             }
         } catch (Throwable ignore) {
-
+            ExceptionUtil.exceptionThrow(ignore);
         }
 
         return false;

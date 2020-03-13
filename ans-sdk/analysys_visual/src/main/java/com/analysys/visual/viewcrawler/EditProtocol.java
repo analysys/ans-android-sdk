@@ -150,9 +150,8 @@ class EditProtocol {
     private Integer reconcileIds(int explicitId, String idName, ResourceIds idNameToId) {
         final int idFromName;
         if (null != idName) {
-            if (idNameToId.knownIdName(idName)) {
-                idFromName = idNameToId.idFromName(idName);
-            } else {
+            idFromName = idNameToId.idFromName(null, idName);
+            if (idFromName == -1) {
                 InternalAgent.w(
                         "Path element contains an id name not known to the system. No views will " +
                                 "be matched.\n" +

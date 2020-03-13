@@ -137,23 +137,23 @@
             android:onClick="nestingBtn"
             android:text="嵌套布局" />
 
-        <Button
-            android:id="@+id/same_layout_1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/button_send_revenue"
-            android:layout_alignLeft="@+id/same_layout_2"
-            android:onClick="sameLayoutOne"
-            android:text="同布局一" />
+<!--        <Button-->
+<!--            android:id="@+id/same_layout_1"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@+id/button_send_revenue"-->
+<!--            android:layout_alignLeft="@+id/same_layout_2"-->
+<!--            android:onClick="sameLayoutOne"-->
+<!--            android:text="同布局一" />-->
 
-        <Button
-            android:id="@+id/same_layout_2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/textView"
-            android:layout_alignParentRight="true"
-            android:onClick="sameLayoutTwo"
-            android:text="同布局二" />
+<!--        <Button-->
+<!--            android:id="@+id/same_layout_2"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignTop="@+id/textView"-->
+<!--            android:layout_alignParentRight="true"-->
+<!--            android:onClick="sameLayoutTwo"-->
+<!--            android:text="同布局二" />-->
 
         <ToggleButton
             android:id="@+id/toggleButton2"

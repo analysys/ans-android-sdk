@@ -80,6 +80,7 @@ public class Constants {
     public static final String SP_ALIAS_ID = "aliasId";
     public static final String SP_DISTINCT_ID = "distinctId";
     public static final String SP_UUID = "uuid";
+    public static final String SP_ADID = "adid";
     public static final String SP_ORIGINAL_ID = "originalId";
     public static final String SP_SUPER_PROPERTY = "superProperty";
     public static final String SP_JS_SUPER_PROPERTY = "js_superProperty";

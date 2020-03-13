@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.analysys.allgro.annotations.AnalysysIgnorePage;
-import com.analysys.demo.R;
+import com.analysys.apidemo.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
