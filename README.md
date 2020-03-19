@@ -76,10 +76,9 @@ AnalysysAgent.setVisitorConfigURL(context, CONFIG_URL);
 
 ## 讨论
 
-扫码后加入官方谈论群，和我们一起探索！
-
-![](./img/ans.png)
-
+微信号：nlfxwz
+钉钉群：30099866
+邮箱：nielifeng@analysys.com.cn
 
 ## License
 
