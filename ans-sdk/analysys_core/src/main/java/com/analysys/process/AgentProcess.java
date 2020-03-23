@@ -211,17 +211,19 @@ public class AgentProcess {
      */
     public void appEnd(String eventTime, final JSONObject realTimeField) {
         try {
-            long time = CommonUtils.parseLong(eventTime, 0);
-            if (time > 0) {
-                Context context = AnalysysUtil.getContext();
-                if (context != null && realTimeField != null) {
-                    JSONObject endData = DataAssemble.getInstance(context).getEventData(
-                            Constants.API_APP_END, Constants.END, null, null);
-                    endData.put(Constants.X_WHEN, time);
-                    JSONObject xContData = endData.optJSONObject(Constants.X_CONTEXT);
-                    CommonUtils.mergeJson(realTimeField, xContData);
-                    endData.put(Constants.X_CONTEXT, xContData);
-                    trackEvent(context, Constants.API_APP_END, Constants.END, endData);
+            if(!TextUtils.isEmpty(eventTime)){
+                long time = CommonUtils.parseLong(eventTime, 0);
+                if (time > 0) {
+                    Context context = AnalysysUtil.getContext();
+                    if (context != null && realTimeField != null) {
+                        JSONObject endData = DataAssemble.getInstance(context).getEventData(
+                                Constants.API_APP_END, Constants.END, null, null);
+                        endData.put(Constants.X_WHEN, time);
+                        JSONObject xContData = endData.optJSONObject(Constants.X_CONTEXT);
+                        CommonUtils.mergeJson(realTimeField, xContData);
+                        endData.put(Constants.X_CONTEXT, xContData);
+                        trackEvent(context, Constants.API_APP_END, Constants.END, endData);
+                    }
                 }
             }
         } catch (Throwable ignored) {

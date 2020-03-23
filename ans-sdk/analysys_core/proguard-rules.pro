@@ -32,6 +32,11 @@
 -keep class com.analysys.utils.ANSThreadPool {
  *;
  }
+
+ -keep class com.analysys.utils.ExceptionUtil {
+  *;
+  }
+
 -keep class com.analysys.utils.Constants {
  *;
  }

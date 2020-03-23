@@ -104,7 +104,7 @@ public class AnalysysAgent {
 
 
     /**
-     * 点击自动上报-设置元素类型级白名单
+     * 点击自动上报-设置元素类型级黑名单
      * @param element 控件元素对象
      */
     public static void setAutoClickBlackListByView(View element) {
@@ -602,7 +602,7 @@ public class AnalysysAgent {
     }
 
     /**
-     * 设置当个view的ID
+     * 设置单个view的ID
      * @param view
      * @param id
      */

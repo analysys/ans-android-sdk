@@ -1300,7 +1300,7 @@ public class CommonUtils {
         if (Constants.isTimeCheck) {
             if (!CommonUtils.isMainProcess(context)) {
                 String diff = CommonUtils.getIdFile(context, Constants.SP_DIFF_TIME);
-                if (diff != null) {
+                if (!TextUtils.isEmpty(diff)) {
                     Constants.diffTime = CommonUtils.parseLong(diff, 0);
                 }
             }

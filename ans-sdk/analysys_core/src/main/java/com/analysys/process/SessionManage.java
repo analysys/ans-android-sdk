@@ -1,6 +1,7 @@
 package com.analysys.process;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -63,7 +64,7 @@ public class SessionManage {
     private boolean isSessionTimeOut(Context context) {
         if (context != null) {
             String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_LAST_PAGE_CHANGE);
-            if (pageEndTime != null) {
+            if (!TextUtils.isEmpty(pageEndTime)) {
                 long endTime = CommonUtils.parseLong(pageEndTime, 0);
                 // 上次变动时间到现在是否超过30s
                 return System.currentTimeMillis() - endTime >= Constants.SESSION_INVALID;
