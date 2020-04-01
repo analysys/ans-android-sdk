@@ -8,6 +8,9 @@
 -keep class com.analysys.AnalysysAgent{
  *;
 }
+-keep public interface com.analysys.AnalysysAgent$AnalysysNetworkType{
+ *;
+}
 -keep class com.analysys.ANSAutoPageTracker{
  *;
 }

@@ -789,6 +789,9 @@ public class CommonUtils {
         id = getIdFile(context, Constants.SP_UUID);
         if (!isEmpty(id)) {
             return id;
+        } else {
+            String uuid = String.valueOf(java.util.UUID.randomUUID());
+            setIdFile(context, Constants.SP_UUID, uuid);
         }
         if (TextUtils.isEmpty(id)) {
             id = transSaveId(context);
