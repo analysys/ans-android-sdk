@@ -24,6 +24,7 @@ import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
+import com.analysys.utils.SharedUtil;
 
 import org.json.JSONObject;
 
@@ -332,8 +333,9 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                 trackAppEnd(makeTrackAppEndMsg());
                 appStartTime = System.currentTimeMillis();
                 AgentProcess.getInstance().appStart(fromBackground, appStartTime);
-                CommonUtils.setIdFile(context,
-                        Constants.APP_START_TIME, String.valueOf(appStartTime));
+//                CommonUtils.setIdFile(context,
+//                        Constants.APP_START_TIME, String.valueOf(appStartTime));
+                SharedUtil.setString(context,Constants.APP_START_TIME,String.valueOf(appStartTime));
                 // 用于判断是否是后台启动
                 if (!fromBackground) {
                     fromBackground = true;
@@ -350,7 +352,8 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
      */
     private static boolean isAppEnd(Context context) {
         long invalid = 0;
-        String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
+//        String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
+        String lastOperateTime = SharedUtil.getString(context,Constants.LAST_OP_TIME,"0");
         if (!CommonUtils.isEmpty(lastOperateTime)) {
             long aLong = CommonUtils.parseLong(lastOperateTime, 0);
             invalid = Math.abs(aLong - System.currentTimeMillis());
@@ -372,13 +375,14 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
             long time = System.currentTimeMillis();
             if (appStartTime == 0) {
                 // 获取应用启动时间
-                String startTime = CommonUtils.getIdFile(context, Constants.APP_START_TIME);
+//                String startTime = CommonUtils.getIdFile(context, Constants.APP_START_TIME);
+                String startTime = SharedUtil.getString(context,Constants.APP_START_TIME,"0");
                 if (!TextUtils.isEmpty(startTime)) {
                     appStartTime = CommonUtils.parseLong(startTime, 0);
                 }
             }
             long durationTime = time - appStartTime;
-            if (durationTime < 0) {
+            if (durationTime < 0||appStartTime<=0) {
                 durationTime = 0;
             }
             realTimeData.put(Constants.DURATION_TIME, durationTime);
@@ -398,7 +402,8 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                     new String(Base64.encode(String.valueOf(realTimeData).getBytes(),
                             Base64.NO_WRAP)));
             // 存储最后一次操作时间
-            CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
+//            CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
+            SharedUtil.setString(context,Constants.LAST_OP_TIME, String.valueOf(time));
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
@@ -458,7 +463,8 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
             bundle.putString(Constants.APP_END_INFO,
                     new String(Base64.decode(endInfo.getBytes(), Base64.DEFAULT)));
         }
-        String time = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
+//        String time = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
+        String time = SharedUtil.getString(context,Constants.LAST_OP_TIME,"");
         bundle.putString(Constants.LAST_OP_TIME, time);
         msg.setData(bundle);
         return msg;

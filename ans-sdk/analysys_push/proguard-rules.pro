@@ -8,3 +8,6 @@
 -keep class com.analysys.push.PushAgent{
  *;
 }
+-keep class com.analysys.push.Constants{
+ *;
+}
