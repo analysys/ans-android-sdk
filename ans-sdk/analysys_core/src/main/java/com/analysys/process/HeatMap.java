@@ -141,7 +141,6 @@ public class HeatMap {
         if (isTouch(rawX, rawY)) {
             x = event.getX();
             y = event.getY();
-            final int viewIdx = PathGeneral.getInstance().getIndex(v);
 
             ANSThreadPool.heatMapExecute(new Runnable() {
                 @Override
@@ -153,7 +152,7 @@ public class HeatMap {
                             clickInfo.clear();
                         }
                         setClickCoordinate();
-                        final String path = PathGeneral.getInstance().general(v, viewIdx);
+                        final String path = PathGeneral.getInstance().general(v);
                         boolean isAddPath = setPath(path);
                         if (isAddPath) {
                             rx = rawX;

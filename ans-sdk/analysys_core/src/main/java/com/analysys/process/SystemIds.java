@@ -132,7 +132,7 @@ public class SystemIds {
                 } else if (arr[0].equals(mPkgName + ":id")) {
                     value = arr[1];
                 } else {
-                    value = resName;
+                    value = resName.replaceAll("id/", "");
                 }
             }
             mIdToIdName.put(id, value);

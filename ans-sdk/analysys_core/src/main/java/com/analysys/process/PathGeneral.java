@@ -25,7 +25,6 @@ import java.util.List;
 public class PathGeneral {
     private boolean isDebug = false;
     private int mContentID = -1;
-    private int mViewIdx = -1;
     private ArrayList<JSONObject> mTempPath;
     /**
      * 结束标志
@@ -56,9 +55,9 @@ public class PathGeneral {
      * 6. view_class: 来源 view.getClass().getCanonicalName() 自己和父节点的类名字
      * </pre>
      */
-    public String general(View view, int viewIdx) {
+    public String general(View view) {
         try {
-            if (isFinalPoint(view) || viewIdx < 0) {
+            if (isFinalPoint(view)) {
                 return null;
             }
             // 备用ID清空
@@ -69,7 +68,6 @@ public class PathGeneral {
             } else {
                 mTempPath = new ArrayList<>();
             }
-            mViewIdx = viewIdx;
             // 获取可变性path
             getDynamicPath(view);
             if (mTempPath.size() > 0 && mContentID != -1) {
@@ -186,7 +184,8 @@ public class PathGeneral {
         if (!TextUtils.isEmpty(clazz)) {
             obj.put("view_class", clazz);
             // 只有使用view_class时,才获取兄弟排序
-            obj.put("index", mViewIdx);
+            final int viewIdx = PathGeneral.getInstance().getIndex(view);
+            obj.put("index", viewIdx);
         }
     }
 
@@ -213,6 +212,9 @@ public class PathGeneral {
             if (count > 1) {
                 for (int i = 0; i < count; i++) {
                     View temp = vg.getChildAt(i);
+                    if (temp == null) {
+                        return -1;
+                    }
                     if (isDebug) {
                         ANSLog.w("getIndex 兄弟节点:" + selfClass);
                     }
@@ -240,7 +242,7 @@ public class PathGeneral {
         int viewId = view.getId();
         if (viewId != -1) {
             String mpid = SystemIds.getInstance().nameFromId(view.getResources(), viewId);
-            if (!TextUtils.isEmpty(mpid) && ("android:content".equals(mpid) || "android:id/content".equals(mpid))) {
+            if (!TextUtils.isEmpty(mpid) && "android:content".equals(mpid)) {
                 mContentID = viewId;
                 return true;
             }

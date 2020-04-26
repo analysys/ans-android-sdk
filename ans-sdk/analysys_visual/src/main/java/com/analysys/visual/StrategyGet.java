@@ -49,7 +49,14 @@ public class StrategyGet {
                     return;
                 }
                 final String url = userConfigUrl + getParams();
-                InternalAgent.getNetExecutor().submit(new StrategyTask(mContext, url));
+//                InternalAgent.getNetExecutor().submit(new StrategyTask(mContext, url));
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new StrategyTask(mContext, url).run();
+                    }
+                }).start();
+
             } else {
                 InternalAgent.d("当前网络不可用");
             }
