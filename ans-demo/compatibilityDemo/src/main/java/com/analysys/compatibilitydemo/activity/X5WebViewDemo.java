@@ -26,11 +26,14 @@ public class X5WebViewDemo extends AppCompatActivity {
     private void webView() {
         x5WebView = (WebView) findViewById(R.id.forum_context);
         x5WebView.loadUrl("http://uc.analysys.cn/huaxiang/hybrid-4.3.0.10/");
-        x5WebView.setWebViewClient(new MyWebviewClient());
         x5WebView.getSettings().setJavaScriptEnabled(true);
         x5WebView.setWebChromeClient(new WebChromeClient());
         x5WebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+//        x5WebView.setWebViewClient(new OldWebviewClient());
+        // 设置UserAgent
         AnalysysAgent.setHybridModel(mContext, x5WebView);
+        // 设置WebViewClient
+        x5WebView.setWebViewClient(new MyWebviewClient());
     }
 
     @Override
@@ -38,15 +41,28 @@ public class X5WebViewDemo extends AppCompatActivity {
         super.onDestroy();
     }
 
-    class MyWebviewClient extends WebViewClient {
-
+    class OldWebviewClient extends WebViewClient {
         @Override
         public void onPageFinished(WebView view, String url) {
-            Log.d("analysys.hybrid", "onPageFinished url:" + url);
         }
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("analysys.hybrid", "old: shouldOverrideUrlLoading url:" + url);
+//            AnalysysAgent.interceptUrl(mContext, url, view);
+            return false;
+        }
+    }
+
+    class MyWebviewClient extends WebViewClient {
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+        }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("analysys.hybrid", "new: onPageFinished url:" + url);
             AnalysysAgent.interceptUrl(mContext, url, view);
             return false;
         }

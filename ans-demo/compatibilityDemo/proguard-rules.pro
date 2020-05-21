@@ -23,13 +23,17 @@
 -keep class com.tencent.** {*;}
 -keep class com.baidu.** {*;}
 -keep class com.xiaomi.** {*;}
--dontwarn com.tencent.bugly.**
--keep public class com.tencent.bugly.**{*;}
 
 -keep class com.uc.crashsdk.** { *; }
 -keep interface com.uc.crashsdk.** { *; }
+-keep class anet.channel.** {*;}
+-keep class com.taobao.** {*;}
+-keep class org.android.** {*;}
 
-
-
+-dontwarn com.tencent.**
+-dontwarn com.taobao.**
+-dontwarn com.baidu.**
+-dontwarn anet.channel.**
+-dontwarn org.android.**
 
 

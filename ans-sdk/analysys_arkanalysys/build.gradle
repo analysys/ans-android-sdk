@@ -8,8 +8,8 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro', 'proguard-rules.pro'
-            consumerProguardFiles 'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro'
+//            consumerProguardFiles 'proguard-custom.pro'
         }
     }
     compileOptions {
@@ -36,7 +36,7 @@ dependencies {
 
 task delRelease(type: Delete) {
     delete('../release')
-    delete('../../repo')
+    delete('../../../repo')
 
 //    delete('../../repo/cn/com/analysys/analysys-core/')
 //    delete('../../repo/cn/com/analysys/analysys-encrypt/')
@@ -159,23 +159,36 @@ task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
     from("../release/zip/") {
         include("demo/")
     }
-    from("../release/") {
-        include("aar/")
-        include("jar/")
-        exclude("jar/analysys-allgro-*")
-
-    }
+//    from("../release/") {
+//        include("aar/")
+//        include("jar/")
+//        exclude("jar/analysys-allgro-*")
+//
+//    }
 
 //    from("../../") {
 //        include("repo/")
 //    }
 
-    baseName = "analysys-pass-android-${releaseTimeVariable}"
+    baseName = "analysys-pass-android-Demo-${releaseTimeVariable}"
     destinationDir file("../release/zip")
 
 }
 
-task makeZipAnsClean(type: Delete, dependsOn: ["makeZipAns"]) {
+
+task makeZipAAR(type: Zip) {
+    from("../release/") {
+        include("aar/")
+        include("jar/")
+        exclude("jar/analysys-allgro-*")
+    }
+
+    baseName = "analysys-pass-android-SDK-${releaseTimeVariable}"
+    destinationDir file("../release/zip")
+
+}
+
+task makeZipAnsClean(type: Delete, dependsOn: ["makeZipAns","makeZipAAR"]) {
     delete("../release/zip/demo/")
     delete("../release/aar/")
     delete("../release/jar/")

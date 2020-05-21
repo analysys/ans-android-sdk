@@ -27,72 +27,72 @@ public class ASMHookAdapter implements ASMHookInterface {
     }
 
     @Override
-    public void trackFragmentResume(Object object, boolean hasTrackPvAnn) {
+    public void trackFragmentResume(Object object, boolean hasTrackPvAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackFragmentSetUserVisibleHint(Object object, boolean isVisibleToUser, boolean hasTrackPvAnn) {
+    public void trackFragmentSetUserVisibleHint(Object object, boolean isVisibleToUser, boolean hasTrackPvAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackOnHiddenChanged(Object object, boolean hidden, boolean hasTrackPvAnn) {
+    public void trackOnHiddenChanged(Object object, boolean hidden, boolean hasTrackPvAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackDialog(DialogInterface dialogInterface, int which, boolean hasTrackClickAnn) {
+    public void trackDialog(DialogInterface dialogInterface, int which, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackTabLayout(Object object, Object tab, boolean hasTrackClickAnn) {
+    public void trackTabLayout(Object object, Object tab, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackTabHost(String tabName, boolean hasTrackClickAnn) {
+    public void trackTabHost(String tabName, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackRadioGroup(RadioGroup parent, int checkedId, boolean hasTrackClickAnn) {
+    public void trackRadioGroup(RadioGroup parent, int checkedId, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackExpListViewChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, boolean hasTrackClickAnn) {
+    public void trackExpListViewChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackExpListViewGroupClick(ExpandableListView parent, View v, int groupPosition, boolean hasTrackClickAnn) {
+    public void trackExpListViewGroupClick(ExpandableListView parent, View v, int groupPosition, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackListView(AdapterView<?> parent, View v, int position, boolean hasTrackClickAnn) {
+    public void trackListView(AdapterView<?> parent, View v, int position, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackViewOnClick(View v, boolean hasTrackClickAnn) {
+    public void trackViewOnClick(View v, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackMenuItem(Object obj,MenuItem menuItem, boolean hasTrackClickAnn) {
+    public void trackMenuItem(Object obj,MenuItem menuItem, boolean hasTrackClickAnn,long currentTime) {
 
     }
 
     @Override
-    public void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn) {
+    public void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn,long currentTime) {
         
     }
 
     @Override
-    public void trackDrawerSwitch(View drawerLayout, boolean isOpen, boolean hasTrackClickAnn) {
+    public void trackDrawerSwitch(View drawerLayout, boolean isOpen, boolean hasTrackClickAnn,long currentTime) {
         
     }
 

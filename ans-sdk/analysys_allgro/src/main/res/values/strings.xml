@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">analysys_allgro</string>
-    <item name="analysys_tag_fragment_name" type="id" />
+<!--    <item name="analysys_tag_fragment_name" type="id" />-->
     <item name="analysys_tag_view_id" type="id" />
 </resources>

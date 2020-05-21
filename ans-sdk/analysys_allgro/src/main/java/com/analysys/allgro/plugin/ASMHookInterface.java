@@ -27,17 +27,17 @@ public interface ASMHookInterface {
      *
      * @param object fragment 实例
      */
-    void trackFragmentResume(Object object, boolean hasTrackPvAnn);
+    void trackFragmentResume(Object object, boolean hasTrackPvAnn,long currentTime);
 
     /**
      * SetUserVisibleHint 探针
      */
-    void trackFragmentSetUserVisibleHint(Object object, boolean isVisibleToUser, boolean hasTrackPvAnn);
+    void trackFragmentSetUserVisibleHint(Object object, boolean isVisibleToUser, boolean hasTrackPvAnn,long currentTime);
 
     /**
      * Fragment OnHiddenChanged 探针
      */
-    void trackOnHiddenChanged(Object object, boolean hidden, boolean hasTrackPvAnn);
+    void trackOnHiddenChanged(Object object, boolean hidden, boolean hasTrackPvAnn,long currentTime);
 
 
     // ------------------------ Click ---------------------------------------
@@ -45,57 +45,57 @@ public interface ASMHookInterface {
     /**
      * Dialog 点击
      */
-    void trackDialog(DialogInterface dialogInterface, int which, boolean hasTrackClickAnn);
+    void trackDialog(DialogInterface dialogInterface, int which, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * TabLayout 点击
      */
-    void trackTabLayout(Object object, Object tab, boolean hasTrackClickAnn);
+    void trackTabLayout(Object object, Object tab, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * TabHost 点击
      */
-    void trackTabHost(String tabName, boolean hasTrackClickAnn);
+    void trackTabHost(String tabName, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * RadioGroup 点击
      */
-    void trackRadioGroup(RadioGroup parent, int checkedId, boolean hasTrackClickAnn);
+    void trackRadioGroup(RadioGroup parent, int checkedId, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * 扩展ListView Child Item点击
      */
-    void trackExpListViewChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, boolean hasTrackClickAnn);
+    void trackExpListViewChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * 扩展列表控件GroupItem点击
      */
-    void trackExpListViewGroupClick(ExpandableListView parent, View v, int groupPosition, boolean hasTrackClickAnn);
+    void trackExpListViewGroupClick(ExpandableListView parent, View v, int groupPosition, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * 列表控件点击
      */
-    void trackListView(AdapterView<?> parent, View v, int position, boolean hasTrackClickAnn);
+    void trackListView(AdapterView<?> parent, View v, int position, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * 独立控件点击
      */
-    void trackViewOnClick(View v, boolean hasTrackClickAnn);
+    void trackViewOnClick(View v, boolean hasTrackClickAnn,long currentTime);
     
     /**
      * 菜单控件点击
      */
-    void trackMenuItem(Object obj,MenuItem menuItem, boolean hasTrackClickAnn);
+    void trackMenuItem(Object obj,MenuItem menuItem, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * 菜单控件点击
      */
-    void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn);
+    void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn,long currentTime);
     
     /**
      * DrawerLayout控件点击
      */
-    void trackDrawerSwitch(View drawerLayout,boolean isOpen, boolean hasTrackClickAnn);
+    void trackDrawerSwitch(View drawerLayout,boolean isOpen, boolean hasTrackClickAnn,long currentTime);
 
     /**
      * 可能的XML控件点击绑定

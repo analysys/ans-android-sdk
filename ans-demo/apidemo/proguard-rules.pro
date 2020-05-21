@@ -28,11 +28,6 @@
 -dontwarn androidx.**
 
 
-
-
--dontwarn com.analysys.**
--keep class com.analysys** {*;}
-
 -keepclassmembers class * {
    public <init> (org.json.JSONObject);
 }

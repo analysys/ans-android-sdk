@@ -3,23 +3,16 @@ package com.analysys.allgro.plugin;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.RadioGroup;
-import android.widget.Spinner;
 
 import com.analysys.AnalysysConfig;
 import com.analysys.allgro.AllegroUtils;
-import com.analysys.allgro.R;
 import com.analysys.process.AgentProcess;
 import com.analysys.utils.AnalysysUtil;
-import com.analysys.utils.CommonUtils;
+import com.analysys.utils.AnsReflectUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
-import com.analysys.utils.ReflectUtils;
+import com.analysys.utils.SharedUtil;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -35,25 +28,25 @@ class PageViewProbe extends ASMHookAdapter {
      */
     @Override
     public void onFragmentViewCreated(Object object, View rootView, Bundle savedInstanceState, boolean hasTrackPvAnn) {
-        try {
-            if (!AgentProcess.getInstance().getConfig().isAutoTrackClick()) {
-                return;
-            }
-
-            if (!AllegroUtils.isFragment(object)) {
-                return;
-            }
-
-            //Fragment名称
-            String fragmentName = object.getClass().getName();
-            rootView.setTag(R.id.analysys_tag_fragment_name, fragmentName);
-
-            if (rootView instanceof ViewGroup) {
-                traverseView(fragmentName, (ViewGroup) rootView);
-            }
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-        }
+//        try {
+//            if (!AgentProcess.getInstance().getConfig().isAutoTrackClick()) {
+//                return;
+//            }
+//
+//            if (!AllegroUtils.isFragment(object)) {
+//                return;
+//            }
+//
+//            //Fragment名称
+//            String fragmentName = object.getClass().getName();
+//            rootView.setTag(R.id.analysys_tag_fragment_name, fragmentName);
+//
+//            if (rootView instanceof ViewGroup) {
+//                traverseView(fragmentName, (ViewGroup) rootView);
+//            }
+//        } catch (Throwable ignore) {
+//            ExceptionUtil.exceptionThrow(ignore);
+//        }
     }
 
     /**
@@ -62,7 +55,7 @@ class PageViewProbe extends ASMHookAdapter {
      * @param object fragment 实例
      */
     @Override
-    public void trackFragmentResume(Object object, boolean hasTrackPvAnn) {
+    public void trackFragmentResume(Object object, boolean hasTrackPvAnn,long currentTime) {
 
         try {
             if (!checkFragmentPVEnable(object, hasTrackPvAnn)) {
@@ -76,11 +69,11 @@ class PageViewProbe extends ASMHookAdapter {
             Object parentFragment = AllegroUtils.getParentFragment(object);
             if (parentFragment == null) {
                 if (fragmentIsShow(object) && fragmentGetUserVisibleHint(object)) {
-                    autoTrackFragmentPageView(object, hasTrackPvAnn);
+                    autoTrackFragmentPageView(object, hasTrackPvAnn,currentTime);
                 }
             } else {
                 if (fragmentIsShow(object) && fragmentGetUserVisibleHint(object) && fragmentIsShow(parentFragment) && fragmentGetUserVisibleHint(parentFragment)) {
-                    autoTrackFragmentPageView(object, hasTrackPvAnn);
+                    autoTrackFragmentPageView(object, hasTrackPvAnn,currentTime);
                 }
             }
         } catch (Throwable ignore) {
@@ -92,7 +85,7 @@ class PageViewProbe extends ASMHookAdapter {
      * SetUserVisibleHint 探针
      */
     @Override
-    public void trackFragmentSetUserVisibleHint(Object object, boolean isVisibleToUser, boolean hasTrackPvAnn) {
+    public void trackFragmentSetUserVisibleHint(Object object, boolean isVisibleToUser, boolean hasTrackPvAnn,long currentTime) {
 
         try {
             if (!checkFragmentPVEnable(object, hasTrackPvAnn)) {
@@ -109,7 +102,7 @@ class PageViewProbe extends ASMHookAdapter {
                 if (isVisibleToUser) {
                     if (fragmentIsResumed(object)) {
                         if (fragmentIsShow(object)) {
-                            autoTrackFragmentPageView(object, hasTrackPvAnn);
+                            autoTrackFragmentPageView(object, hasTrackPvAnn,currentTime);
                         }
                     }
                 }
@@ -117,7 +110,7 @@ class PageViewProbe extends ASMHookAdapter {
                 if (isVisibleToUser && fragmentGetUserVisibleHint(parentFragment)) {
                     if (fragmentIsResumed(object) && fragmentIsResumed(parentFragment)) {
                         if (fragmentIsShow(object) && fragmentIsShow(parentFragment)) {
-                            autoTrackFragmentPageView(object, hasTrackPvAnn);
+                            autoTrackFragmentPageView(object, hasTrackPvAnn,currentTime);
                         }
                     }
                 }
@@ -131,7 +124,7 @@ class PageViewProbe extends ASMHookAdapter {
      * Fragment OnHiddenChanged 探针
      */
     @Override
-    public void trackOnHiddenChanged(Object object, boolean hidden, boolean hasTrackPvAnn) {
+    public void trackOnHiddenChanged(Object object, boolean hidden, boolean hasTrackPvAnn,long currentTime) {
 
         try {
             if (!checkFragmentPVEnable(object, hasTrackPvAnn)) {
@@ -148,7 +141,7 @@ class PageViewProbe extends ASMHookAdapter {
                 if (!hidden) {
                     if (fragmentIsResumed(object)) {
                         if (fragmentGetUserVisibleHint(object)) {
-                            autoTrackFragmentPageView(object, hasTrackPvAnn);
+                            autoTrackFragmentPageView(object, hasTrackPvAnn,currentTime);
                         }
                     }
                 }
@@ -156,7 +149,7 @@ class PageViewProbe extends ASMHookAdapter {
                 if (!hidden && fragmentIsShow(parentFragment)) {
                     if (fragmentIsResumed(object) && fragmentIsResumed(parentFragment)) {
                         if (fragmentGetUserVisibleHint(object) && fragmentGetUserVisibleHint(parentFragment)) {
-                            autoTrackFragmentPageView(object, hasTrackPvAnn);
+                            autoTrackFragmentPageView(object, hasTrackPvAnn,currentTime);
                         }
                     }
                 }
@@ -167,26 +160,27 @@ class PageViewProbe extends ASMHookAdapter {
     }
 
     private static boolean fragmentGetUserVisibleHint(Object fragment) {
-        Object obj = ReflectUtils.invokeMethod(fragment, "getUserVisibleHint");
+        Object obj = AnsReflectUtils.invokeMethod(fragment, "getUserVisibleHint");
         if (obj != null) {
-            return true;
+            return (boolean) obj;
         }
         return false;
     }
 
     private static boolean fragmentIsShow(Object fragment) {
-        Object obj = ReflectUtils.invokeMethod(fragment, "isHidden");
+        Object obj = AnsReflectUtils.invokeMethod(fragment, "isHidden");
         if (obj != null) {
-            return true;
+            boolean flag = (boolean) obj;
+            return !flag;
         }
         return true;
     }
 
 
     private static boolean fragmentIsResumed(Object fragment) {
-        Object obj = ReflectUtils.invokeMethod(fragment, "isResumed");
+        Object obj = AnsReflectUtils.invokeMethod(fragment, "isResumed");
         if (obj != null) {
-            return true;
+            return (boolean) obj;
         }
         return false;
     }
@@ -198,9 +192,9 @@ class PageViewProbe extends ASMHookAdapter {
         Class<?> supportFragmentClass = null;
         Class<?> androidXFragmentClass = null;
         Class<?> fragment = null;
-        fragment = ReflectUtils.getClassByName("android.app.Fragment");
-        supportFragmentClass = ReflectUtils.getClassByName("android.support.v4.app.Fragment");
-        androidXFragmentClass = ReflectUtils.getClassByName("androidx.fragment.app.Fragment");
+        fragment = AnsReflectUtils.getClassByName("android.app.Fragment");
+        supportFragmentClass = AnsReflectUtils.getClassByName("android.support.v4.app.Fragment");
+        androidXFragmentClass = AnsReflectUtils.getClassByName("androidx.fragment.app.Fragment");
 
         if (supportFragmentClass == null && androidXFragmentClass == null && fragment == null) {
             return true;
@@ -218,48 +212,48 @@ class PageViewProbe extends ASMHookAdapter {
     //  ------------------------------------ PageView Hook -------------------------------------------
 
 
-    private void autoTrackFragmentPageView(Object pageObj, boolean hasTrackPvAnn) throws Throwable {
+    private void autoTrackFragmentPageView(Object pageObj, boolean hasTrackPvAnn,long currentTime) throws Throwable {
         if (!checkFragmentPVEnable(pageObj, hasTrackPvAnn)) {
             return;
         }
 
         // 拼接PV上报事
         // 1.初始化property
-        Map<String, Object> pageInfo = AllegroUtils.getPageInfo(pageObj);
+        Map<String, Object> pageInfo = AllegroUtils.getPageInfo(pageObj,false);
         // 2、设置PAGE_REFERRER
-        String pRef = CommonUtils.getIdFile(AnalysysUtil.getContext(), Constants.SP_REFER);
+        String pRef = SharedUtil.getString(AnalysysUtil.getContext(), Constants.SP_REFER,"");
         if (!TextUtils.isEmpty(pRef)) {
             pageInfo.put(Constants.PAGE_REFERRER, pRef);
         }
-        CommonUtils.setIdFile(AnalysysUtil.getContext(), Constants.SP_REFER, (String) pageInfo.get(Constants.PAGE_URL));
+        SharedUtil.setString(AnalysysUtil.getContext(), Constants.SP_REFER, (String) pageInfo.get(Constants.PAGE_URL));
         // 上报PV
-        AgentProcess.getInstance().autoCollectPageView(pageInfo);
+        AgentProcess.getInstance().autoCollectPageView(pageInfo,currentTime);
     }
 
 
-    private void traverseView(String fragmentName, ViewGroup root) {
-        if (TextUtils.isEmpty(fragmentName)) {
-            return;
-        }
-
-        if (root == null) {
-            return;
-        }
-
-        final int childCount = root.getChildCount();
-        for (int i = 0; i < childCount; ++i) {
-            final View child = root.getChildAt(i);
-            if (child != null) {
-                child.setTag(R.id.analysys_tag_fragment_name, fragmentName);
-                if (child instanceof ViewGroup && !(child instanceof ListView ||
-                        child instanceof GridView ||
-                        child instanceof Spinner ||
-                        child instanceof RadioGroup)) {
-                    traverseView(fragmentName, (ViewGroup) child);
-                }
-            }
-        }
-    }
+//    private void traverseView(String fragmentName, ViewGroup root) {
+//        if (TextUtils.isEmpty(fragmentName)) {
+//            return;
+//        }
+//
+//        if (root == null) {
+//            return;
+//        }
+//
+//        final int childCount = root.getChildCount();
+//        for (int i = 0; i < childCount; ++i) {
+//            final View child = root.getChildAt(i);
+//            if (child != null) {
+//                child.setTag(R.id.analysys_tag_fragment_name, fragmentName);
+//                if (child instanceof ViewGroup && !(child instanceof ListView ||
+//                        child instanceof GridView ||
+//                        child instanceof Spinner ||
+//                        child instanceof RadioGroup)) {
+//                    traverseView(fragmentName, (ViewGroup) child);
+//                }
+//            }
+//        }
+//    }
 
     //  ----------------- 黑白名单策略 ---------------------------------
 

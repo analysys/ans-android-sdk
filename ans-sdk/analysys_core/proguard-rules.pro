@@ -4,6 +4,16 @@
 
 # 混淆到包名下
 -dontwarn com.analysys.**
+
+-keepclassmembers class * {
+   public <init> (org.json.JSONObject);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
 # 保证API不混淆
 -keep class com.analysys.AnalysysAgent{
  *;
@@ -12,6 +22,9 @@
  *;
 }
 -keep class com.analysys.ANSAutoPageTracker{
+ *;
+}
+-keep public interface com.analysys.ANSAutoPageTracker{
  *;
 }
 -keep class com.analysys.AnalysysConfig{
@@ -32,7 +45,8 @@
 -keep class com.analysys.utils.ActivityLifecycleUtils {
  *;
  }
--keep class com.analysys.utils.ANSThreadPool {
+
+-keep class com.analysys.utils.AThreadPool {
  *;
  }
 
@@ -49,13 +63,19 @@
  -keep class com.analysys.utils.AnalysysUtil {
   *;
  }
- -keep class com.analysys.utils.ReflectUtils {
+  -keep class com.analysys.utils.SharedUtil {
+   *;
+  }
+ -keep class com.analysys.utils.AnsReflectUtils {
   *;
  }
  -keep class com.analysys.process.AgentProcess {
   *;
  }
  -keep class com.analysys.process.SystemIds {
+  *;
+}
+ -keep class com.analysys.process.PathGeneral {
   *;
 }
 -keep class com.analysys.database.AnsContentProvider {

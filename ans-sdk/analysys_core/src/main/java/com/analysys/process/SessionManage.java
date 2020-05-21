@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
+import com.analysys.utils.SharedUtil;
 
 import java.security.MessageDigest;
 import java.util.Random;
@@ -29,7 +30,7 @@ public class SessionManage {
         return Holder.INSTANCE;
     }
 
-    public void resetSession(boolean deepLink) {
+    public synchronized void resetSession(boolean deepLink) {
         // 是否跨天
         if (isSpanDay()) {
             setSessionId();
@@ -54,8 +55,8 @@ public class SessionManage {
     /**
      * 获取 session Id
      */
-    public String getSessionId() {
-        return CommonUtils.getIdFile(mContext, Constants.SP_SESSION_ID);
+    public synchronized String getSessionId() {
+        return SharedUtil.getString(mContext, Constants.SP_SESSION_ID,"");
     }
 
     /**
@@ -63,7 +64,7 @@ public class SessionManage {
      */
     private boolean isSessionTimeOut(Context context) {
         if (context != null) {
-            String pageEndTime = CommonUtils.getIdFile(context, Constants.SP_LAST_PAGE_CHANGE);
+            String pageEndTime = SharedUtil.getString(context, Constants.SP_LAST_PAGE_CHANGE,"");
             if (!TextUtils.isEmpty(pageEndTime)) {
                 long endTime = CommonUtils.parseLong(pageEndTime, 0);
                 // 上次变动时间到现在是否超过30s
@@ -79,7 +80,7 @@ public class SessionManage {
      */
     private boolean isSpanDay() {
         if (CommonUtils.isEmpty(startDay)) {
-            startDay = CommonUtils.getIdFile(mContext, Constants.SP_START_DAY);
+            startDay = SharedUtil.getString(mContext, Constants.SP_START_DAY,"");
             if (CommonUtils.isEmpty(startDay)) {
                 setStartDay();
                 return false;
@@ -98,7 +99,7 @@ public class SessionManage {
      */
     private void setStartDay() {
         startDay = CommonUtils.getDay();
-        CommonUtils.setIdFile(mContext, Constants.SP_START_DAY, startDay);
+        SharedUtil.setString(mContext, Constants.SP_START_DAY, startDay);
     }
 
 //    /**
@@ -120,7 +121,7 @@ public class SessionManage {
 //    }
 
     private void setSessionId() {
-        CommonUtils.setIdFile(mContext, Constants.SP_SESSION_ID, getSession());
+        SharedUtil.setString(mContext, Constants.SP_SESSION_ID, getSession());
     }
 
     /**

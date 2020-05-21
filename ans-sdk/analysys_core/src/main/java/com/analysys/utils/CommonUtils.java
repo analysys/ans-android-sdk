@@ -22,6 +22,8 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import com.analysys.userinfo.UserInfo;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,7 +84,23 @@ public class CommonUtils {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(
                     context.getPackageName(), PackageManager.GET_META_DATA);
             if (!TextUtils.isEmpty(type)) {
-                return appInfo.metaData.getString(type);
+                if (appInfo == null || appInfo.metaData == null) {
+                    return null;
+                }
+                Object o = appInfo.metaData.get(type);
+                if (o == null) {
+                    return null;
+                }
+                if (o instanceof String) {
+                    return (String) o;
+                } else if (o instanceof Number) {
+                    return String.valueOf(o);
+                } else if (o instanceof Boolean) {
+                    boolean bool = (boolean) o;
+                    return String.valueOf(bool);
+                } else {
+                    return o.toString();
+                }
             }
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
@@ -498,16 +516,16 @@ public class CommonUtils {
         return null;
     }
 
-    /**
-     * 获取 originalId，优先取distinctId,无值，取UUID
-     */
-    public static String getDistinctId(Context context) {
-        String id = getIdFile(context, Constants.SP_DISTINCT_ID);
-        if (isEmpty(id)) {
-            id = getIdFile(context, Constants.SP_UUID);
-        }
-        return id;
-    }
+//    /**
+//     * 获取 originalId，优先取distinctId,无值，取UUID
+//     */
+//    public static String getDistinctId(Context context) {
+//        String id = getIdFile(context, Constants.SP_DISTINCT_ID);
+//        if (isEmpty(id)) {
+//            id = getIdFile(context, Constants.SP_UUID);
+//        }
+//        return id;
+//    }
 
     /**
      * 过滤掉value为空的数据
@@ -584,6 +602,13 @@ public class CommonUtils {
         return result;
     }
 
+    /**
+     *获取 id 信息，兼容性接口：兼容老版本升级上来的数据结构
+     * @param context
+     * @param key
+     * @param value
+     */
+    @Deprecated
     public static void setIdFile(Context context, String key, String value) {
         try {
             if (context != null && !TextUtils.isEmpty(key)) {
@@ -609,8 +634,9 @@ public class CommonUtils {
     }
 
     /**
-     * 获取 id 信息
+     * 获取 id 信息，兼容性接口：兼容老版本升级上来的数据结构
      */
+    @Deprecated
     public static String getIdFile(Context context, String key) {
         try {
             if (context == null || context.getFilesDir() == null) {
@@ -627,40 +653,6 @@ public class CommonUtils {
 //            writeFile(filePath, null);
         }
         return null;
-    }
-
-    /**
-     * 写入数值
-     */
-    public static void writeCount(String path, String content) {
-        try {
-            writeFile(path + Constants.COUNT_FILE_NAME, content);
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-        }
-    }
-
-    /**
-     * 读取数值
-     */
-    public static int readCount(String path) {
-        try {
-            String count = readFile(path + Constants.COUNT_FILE_NAME);
-            if(TextUtils.isEmpty(count)){
-                return 0;
-            }
-            return CommonUtils.parseInt(count, 0);
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-            return 0;
-        }
-    }
-
-    /**
-     * 重置数值
-     */
-    public static void resetCount(String path) {
-        writeCount(path, "0");
     }
 
     /**
@@ -778,49 +770,25 @@ public class CommonUtils {
      * 获取distinct id 如果用户没有调用，获取androidId
      */
     public static String getUserId(Context context) {
-        String id = getIdFile(context, Constants.SP_ALIAS_ID);
-        if (!isEmpty(id)) {
-            return id;
-        }
-        id = getIdFile(context, Constants.SP_DISTINCT_ID);
-        if (!isEmpty(id)) {
-            return id;
-        }
-        id = getIdFile(context, Constants.SP_UUID);
-        if (!isEmpty(id)) {
-            return id;
-        } else {
-            String uuid = String.valueOf(java.util.UUID.randomUUID());
-            setIdFile(context, Constants.SP_UUID, uuid);
-        }
-        if (TextUtils.isEmpty(id)) {
-            id = transSaveId(context);
-        }
-        return id;
-    }
-
-    /**
-     * device id advertisingId>androidid>uuid
-     */
-    public static String getDeviceId(Context context) {
-        // advertising id
-        String id = SharedUtil.getString(context, Constants.SP_ADID, null);
-        if (!TextUtils.isEmpty(id)) {
-            return id;
-        }
-
-        // android id
-        id = getAndroidID(context);
-        if (!TextUtils.isEmpty(id)) {
-            return id;
-        }
-        // uuid
-        id = getIdFile(context, Constants.SP_UUID);
-        if (TextUtils.isEmpty(id)) {
-            id = String.valueOf(java.util.UUID.randomUUID());
-        }
-        setIdFile(context, Constants.SP_UUID, id);
-        return id;
+//        String id = getIdFile(context, Constants.SP_ALIAS_ID);
+//        if (!isEmpty(id)) {
+//            return id;
+//        }
+//        id = getIdFile(context, Constants.SP_DISTINCT_ID);
+//        if (!isEmpty(id)) {
+//            return id;
+//        }
+//        id = getIdFile(context, Constants.SP_UUID);
+//        if (!isEmpty(id)) {
+//            return id;
+//        } else {
+//            String uuid = String.valueOf(java.util.UUID.randomUUID());
+//            setIdFile(context, Constants.SP_UUID, uuid);
+//        }
+//        if (TextUtils.isEmpty(id)) {
+//            id = transSaveId(context);
+//        }
+        return UserInfo.getXho();
     }
 
     /**
@@ -835,32 +803,32 @@ public class CommonUtils {
         }
     }
 
-    /**
-     * 转存id
-     */
-    private static String transSaveId(Context context) {
-        String aliasId = SharedUtil.getString(context, Constants.SP_ALIAS_ID, null);
-        if (!TextUtils.isEmpty(aliasId)) {
-            setIdFile(context, Constants.SP_ALIAS_ID, aliasId);
-        }
-        String distinctId = SharedUtil.getString(context, Constants.SP_DISTINCT_ID, null);
-        if (!TextUtils.isEmpty(distinctId)) {
-            setIdFile(context, Constants.SP_DISTINCT_ID, distinctId);
-        }
-        String uuid = SharedUtil.getString(context, Constants.SP_UUID, null);
-        if (TextUtils.isEmpty(uuid)) {
-            uuid = String.valueOf(java.util.UUID.randomUUID());
-        }
-        setIdFile(context, Constants.SP_UUID, uuid);
-
-        if (!TextUtils.isEmpty(aliasId)) {
-            return aliasId;
-        }
-        if (!TextUtils.isEmpty(distinctId)) {
-            return distinctId;
-        }
-        return uuid;
-    }
+//    /**
+//     * 转存id
+//     */
+//    private static String transSaveId(Context context) {
+//        String aliasId = SharedUtil.getString(context, Constants.SP_ALIAS_ID, null);
+//        if (!TextUtils.isEmpty(aliasId)) {
+//            setIdFile(context, Constants.SP_ALIAS_ID, aliasId);
+//        }
+//        String distinctId = SharedUtil.getString(context, Constants.SP_DISTINCT_ID, null);
+//        if (!TextUtils.isEmpty(distinctId)) {
+//            setIdFile(context, Constants.SP_DISTINCT_ID, distinctId);
+//        }
+//        String uuid = SharedUtil.getString(context, Constants.SP_UUID, null);
+//        if (TextUtils.isEmpty(uuid)) {
+//            uuid = String.valueOf(java.util.UUID.randomUUID());
+//        }
+//        setIdFile(context, Constants.SP_UUID, uuid);
+//
+//        if (!TextUtils.isEmpty(aliasId)) {
+//            return aliasId;
+//        }
+//        if (!TextUtils.isEmpty(distinctId)) {
+//            return distinctId;
+//        }
+//        return uuid;
+//    }
 
     /**
      * 获取应用版本名称
@@ -984,13 +952,6 @@ public class CommonUtils {
         return 0;
     }
 
-    /**
-     * 是否登录
-     */
-    public static boolean getLogin(Context context) {
-        int isLogin = SharedUtil.getInt(context, Constants.SP_IS_LOGIN, 0);
-        return isLogin == 1;
-    }
 
     /**
      * 获取 IMEI
@@ -1098,17 +1059,17 @@ public class CommonUtils {
         return macInfo;
     }
 
-    /**
-     * 获取original id
-     */
-    public static Object getOriginalId(Context context) {
-        String originalId = SharedUtil.getString(context, Constants.SP_ORIGINAL_ID, null);
-        if (!isEmpty(originalId)) {
-            return originalId;
-        } else {
-            return getDistinctId(context);
-        }
-    }
+//    /**
+//     * 获取original id
+//     */
+//    public static Object getOriginalId(Context context) {
+//        String originalId = SharedUtil.getString(context, Constants.SP_ORIGINAL_ID, null);
+//        if (!isEmpty(originalId)) {
+//            return originalId;
+//        } else {
+//            return getDistinctId(context);
+//        }
+//    }
 
     /**
      * 本地数据加密
@@ -1302,7 +1263,7 @@ public class CommonUtils {
     public static long getCalibrationTimeMillis(Context context) {
         if (Constants.isTimeCheck) {
             if (!CommonUtils.isMainProcess(context)) {
-                String diff = CommonUtils.getIdFile(context, Constants.SP_DIFF_TIME);
+                String diff = SharedUtil.getString(context, Constants.SP_DIFF_TIME,"");
                 if (!TextUtils.isEmpty(diff)) {
                     Constants.diffTime = CommonUtils.parseLong(diff, 0);
                 }

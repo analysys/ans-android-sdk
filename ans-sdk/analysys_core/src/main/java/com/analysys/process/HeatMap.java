@@ -2,7 +2,6 @@ package com.analysys.process;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -19,20 +18,18 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.AThreadPool;
+import com.analysys.utils.AnsReflectUtils;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
-import com.analysys.utils.ReflectUtils;
 
 import org.json.JSONArray;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -68,15 +65,7 @@ public class HeatMap {
             pageInfo.put(Constants.PAGE_WIDTH, metrics.widthPixels);
             pageInfo.put(Constants.PAGE_HEIGHT, metrics.heightPixels);
             pageInfo.put(Constants.TOUCH_SCREEN_DPI, metrics.densityDpi);
-            float scale = 1.0f;
-            View rootView = activity.getWindow().getDecorView().getRootView();
-            rootView.setDrawingCacheEnabled(true);
-            rootView.buildDrawingCache(true);
-            Bitmap rawBitmap = rootView.getDrawingCache();
-            if (rawBitmap != null && !rawBitmap.isRecycled()) {
-                final int rawDensity = rawBitmap.getDensity();
-                scale = ((float) DisplayMetrics.DENSITY_DEFAULT) / rawDensity;
-            }
+            float scale = (float) DisplayMetrics.DENSITY_DEFAULT / metrics.densityDpi;
             pageInfo.put(Constants.TOUCH_SCREEN_SCALE, scale);
         }
     }
@@ -141,8 +130,8 @@ public class HeatMap {
         if (isTouch(rawX, rawY)) {
             x = event.getX();
             y = event.getY();
-
-            ANSThreadPool.heatMapExecute(new Runnable() {
+            final long currentTime = System.currentTimeMillis();
+            AThreadPool.asyncLowPriorityExecutor(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -151,15 +140,15 @@ public class HeatMap {
                         } else {
                             clickInfo.clear();
                         }
-                        setClickCoordinate();
                         final String path = PathGeneral.getInstance().general(v);
                         boolean isAddPath = setPath(path);
                         if (isAddPath) {
                             rx = rawX;
                             ry = rawY;
+                            setClickCoordinate();
                             setClickContent(v);
                             clickInfo.putAll(pageInfo);
-                            AgentProcess.getInstance().pageTouchInfo(clickInfo);
+                            AgentProcess.getInstance().pageTouchInfo(clickInfo,currentTime);
                         }
                     } catch (Throwable ignore) {
                         ExceptionUtil.exceptionThrow(ignore);
@@ -219,9 +208,9 @@ public class HeatMap {
 
     private String getContent(View view) throws Exception {
         Class<?> compatClass = null;
-        compatClass = ReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
+        compatClass = AnsReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
         if (compatClass == null) {
-            compatClass = ReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
+            compatClass = AnsReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
         }
         CharSequence charSequence = null;
         if (compatClass != null

@@ -4,16 +4,19 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
@@ -32,13 +35,14 @@ import android.widget.ToggleButton;
 
 import com.analysys.ANSAutoPageTracker;
 import com.analysys.utils.AnalysysUtil;
+import com.analysys.utils.AnsReflectUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
-import com.analysys.utils.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,69 +99,69 @@ public class AllegroUtils {
         CharSequence viewText = "";
         if (view instanceof CheckBox) {
             // CheckBox
-            viewType = "CheckBox";
+//            viewType = "CheckBox";
             CheckBox checkBox = (CheckBox) view;
             viewText = checkBox.getText();
         } else if (view instanceof RadioButton) {
             // RadioButton
-            viewType = "RadioButton";
+//            viewType = "RadioButton";
             RadioButton radioButton = (RadioButton) view;
             viewText = radioButton.getText();
         } else if (view instanceof ToggleButton) {
             // ToggleButton
-            viewType = "ToggleButton";
+//            viewType = "ToggleButton";
             viewText = getCompoundButtonText(view);
         } else if (view instanceof CompoundButton) {
-            viewType = getViewTypeByReflect(view);
+//            viewType = getViewTypeByReflect(view);
             viewText = getCompoundButtonText(view);
         } else if (view instanceof Button) {
             // Button
-            viewType = "Button";
+//            viewType = "Button";
             Button button = (Button) view;
             viewText = button.getText();
         } else if (view instanceof CheckedTextView) {
             // CheckedTextView
-            viewType = "CheckedTextView";
+//            viewType = "CheckedTextView";
             CheckedTextView textView = (CheckedTextView) view;
             viewText = textView.getText();
         } else if (view instanceof TextView) {
             // TextView
-            viewType = "TextView";
+//            viewType = "TextView";
             TextView textView = (TextView) view;
             viewText = textView.getText();
         } else if (view instanceof ImageView) {
             // ImageView
-            viewType = "ImageView";
+//            viewType = "ImageView";
             ImageView imageView = (ImageView) view;
             if (!TextUtils.isEmpty(imageView.getContentDescription())) {
                 viewText = imageView.getContentDescription().toString();
             }
         } else if (view instanceof RatingBar) {
-            viewType = "RatingBar";
+//            viewType = "RatingBar";
             RatingBar ratingBar = (RatingBar) view;
             viewText = String.valueOf(ratingBar.getRating());
         } else if (view instanceof SeekBar) {
-            viewType = "SeekBar";
+//            viewType = "SeekBar";
             SeekBar seekBar = (SeekBar) view;
             viewText = String.valueOf(seekBar.getProgress());
         } else if (view instanceof ExpandableListView) {
-            viewType = "ExpandableListView";
+//            viewType = "ExpandableListView";
             viewText = "";
         } else if (view instanceof ListView) {
-            viewType = "ListView";
+//            viewType = "ListView";
             viewText = "";
         } else if (view instanceof GridView) {
-            viewType = "GridView";
+//            viewType = "GridView";
             viewText = "";
         } else if (view instanceof Spinner) {
-            viewType = "Spinner";
+//            viewType = "Spinner";
             StringBuilder stringBuilder = new StringBuilder();
             viewText = traverseView(stringBuilder, (ViewGroup) view);
             if (!TextUtils.isEmpty(viewText)) {
                 viewText = viewText.toString().substring(0, viewText.length() - 1);
             }
         } else if (view instanceof ViewGroup) {
-            viewType = getViewGroupTypeByReflect(view);
+//            viewType = getViewGroupTypeByReflect(view);
             viewText = view.getContentDescription();
             if (TextUtils.isEmpty(viewText)) {
                 try {
@@ -172,9 +176,9 @@ public class AllegroUtils {
             }
         }
 
-        if (TextUtils.isEmpty(viewType)) {
+//        if (TextUtils.isEmpty(viewType)) {
             viewType = view.getClass().getName();
-        }
+//        }
 
         if (TextUtils.isEmpty(viewText)) {
             viewText = "";
@@ -207,28 +211,28 @@ public class AllegroUtils {
         }
     }
 
-    /**
-     * 通过反射判断类的类型
-     *
-     * @param view 判断类型的 view
-     * @return viewType
-     */
-    private static String getViewTypeByReflect(View view) {
-        Class<?> compatClass;
-        compatClass = ReflectUtils.getClassByName("android.widget.Switch");
-        if (compatClass != null && compatClass.isInstance(view)) {
-            return "Switch";
-        }
-        compatClass = ReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
-        if (compatClass != null && compatClass.isInstance(view)) {
-            return "SwitchCompat";
-        }
-        compatClass = ReflectUtils.getClassByName("android.support.design.widget.NavigationView");
-        if (compatClass != null && compatClass.isInstance(view)) {
-            return "SwitchCompat";
-        }
-        return view.getClass().getName();
-    }
+//    /**
+//     * 通过反射判断类的类型
+//     *
+//     * @param view 判断类型的 view
+//     * @return viewType
+//     */
+//    private static String getViewTypeByReflect(View view) {
+//        Class<?> compatClass;
+//        compatClass = AnsReflectUtils.getClassByName("android.widget.Switch");
+//        if (compatClass != null && compatClass.isInstance(view)) {
+//            return "Switch";
+//        }
+//        compatClass = AnsReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
+//        if (compatClass != null && compatClass.isInstance(view)) {
+//            return "SwitchCompat";
+//        }
+//        compatClass = AnsReflectUtils.getClassByName("android.support.design.widget.NavigationView");
+//        if (compatClass != null && compatClass.isInstance(view)) {
+//            return "SwitchCompat";
+//        }
+//        return view.getClass().getName();
+//    }
 
     private static String traverseView(StringBuilder stringBuilder, ViewGroup root) {
         try {
@@ -276,10 +280,10 @@ public class AllegroUtils {
         }
         try {
             Class<?> switchCompatClass = null;
-            switchCompatClass = ReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
+            switchCompatClass = AnsReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
 
             if (switchCompatClass == null) {
-                switchCompatClass = ReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
+                switchCompatClass = AnsReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
             }
 
             CharSequence viewText = null;
@@ -344,19 +348,19 @@ public class AllegroUtils {
      */
     private static String getViewGroupTypeByReflect(View view) {
         Class<?> compatClass;
-        compatClass = ReflectUtils.getClassByName("android.support.v7.widget.CardView");
+        compatClass = AnsReflectUtils.getClassByName("android.support.v7.widget.CardView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "CardView";
         }
-        compatClass = ReflectUtils.getClassByName("androidx.cardview.widget.CardView");
+        compatClass = AnsReflectUtils.getClassByName("androidx.cardview.widget.CardView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "CardView";
         }
-        compatClass = ReflectUtils.getClassByName("android.support.design.widget.NavigationView");
+        compatClass = AnsReflectUtils.getClassByName("android.support.design.widget.NavigationView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "NavigationView";
         }
-        compatClass = ReflectUtils.getClassByName("com.google.android.material.navigation.NavigationView");
+        compatClass = AnsReflectUtils.getClassByName("com.google.android.material.navigation.NavigationView");
         if (compatClass != null && compatClass.isInstance(view)) {
             return "NavigationView";
         }
@@ -378,10 +382,10 @@ public class AllegroUtils {
             Class<?> supportFragmentClass = null;
             Class<?> androidXFragmentClass = null;
             Class<?> fragment = null;
-            fragment = ReflectUtils.getClassByName("android.app.Fragment");
-            supportFragmentClass = ReflectUtils.getClassByName("android.support.v4.app.Fragment");
+            fragment = AnsReflectUtils.getClassByName("android.app.Fragment");
+            supportFragmentClass = AnsReflectUtils.getClassByName("android.support.v4.app.Fragment");
 
-            androidXFragmentClass = ReflectUtils.getClassByName("androidx.fragment.app.Fragment");
+            androidXFragmentClass = AnsReflectUtils.getClassByName("androidx.fragment.app.Fragment");
 
             if (supportFragmentClass == null && androidXFragmentClass == null && fragment == null) {
                 return false;
@@ -399,12 +403,14 @@ public class AllegroUtils {
         return false;
     }
 
+
     /**
      * 获取示页面相关信息
-     *
-     * @return String[0]=url  String[1]=title
+     * @param pageObj
+     * @param flag:false表示pv事件，true表示点击事件
+     * @return
      */
-    public static Map<String, Object> getPageInfo(Object pageObj) {
+    public static Map<String, Object> getPageInfo(Object pageObj,boolean flag) {
         Map<String, Object> pageInfo = new HashMap<>(3);
         try {
             if (pageObj == null) {
@@ -447,8 +453,10 @@ public class AllegroUtils {
                 if (!pageInfo.containsKey(Constants.PAGE_URL)) {
                     pageInfo.put(Constants.PAGE_URL, pageObj.getClass().getName());
                 }
-                if (parentAc != null) {
-                    pageInfo.put(Constants.PARENT_URL, getPageUrl(parentAc));
+                if(flag){
+                    if (parentAc != null) {
+                        pageInfo.put(Constants.PARENT_URL, getPageUrl(parentAc));
+                    }
                 }
             } else if (isFragment(pageObj)) {
                 Activity parentAc = getActivityFromFragment(pageObj);
@@ -465,15 +473,20 @@ public class AllegroUtils {
                 if (!pageInfo.containsKey(Constants.PAGE_URL)) {
                     pageInfo.put(Constants.PAGE_URL, pageObj.getClass().getName());
                 }
-                if (parentAc != null) {
-                    pageInfo.put(Constants.PARENT_URL, getPageUrl(parentAc));
+                if(flag){
+                    if (parentAc != null) {
+                        pageInfo.put(Constants.PARENT_URL, getPageUrl(parentAc));
+                    }
                 }
             }
 
-            // 页面宽高
-            int[] pageHeightAndWidth = getPageHeightAndWidth(pageObj);
-            pageInfo.put(Constants.PAGE_HEIGHT, pageHeightAndWidth[0]);
-            pageInfo.put(Constants.PAGE_WIDTH, pageHeightAndWidth[1]);
+            if(flag){
+                // 页面宽高
+                int[] pageHeightAndWidth = getPageHeightAndWidth(pageObj);
+                pageInfo.put(Constants.PAGE_HEIGHT, pageHeightAndWidth[0]);
+                pageInfo.put(Constants.PAGE_WIDTH, pageHeightAndWidth[1]);
+            }
+
 
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
@@ -497,14 +510,18 @@ public class AllegroUtils {
                     return dialog;
                 }
                 // 尝试获取Fragment
-                try {
-                    String pageName = getFragmentPageName(v);
-                    if (!TextUtils.isEmpty(pageName)) {
-                        return Class.forName(pageName).newInstance();
-                    }
-                } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
+                Object fragment = getFragmetByView(v);
+                if (fragment != null) {
+                    return fragment;
                 }
+//                try {
+//                    String pageName = getFragmentPageName(v);
+//                    if (!TextUtils.isEmpty(pageName)) {
+//                        return Class.forName(pageName).newInstance();
+//                    }
+//                } catch (Throwable ignore) {
+//                    ExceptionUtil.exceptionThrow(ignore);
+//                }
                 // 尝试获取activity
                 Activity activity = getActivityFromView(v);
                 if (activity != null) {
@@ -518,6 +535,43 @@ public class AllegroUtils {
         return AnalysysUtil.getCurActivity();
     }
 
+    private static Object getFragmetByView(View v) {
+        Context ctx = v.getContext();
+        Object fm = AnsReflectUtils.invokeMethod(ctx, "getSupportFragmentManager");
+        if (fm == null) {
+            fm = AnsReflectUtils.invokeMethod(ctx, "getFragmentManager");
+            if (fm == null) {
+                return null;
+            }
+        }
+        Object obj = AnsReflectUtils.invokeMethod(fm, "getFragments");
+        if (!(obj instanceof List)) {
+            return null;
+        }
+        List fragments = (List) obj;
+        for (Object fragment : fragments) {
+            Object isAdded = AnsReflectUtils.invokeMethod(fragment, "isAdded");
+            if (isAdded instanceof Boolean && (boolean) isAdded) {
+                Object view = AnsReflectUtils.invokeMethod(fragment, "getView");
+                if (view instanceof View && isBelongToView((View) view, v)) {
+                    return fragment;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean isBelongToView(View rootView, View view) {
+        if (rootView == view) {
+            return true;
+        }
+        ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            return isBelongToView(rootView, (View) parent);
+        } else {
+            return false;
+        }
+    }
 
     /**
      * 获取当前Fragment的父Fragment
@@ -585,8 +639,12 @@ public class AllegroUtils {
             }
             ActionBar actionBar = activity.getActionBar();
             if (actionBar != null) {
-                if (!TextUtils.isEmpty(actionBar.getTitle())) {
-                    return actionBar.getTitle().toString();
+                try {
+                    if (!TextUtils.isEmpty(actionBar.getTitle())) {
+                        return actionBar.getTitle().toString();
+                    }
+                }catch (Throwable ignore){
+                    ExceptionUtil.exceptionPrint(ignore);
                 }
             } else {
                 try {
@@ -603,7 +661,7 @@ public class AllegroUtils {
                         }
                     }
                 } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
+                    ExceptionUtil.exceptionPrint(ignore);
                     //ignored
                 }
             }
@@ -615,10 +673,10 @@ public class AllegroUtils {
 
     private static Class<?> compatActivity() {
         Class<?> appCompatActivityClass = null;
-        appCompatActivityClass = ReflectUtils.getClassByName("android.support.v7.app.AppCompatActivity");
+        appCompatActivityClass = AnsReflectUtils.getClassByName("android.support.v7.app.AppCompatActivity");
 
         if (appCompatActivityClass == null) {
-            appCompatActivityClass = ReflectUtils.getClassByName("androidx.appcompat.app.AppCompatActivity");
+            appCompatActivityClass = AnsReflectUtils.getClassByName("androidx.appcompat.app.AppCompatActivity");
         }
         return appCompatActivityClass;
     }
@@ -635,7 +693,7 @@ public class AllegroUtils {
             Activity ac = (Activity) pageObj;
             View decorView = ac.getWindow().getDecorView();
             pageInfo[0] = decorView.getHeight();
-            pageInfo[1] = decorView.getHeight();
+            pageInfo[1] = decorView.getWidth();
         } else if (isFragment(pageObj)) {
             try {
                 Class pageClass = pageObj.getClass();
@@ -650,6 +708,19 @@ public class AllegroUtils {
                 }
             } catch (Throwable ignore) {
                 ExceptionUtil.exceptionThrow(ignore);
+            }
+        } else if(pageObj instanceof Dialog){
+            Dialog dlg = (Dialog) pageObj;
+            View decorView = dlg.getWindow().getDecorView();
+            pageInfo[0] = decorView.getHeight();
+            pageInfo[1] = decorView.getWidth();
+        } else {
+            WindowManager wm = (WindowManager) (AnalysysUtil.getContext().getSystemService(Context.WINDOW_SERVICE));
+            DisplayMetrics metrics = new DisplayMetrics();
+            if (wm != null) {
+                wm.getDefaultDisplay().getMetrics(metrics);
+                pageInfo[0] = metrics.heightPixels;
+                pageInfo[1] = metrics.widthPixels;
             }
         }
         return pageInfo;
@@ -669,7 +740,9 @@ public class AllegroUtils {
             url = autoPageTracker.registerPageUrl();
             if (TextUtils.isEmpty(url)) {
                 Map<String, Object> map = autoPageTracker.registerPageProperties();
-                url = (String) map.get(Constants.PAGE_URL);
+                if (map != null) {
+                    url = (String) map.get(Constants.PAGE_URL);
+                }
             }
             if (TextUtils.isEmpty(url)) {
                 return url;
@@ -691,14 +764,30 @@ public class AllegroUtils {
      * @return Activity or null
      */
     public static Activity getActivityFromFragment(Object fragment) {
+        Activity currentActivity = null;
+
         try {
-            Method getActivityMethod = fragment.getClass().getMethod("getActivity");
-            return (Activity) getActivityMethod.invoke(fragment);
+
+//            ((Fragment)fragment).getActivity()
+
+            if(fragment!=null&&(fragment instanceof Fragment)){
+                currentActivity = ((Fragment)fragment).getActivity();
+            }
+
+            if(currentActivity==null){
+                Method getActivityMethod = fragment.getClass().getMethod("getActivity");
+                currentActivity = (Activity) getActivityMethod.invoke(fragment);
+            }
+
+            if(currentActivity==null){
+                currentActivity = getCurAc();
+            }
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
             //ignored
         }
-        return getCurAc();
+
+        return currentActivity;
     }
 
     public static Activity getActivityFromDialog(Dialog dialog) {
@@ -758,24 +847,24 @@ public class AllegroUtils {
         return null;
     }
 
-    private static String getFragmentPageName(View v) {
-        Object tag = v.getTag(R.id.analysys_tag_fragment_name);
-        if (tag instanceof String) {
-            return tag.toString();
-        }
-        ViewParent parent = v.getParent();
-        while (parent instanceof View) {
-            View curView = (View) parent;
-            Object fragmentName = curView.getTag(R.id.analysys_tag_fragment_name);
-            if (fragmentName instanceof String) {
-                String pageName = fragmentName.toString();
-                v.setTag(R.id.analysys_tag_fragment_name, pageName);
-                return pageName;
-            }
-            parent = curView.getParent();
-        }
-        return "";
-    }
+//    private static String getFragmentPageName(View v) {
+//        Object tag = v.getTag(R.id.analysys_tag_fragment_name);
+//        if (tag instanceof String) {
+//            return tag.toString();
+//        }
+//        ViewParent parent = v.getParent();
+//        while (parent instanceof View) {
+//            View curView = (View) parent;
+//            Object fragmentName = curView.getTag(R.id.analysys_tag_fragment_name);
+//            if (fragmentName instanceof String) {
+//                String pageName = fragmentName.toString();
+//                v.setTag(R.id.analysys_tag_fragment_name, pageName);
+//                return pageName;
+//            }
+//            parent = curView.getParent();
+//        }
+//        return "";
+//    }
 
     /**
      * 获取对象字段值

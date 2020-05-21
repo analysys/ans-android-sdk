@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
@@ -18,7 +19,8 @@ import com.analysys.network.NetworkUtils;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.HeatMap;
 import com.analysys.process.SessionManage;
-import com.analysys.utils.ANSThreadPool;
+import com.analysys.userinfo.UserInfo;
+import com.analysys.utils.AThreadPool;
 import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
@@ -48,7 +50,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     /**
      * 应用启动时间
      */
-    private long appStartTime = 0;
+//    private long appStartTime = 0;
     private boolean fromBackground = false;
     private ViewTreeObserver.OnGlobalLayoutListener layoutListener;
 
@@ -68,7 +70,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                             trackAppEnd(msg);
                             break;
                         case SAVE_END_INFO:
-                            int count = CommonUtils.readCount(filePath);
+                            int count = SharedUtil.getInt(AnalysysUtil.getContext(),Constants.PAGE_COUNT,0);
                             if (count != 0) {
                                 saveEndInfoCache();
                                 sendEmptyMessageDelayed(SAVE_END_INFO, Constants.TRACK_END_INVALID);
@@ -115,10 +117,10 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
 
     @Override
     public void onActivityPaused(final Activity activity) {
-        ANSThreadPool.execute(new Runnable() {
+        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
             @Override
             public void run() {
-                CommonUtils.setIdFile(activity.getApplicationContext(),
+                SharedUtil.setString(activity.getApplicationContext(),
                         Constants.SP_LAST_PAGE_CHANGE,
                         String.valueOf(System.currentTimeMillis()));
             }
@@ -162,7 +164,9 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     }
 
     private void appStart(final WeakReference<Activity> wr) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        final long appStartTime = SystemClock.elapsedRealtime();
+        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -176,11 +180,11 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
 
                             String changeTime = String.valueOf(System.currentTimeMillis());
                             // 2.存lastPageChange
-                            CommonUtils.setIdFile(activity.getApplicationContext(),
+                            SharedUtil.setString(activity.getApplicationContext(),
                                     Constants.SP_LAST_PAGE_CHANGE, changeTime);
 
-                            activityStart(context);
-                            pageView(activity);
+                            activityStart(context,appStartTime,currentTime);
+                            pageView(activity,currentTime);
                         }
                     }
                 } catch (Throwable ignore) {
@@ -193,7 +197,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     /**
      * 页面自动采集
      */
-    private void pageView(Activity activity) throws Throwable {
+    private void pageView(Activity activity,long currentTime) throws Throwable {
         if (activity != null && canTrackPageView(activity.getClass().getName())) {
             Map<String, Object> properties = getRegisterProperties(activity);
             if (!properties.containsKey(Constants.PAGE_URL)) {
@@ -205,7 +209,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
             if (!properties.containsKey(Constants.PAGE_TITLE)) {
                 properties.put(Constants.PAGE_TITLE, activity.getTitle());
             }
-            AgentProcess.getInstance().autoCollectPageView(properties);
+            AgentProcess.getInstance().autoCollectPageView(properties,currentTime);
         }
     }
 
@@ -258,15 +262,19 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     }
 
     private void setReferrer(Context context, String refer) {
-        CommonUtils.setIdFile(context, Constants.SP_REFER, refer);
+        SharedUtil.setString(context, Constants.SP_REFER, refer);
     }
 
     private String getReferrer(Context context) {
-        return CommonUtils.getIdFile(context, Constants.SP_REFER);
+        return SharedUtil.getString(context, Constants.SP_REFER,"");
     }
 
+    /**
+     * 第一次进来的时候和end结束的时候重置rer
+     * @param context
+     */
     private void resetReferrer(Context context) {
-        CommonUtils.setIdFile(context, Constants.SP_REFER, "");
+        SharedUtil.setString(context, Constants.SP_REFER, "");
     }
 
 
@@ -278,8 +286,9 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                 if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
                     checkLayoutListener(activity, false);
                 }
+
                 // 单队列线程执行
-                ANSThreadPool.execute(new Runnable() {
+                AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -320,22 +329,20 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     /**
      * 发送应用启动消息
      */
-    private void activityStart(final Context context) throws Exception{
-        int count = CommonUtils.readCount(filePath);
+    private void activityStart(final Context context,final long appStartTime,final long currentTime) throws Exception{
+        int count = SharedUtil.getInt(AnalysysUtil.getContext(),Constants.PAGE_COUNT,0);
         if (count == 0) {
             // 重置页面来源信息
-            resetReferrer(context);
+            //resetReferrer(context);
             // 1.移除AppEnd delay 任务
             mHandler.removeMessages(TRACK_APP_END);
             // 2.判断session是否超时（30s）
             if (isAppEnd(context)) {
                 // a.走AppEnd 尝试补发流程
                 trackAppEnd(makeTrackAppEndMsg());
-                appStartTime = System.currentTimeMillis();
-                AgentProcess.getInstance().appStart(fromBackground, appStartTime);
-//                CommonUtils.setIdFile(context,
-//                        Constants.APP_START_TIME, String.valueOf(appStartTime));
-                SharedUtil.setString(context,Constants.APP_START_TIME,String.valueOf(appStartTime));
+                AgentProcess.getInstance().appStart(fromBackground,currentTime);
+                SharedUtil.setString(context,
+                        Constants.APP_START_TIME, String.valueOf(appStartTime));
                 // 用于判断是否是后台启动
                 if (!fromBackground) {
                     fromBackground = true;
@@ -352,8 +359,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
      */
     private static boolean isAppEnd(Context context) {
         long invalid = 0;
-//        String lastOperateTime = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
-        String lastOperateTime = SharedUtil.getString(context,Constants.LAST_OP_TIME,"0");
+        String lastOperateTime = SharedUtil.getString(context, Constants.LAST_OP_TIME,"");
         if (!CommonUtils.isEmpty(lastOperateTime)) {
             long aLong = CommonUtils.parseLong(lastOperateTime, 0);
             invalid = Math.abs(aLong - System.currentTimeMillis());
@@ -372,17 +378,17 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
             // 1. 存储实时更新数据
             JSONObject realTimeData = new JSONObject();
             // 存储使用时长
-            long time = System.currentTimeMillis();
-            if (appStartTime == 0) {
+            long time = SystemClock.elapsedRealtime();
+            long appStartTime = 0;
+//            if (appStartTime == 0) {
                 // 获取应用启动时间
-//                String startTime = CommonUtils.getIdFile(context, Constants.APP_START_TIME);
-                String startTime = SharedUtil.getString(context,Constants.APP_START_TIME,"0");
+                String startTime = SharedUtil.getString(context, Constants.APP_START_TIME,"");
                 if (!TextUtils.isEmpty(startTime)) {
                     appStartTime = CommonUtils.parseLong(startTime, 0);
                 }
-            }
+//            }
             long durationTime = time - appStartTime;
-            if (durationTime < 0||appStartTime<=0) {
+            if (durationTime < 0 || appStartTime <= 0) {
                 durationTime = 0;
             }
             realTimeData.put(Constants.DURATION_TIME, durationTime);
@@ -393,17 +399,16 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
             // 是否校验
             realTimeData.put(Constants.TIME_CALIBRATED, true);
             // 是否登录
-            realTimeData.put(Constants.IS_LOGIN, CommonUtils.getLogin(context));
+            realTimeData.put(Constants.IS_LOGIN, UserInfo.getLoginState());
             // session id
             realTimeData.put(Constants.SESSION_ID,
                     SessionManage.getInstance(context).getSessionId());
             // 存储数据
-            CommonUtils.setIdFile(context, Constants.APP_END_INFO,
+            SharedUtil.setString(context, Constants.APP_END_INFO,
                     new String(Base64.encode(String.valueOf(realTimeData).getBytes(),
                             Base64.NO_WRAP)));
             // 存储最后一次操作时间
-//            CommonUtils.setIdFile(context, Constants.LAST_OP_TIME, String.valueOf(time));
-            SharedUtil.setString(context,Constants.LAST_OP_TIME, String.valueOf(time));
+            SharedUtil.setString(context, Constants.LAST_OP_TIME, String.valueOf(System.currentTimeMillis()));
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
@@ -415,7 +420,7 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
      */
     private void appEnd() {
         pageViewDecrease();
-        int count = CommonUtils.readCount(filePath);
+        int count = SharedUtil.getInt(AnalysysUtil.getContext(),Constants.PAGE_COUNT,0);
         // 最后一个页面
         if (count < 1) {
             // 1.关闭定时任务 （实时记录最后一次操作/appEnd 信息）
@@ -430,22 +435,22 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
     /**
      * 页面新增 Count增加
      */
-    private void pageViewIncrease() throws Exception{
-        int count = CommonUtils.readCount(filePath);
+    private synchronized void pageViewIncrease() throws Exception{
+        int count = SharedUtil.getInt(AnalysysUtil.getContext(),Constants.PAGE_COUNT,0);
         count += 1;
-        CommonUtils.writeCount(filePath, String.valueOf(count));
+        SharedUtil.setInt(AnalysysUtil.getContext(),Constants.PAGE_COUNT,count);
     }
 
     /**
      * 页面关闭 Count减少
      */
-    private void pageViewDecrease() {
-        int count = CommonUtils.readCount(filePath);
+    private synchronized void pageViewDecrease() {
+        int count = SharedUtil.getInt(AnalysysUtil.getContext(),Constants.PAGE_COUNT,0);
         count -= 1;
         if (count < 0) {
             count = 0;
         }
-        CommonUtils.writeCount(filePath, String.valueOf(count));
+        SharedUtil.setInt(AnalysysUtil.getContext(),Constants.PAGE_COUNT,count);
     }
 
     /**
@@ -458,14 +463,15 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
         Message msg = Message.obtain();
         msg.what = TRACK_APP_END;
         Bundle bundle = new Bundle();
-        String endInfo = CommonUtils.getIdFile(context, Constants.APP_END_INFO);
-        if (endInfo != null) {
+        String endInfo = SharedUtil.getString(context, Constants.APP_END_INFO,"");
+        if (!TextUtils.isEmpty(endInfo)) {
             bundle.putString(Constants.APP_END_INFO,
                     new String(Base64.decode(endInfo.getBytes(), Base64.DEFAULT)));
         }
-//        String time = CommonUtils.getIdFile(context, Constants.LAST_OP_TIME);
-        String time = SharedUtil.getString(context,Constants.LAST_OP_TIME,"");
-        bundle.putString(Constants.LAST_OP_TIME, time);
+        String time = SharedUtil.getString(context, Constants.LAST_OP_TIME,"");
+        if(!TextUtils.isEmpty(time)) {
+            bundle.putString(Constants.LAST_OP_TIME, time);
+        }
         msg.setData(bundle);
         return msg;
     }
@@ -486,7 +492,9 @@ public class AutomaticAcquisition extends ActivityLifecycleUtils.BaseLifecycleCa
                         // 1. appEndTrack
                         AgentProcess.getInstance().appEnd(opt, data);
                         // 2. 清空config中appEndInfoCache
-                        CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
+//                        CommonUtils.setIdFile(context, Constants.APP_END_INFO, null);
+                        SharedUtil.remove(AnalysysUtil.getContext(),Constants.APP_END_INFO);
+
                         // 3. 清空页面来源信息
                         resetReferrer(context);
                     } catch (Throwable ignore) {

@@ -29,49 +29,10 @@ android {
 }
 
 dependencies {
-    compileOnly project(':analysys_core')
-}
-/**
- * 打jar包
- */
-task buildVisualJar(type: Jar, dependsOn: ['build']) {
-    archiveName = jarName
-    from(rootProject.ext.buildClass)
-    destinationDir = file('../release/')
-    exclude('com/scott/hellolib/BuildConfig.class')
-    exclude('com/scott/hellolib/BuildConfig\$*.class')
-    exclude('**/R.class')
-    exclude('**/R\$*.class')
+    if(apidemo_nomix.toBoolean()){
+        compileOnly project(':analysys_core')
+    } else {
+        compileOnly 'cn.com.analysys:analysys-core:latest.release'
+    }
 
-    manifest {
-        attributes(
-                'Implementation-Title': "${project.name}",
-                'Implementation-Version': "${version}",
-                'Built-Date': new Date().getDateTimeString(),
-                'Built-With': "gradle-${project.getGradle().getGradleVersion()},groovy-${GroovySystem.getVersion()}",
-                'Created-By': 'Java ' + System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')')
-    }
-}
-/**
- * 混淆jar包
- */
-def androidSDKDir = project.android.sdkDirectory.absolutePath
-def androidJarDir = androidSDKDir.toString() + '/platforms/' + "${android.compileSdkVersion}" + '/android.jar'
-task makeVisualJar(type: proguard.gradle.ProGuardTask, dependsOn: ['buildVisualJar']) {
-    doFirst {
-        injars(rootProject.ext.release + jarName)
-        outjars(rootProject.ext.visualName)
-        configuration 'proguard-rules.pro'
-        libraryjars(androidJarDir)
-        dontshrink
-    }
-    doLast {
-        rmJar(rootProject.ext.release + jarName)
-    }
-}
-
-//删除为混淆文件
-def rmJar(String filePath) {
-    File file = new File(filePath)
-    file.delete()
 }

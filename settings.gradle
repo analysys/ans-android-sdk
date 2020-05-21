@@ -12,6 +12,7 @@ project(':analysys_allgro').projectDir = new File(settingsDir, './ans-sdk/analys
 project(':analysys_arkanalysys').projectDir = new File(settingsDir, './ans-sdk/analysys_arkanalysys')
 project(':analysys_arkanalysys_no_op').projectDir = new File(settingsDir, './ans-sdk/analysys_arkanalysys_no_op')
 
+
 project(':compatibilityDemo').projectDir = new File(settingsDir, './ans-demo/compatibilityDemo')
 project(':visualDemo').projectDir = new File(settingsDir, './ans-demo/visualDemo')
 project(':apidemo').projectDir = new File(settingsDir, './ans-demo/apidemo')

@@ -308,6 +308,7 @@ public class ViewCrawler {
                         break;
                     case MESSAGE_HANDLE_EDITOR_CLOSED:
                         handleEditorClosed();
+                        break;
                     case MESSAGE_HANDLE_SEND_EVENT_SERVER:
                         //新加入逻辑,主动上发埋点事件至socketServer
                         handleEventInfoToServer((JSONObject) msg.obj);

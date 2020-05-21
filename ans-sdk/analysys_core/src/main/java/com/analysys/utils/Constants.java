@@ -77,11 +77,22 @@ public class Constants {
     public static final String SP_CHANNEL = "appChannel";
     public static final String SP_APP_KEY = "appKey";
     public static final String SP_SEND_TIME = "uploadTime";
+    public static final String SP_SEND_SUCCESS = "sendSuccess";
+
+
+    /************start 用户相关ID***********/
     public static final String SP_ALIAS_ID = "aliasId";
     public static final String SP_DISTINCT_ID = "distinctId";
     public static final String SP_UUID = "uuid";
     public static final String SP_ADID = "adid";
     public static final String SP_ORIGINAL_ID = "originalId";
+    /************end 用户相关ID************/
+
+    /****************存储到内存中的值***********/
+    public static final String RAM_NET_WORK_TYPE = "ram_net_work_type";
+    public static final String RAM_CACHE_MAX_COUNT = "ram_cache_max_count";
+    /****************************************/
+
     public static final String SP_SUPER_PROPERTY = "superProperty";
     public static final String SP_JS_SUPER_PROPERTY = "js_superProperty";
     public static final String SP_USER_URL = "userUrl";
@@ -101,13 +112,28 @@ public class Constants {
     public static final String SP_FAILURE_COUNT = "failureCount";
     public static final String SP_IS_LOGIN = "isLogin";
     public static final String SP_REQUEST_VERSION = "requestVersion";
+
+    /*****************start 页面自动采集********************/
     public static final String SP_SESSION_ID = "getSessionId";
     public static final String SP_EVENT_TIME = "lastEventTime";
     public static final String SP_START_DAY = "startDay";
-    public static final String SP_LAST_PAGE_CHANGE = "pageEndTime";
+    public static final String SP_LAST_PAGE_CHANGE = "pageEndTime"; //上一个页面时间，本次生效
     public static final String SP_DIFF_TIME = "diffTime";
     public static final String SP_CHECK_TIME = "checkTime";
 //    public static final String SP_PAGE_END = "pageEnd";
+
+    public static final String APP_START_TIME = "app_start_time";   //app开始时间，本次生效
+    public static final String APP_END_INFO = "app_end_info";       //app结束当时数据信息
+    public static final String LAST_OP_TIME = "last_op_time";
+    public static String SP_REFER = "referrer";         //页面引用来源
+
+
+    public static final String PAGE_COUNT = "page_count";
+
+
+
+    /*****************end 页面自动采集********************/
+
 
 
     public static final String REAL_TIME_DATA = "realTimeData";
@@ -253,12 +279,6 @@ public class Constants {
     static final int CODE_CUT_OFF = 202;
     static final int CODE_DELETE = 203;
 
-    public static final String APP_START_TIME = "app_start_time";
-    public static final String APP_END_INFO = "app_end_info";
-    public static final String LAST_OP_TIME = "last_op_time";
-
-    public static String SP_REFER = "referrer";
-
     public static boolean isAutoProfile = true;
     public static int encryptType = 0;
     public static boolean autoInstallation = false;
@@ -274,5 +294,7 @@ public class Constants {
     public static boolean isCalibration = false;
     // 应用启动来源
     public static int sourceNum = 1;
+
+    public static boolean isFirstInstall = false;
 }
 

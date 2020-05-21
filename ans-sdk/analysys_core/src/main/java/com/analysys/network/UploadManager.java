@@ -245,7 +245,7 @@ public class UploadManager {
             if (absDiff > Constants.ignoreDiffTime) {
                 Constants.diffTime = diff;
                 // 将差值存储文件，解决跨进程问题
-                CommonUtils.setIdFile(mContext,
+                SharedUtil.setString(mContext,
                         Constants.SP_DIFF_TIME, Long.toString(diff));
                 Constants.isCalibration = true;
                 LogPrompt.showCheckTimeLog(serverTime, currentTime, absDiff);
@@ -377,6 +377,7 @@ public class UploadManager {
                     TableAllInfo.getInstance(mContext).deleteData();
                     SharedUtil.setLong(mContext, Constants.SP_SEND_TIME,
                             System.currentTimeMillis());
+                    SharedUtil.setBoolean(mContext,Constants.SP_SEND_SUCCESS,true);
                     LogPrompt.showSendResults(true);
                 } else {
                     JSONObject policyJson = json.optJSONObject(Constants.SERVICE_POLICY);

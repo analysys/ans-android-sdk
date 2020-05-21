@@ -3,6 +3,7 @@ package com.analysys.allgro.plugin;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,12 +18,10 @@ import android.widget.TabHost;
 
 import com.analysys.allgro.AllegroUtils;
 import com.analysys.process.AgentProcess;
+import com.analysys.process.PathGeneral;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
-import com.analysys.utils.ReflectUtils;
-
-import org.json.JSONException;
-
+import com.analysys.utils.AnsReflectUtils;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,19 +35,19 @@ import java.util.Map;
 class ViewClickProbe extends ASMHookAdapter {
 
     @Override
-    public void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn) {
+    public void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn,long currentTime) {
         try {
             if (isTrackClickSwitchClose()) {
                 return;
             }
-            trackMenuItem(null, menuItem, hasTrackClickAnn);
+            trackMenuItem(null, menuItem, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     @Override
-    public void trackMenuItem(Object object, MenuItem menuItem, boolean hasTrackClickAnn) {
+    public void trackMenuItem(Object object, MenuItem menuItem, boolean hasTrackClickAnn,long currentTime) {
         try {
             if (isTrackClickSwitchClose()) {
                 return;
@@ -73,14 +72,14 @@ class ViewClickProbe extends ASMHookAdapter {
             if (!TextUtils.isEmpty(idName)) {
                 elementInfo.put(Constants.ELEMENT_ID, idName);
             }
-            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
+            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     @Override
-    public void trackTabLayout(Object object, Object tab, boolean hasTrackClickAnn) {
+    public void trackTabLayout(Object object, Object tab, boolean hasTrackClickAnn,long currentTime) {
         try {
             if (isTrackClickSwitchClose()) {
                 return;
@@ -88,13 +87,13 @@ class ViewClickProbe extends ASMHookAdapter {
 
             boolean isTab = false;
 
-            Class<?> tabCLass = ReflectUtils.getClassByName("android.support.design.widget.TabLayout$Tab");
+            Class<?> tabCLass = AnsReflectUtils.getClassByName("android.support.design.widget.TabLayout$Tab");
             if (tabCLass != null) {
                 isTab = tabCLass.isInstance(tab);
             }
 
 
-            tabCLass = ReflectUtils.getClassByName("com.google.android.material.tabs.TabLayout$Tab");
+            tabCLass = AnsReflectUtils.getClassByName("com.google.android.material.tabs.TabLayout$Tab");
             if (tabCLass != null) {
                 isTab = tabCLass.isInstance(tab);
             }
@@ -136,14 +135,14 @@ class ViewClickProbe extends ASMHookAdapter {
                 elementInfo.put(Constants.ELEMENT_CONTENT, result.toString());
             }
 
-            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
+            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     @Override
-    public void trackTabHost(String tabName, boolean hasTrackClickAnn) {
+    public void trackTabHost(String tabName, boolean hasTrackClickAnn,long currentTime) {
         try {
 
             if (isTrackClickSwitchClose()) {
@@ -151,7 +150,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Object pageObj = AllegroUtils.getPageObjFromView(null);
-            Class<?> tabClass = ReflectUtils.getClassByName(TabHost.class.getName());
+            Class<?> tabClass = AnsReflectUtils.getClassByName(TabHost.class.getName());
             if (tabClass != null) {
                 TabHost tabHost = (TabHost) tabClass.newInstance();
                 if (!checkTrackClickEnable(pageObj, tabHost, hasTrackClickAnn)) {
@@ -161,7 +160,7 @@ class ViewClickProbe extends ASMHookAdapter {
                 Map<String, Object> elementInfo = new HashMap<>();
                 elementInfo.put(Constants.ELEMENT_TYPE, "TabHost");
                 elementInfo.put(Constants.ELEMENT_CONTENT, tabName);
-                autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
+                autoTrackClick(pageObj, elementInfo, hasTrackClickAnn,currentTime);
             }
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
@@ -169,7 +168,7 @@ class ViewClickProbe extends ASMHookAdapter {
     }
 
     @Override
-    public void trackDialog(DialogInterface dialogInterface, int which, boolean hasTrackClickAnn) {
+    public void trackDialog(DialogInterface dialogInterface, int which, boolean hasTrackClickAnn,long currentTime) {
 
         try {
             if (isTrackClickSwitchClose()) {
@@ -222,13 +221,13 @@ class ViewClickProbe extends ASMHookAdapter {
                 Class<?> androidXAlertDialogClass = null;
                 Class<?> currentAlertDialogClass;
                 try {
-                    supportAlertDialogClass = ReflectUtils.getClassByName("android.support.v7.app.AlertDialog");
+                    supportAlertDialogClass = AnsReflectUtils.getClassByName("android.support.v7.app.AlertDialog");
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
 
                 try {
-                    androidXAlertDialogClass = ReflectUtils.getClassByName("androidx.appcompat.app.AlertDialog");
+                    androidXAlertDialogClass = AnsReflectUtils.getClassByName("androidx.appcompat.app.AlertDialog");
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
@@ -279,14 +278,14 @@ class ViewClickProbe extends ASMHookAdapter {
                     }
                 }
             }
-            autoTrackClick(dialog, elementInfo, hasTrackClickAnn);
+            autoTrackClick(dialog, elementInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     @Override
-    public void trackDrawerSwitch(View drawerLayout, boolean isOpen, boolean hasTrackClickAnn) {
+    public void trackDrawerSwitch(View drawerLayout, boolean isOpen, boolean hasTrackClickAnn,long currentTime) {
         try {
             Object pageObj = AllegroUtils.getPageObjFromView(drawerLayout);
             if (!checkTrackClickEnable(pageObj, drawerLayout, hasTrackClickAnn)) {
@@ -296,7 +295,7 @@ class ViewClickProbe extends ASMHookAdapter {
             Map<String, Object> elementInfo = new HashMap<>();
             elementInfo.put(Constants.ELEMENT_TYPE, "DrawerLayout");
             elementInfo.put(Constants.ELEMENT_CONTENT, isOpen ? "Open" : "Close");
-            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
+            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
@@ -304,7 +303,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
 
     @Override
-    public void trackRadioGroup(RadioGroup parent, int checkedId, boolean hasTrackClickAnn) {
+    public void trackRadioGroup(RadioGroup parent, int checkedId, boolean hasTrackClickAnn,long currentTime) {
         try {
             if (isTrackClickSwitchClose()) {
                 return;
@@ -322,14 +321,14 @@ class ViewClickProbe extends ASMHookAdapter {
             elementInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
             elementInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             elementInfo.put(Constants.ELEMENT_POSITION, parent.indexOfChild(childView) + "");
-            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn);
+            autoTrackClick(pageObj, elementInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     @Override
-    public void trackListView(AdapterView<?> parent, View v, int position, boolean hasTrackClickAnn) {
+    public void trackListView(AdapterView<?> parent, View v, int position, boolean hasTrackClickAnn,long currentTime) {
         try {
             if (isTrackClickSwitchClose()) {
                 return;
@@ -353,14 +352,14 @@ class ViewClickProbe extends ASMHookAdapter {
                 viewInfo.put(Constants.ELEMENT_ID, idName);
             }
 
-            autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
+            autoTrackClick(pageObj, viewInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     @Override
-    public void trackExpListViewChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, boolean hasTrackClickAnn) {
+    public void trackExpListViewChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, boolean hasTrackClickAnn,long currentTime) {
         try {
 
             if (isTrackClickSwitchClose()) {
@@ -384,14 +383,14 @@ class ViewClickProbe extends ASMHookAdapter {
                 viewInfo.put(Constants.ELEMENT_ID, idName);
             }
 
-            autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
+            autoTrackClick(pageObj, viewInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
     @Override
-    public void trackExpListViewGroupClick(ExpandableListView parent, View v, int groupPosition, boolean hasTrackClickAnn) {
+    public void trackExpListViewGroupClick(ExpandableListView parent, View v, int groupPosition, boolean hasTrackClickAnn,long currentTime) {
         try {
             if (isTrackClickSwitchClose()) {
                 return;
@@ -414,7 +413,7 @@ class ViewClickProbe extends ASMHookAdapter {
                 viewInfo.put(Constants.ELEMENT_ID, idName);
             }
 
-            trackListView(parent, v, groupPosition, hasTrackClickAnn);
+            trackListView(parent, v, groupPosition, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
@@ -422,7 +421,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
 
     @Override
-    public void trackViewOnClick(View v, boolean hasTrackClickAnn) {
+    public void trackViewOnClick(View v, boolean hasTrackClickAnn,long currentTime) {
         try {
             if (isTrackClickSwitchClose()) {
                 return;
@@ -437,26 +436,32 @@ class ViewClickProbe extends ASMHookAdapter {
             String[] viewTypeAndText = AllegroUtils.getViewTypeAndText(v);
             viewInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
+            String path = PathGeneral.getInstance().general(v);
+            viewInfo.put(Constants.ELEMENT_PATH,path);
 
             String idName = AllegroUtils.getViewIdResourceName(v);
             if (!TextUtils.isEmpty(idName)) {
                 viewInfo.put(Constants.ELEMENT_ID, idName);
             }
 
-            autoTrackClick(pageObj, viewInfo, hasTrackClickAnn);
+            autoTrackClick(pageObj, viewInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
     }
 
-    private void autoTrackClick(Object pageObj, Map<String, Object> elementInfo, boolean hasTrackClickAnn) throws Throwable {
+    private void autoTrackClick(Object pageObj, Map<String, Object> elementInfo, boolean hasTrackClickAnn,long currentTime) throws Throwable {
         if (pageObj != null) {
             // 获取页面相关信息
-            elementInfo.putAll(AllegroUtils.getPageInfo(pageObj));
-            // 去除此字段
-            elementInfo.remove(Constants.PARENT_URL);
+            elementInfo.putAll(AllegroUtils.getPageInfo(pageObj,true));
+
+//            if(elementInfo!=null&&elementInfo.containsKey(Constants.PARENT_URL)){
+                // 去除此字段
+//                elementInfo.remove(Constants.PARENT_URL);
+//            }
+
         }
-        AgentProcess.getInstance().autoTrackViewClick(elementInfo);
+        AgentProcess.getInstance().autoTrackViewClick(elementInfo,currentTime);
     }
 
 

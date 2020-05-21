@@ -194,10 +194,12 @@ public class VisualViewPagerActivity extends FragmentActivity {
                     }
                     break;
             }
-            currIndex = arg0;
-            animation.setFillAfter(true);//True:图片停在动画结束位置
-            animation.setDuration(300);
-            cursor.startAnimation(animation);
+            if (animation != null) {
+                currIndex = arg0;
+                animation.setFillAfter(true);//True:图片停在动画结束位置
+                animation.setDuration(300);
+                cursor.startAnimation(animation);
+            }
         }
 
         @Override

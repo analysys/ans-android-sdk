@@ -8,7 +8,7 @@ import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
 import com.analysys.EncryptEnum;
 import com.analysys.apidemo.BuildConfig;
-import com.analysys.utils.ReflectUtils;
+import com.analysys.utils.AnsReflectUtils;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -43,6 +43,7 @@ public class AnsApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+
         // 设置严苛模式
         strictMode();
 
@@ -51,8 +52,13 @@ public class AnsApplication extends Application {
 
         // 尝试初始化对应模块
         if ("compatibility".equals(BuildConfig.Build_Type)) {
-            ReflectUtils.invokeStaticMethod("com.analysys.compatibilitydemo.CompatibilityDemoInit", "init", Context.class, this);
+            AnsReflectUtils.invokeStaticMethod("com.analysys.compatibilitydemo.CompatibilityDemoInit", "init", Context.class, this);
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
     }
 
     /**
@@ -90,6 +96,7 @@ public class AnsApplication extends Application {
         config.setAutoTrackDeviceId(true);
         // 初始化
         AnalysysAgent.init(this, config);
+        AnalysysAgent.setUploadNetworkType(AnalysysAgent.AnalysysNetworkType.AnalysysNetworkWIFI);
         // 设置数据上传/更新地址
         AnalysysAgent.setUploadURL(this, UPLOAD_URL);
         // 设置 WebSocket 连接 Url

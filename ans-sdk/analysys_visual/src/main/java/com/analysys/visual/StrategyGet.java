@@ -19,22 +19,20 @@ public class StrategyGet {
     private final static String PARA_VERSION = "appVersion";
     private final static String PARA_PLATFORM = "lib";
     private final static String PLATFORM_ANDROID = "Android";
-    private static StrategyGet instance;
     private volatile Context mContext;
 
-    private StrategyGet(Context context) {
-        mContext = context.getApplicationContext();
+    private StrategyGet() {
+    }
+
+    private static class Holder {
+        public static final StrategyGet INSTANCE = new StrategyGet();
     }
 
     public static StrategyGet getInstance(Context context) {
-        if (instance == null) {
-            synchronized (StrategyGet.class) {
-                if (instance == null) {
-                    instance = new StrategyGet(context);
-                }
-            }
+        if (Holder.INSTANCE.mContext == null && context != null) {
+            Holder.INSTANCE.mContext = context.getApplicationContext();
         }
-        return instance;
+        return Holder.INSTANCE;
     }
 
     /**

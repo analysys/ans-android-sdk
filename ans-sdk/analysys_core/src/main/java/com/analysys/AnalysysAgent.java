@@ -6,7 +6,7 @@ import android.view.View;
 import com.analysys.database.TableAllInfo;
 import com.analysys.process.AgentProcess;
 import com.analysys.push.PushListener;
-import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.AThreadPool;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.Constants;
 import com.analysys.utils.CrashHandler;
@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -130,7 +131,7 @@ public class AnalysysAgent {
      * 2、打开Debug模式,该模式下发送的数据可计入平台数据统计
      */
     public static void setDebugMode(Context context, int debugMode) {
-        AgentProcess.getInstance().setDebug(debugMode, true);
+        AgentProcess.getInstance().setDebug(debugMode);
     }
 
     /**
@@ -141,7 +142,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setUploadURL(Context context, String url) {
-        AgentProcess.getInstance().setUploadURL(url, true);
+        AgentProcess.getInstance().setUploadURL(url);
     }
 
     /**
@@ -167,7 +168,12 @@ public class AnalysysAgent {
      * 读取最大缓存条数
      */
     public static long getMaxCacheSize(Context context) {
-        return AgentProcess.getInstance().getMaxCacheSize();
+        return (long) AThreadPool.syncHighPriorityExecutor(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                return AgentProcess.getInstance().getMaxCacheSize();
+            }
+        });
     }
 
     /**
@@ -221,7 +227,13 @@ public class AnalysysAgent {
      * 如未设置，则返回代码自动生成的uuid
      */
     public static String getDistinctId(Context context) {
-        return AgentProcess.getInstance().getDistinctId();
+        return (String) AThreadPool.syncHighPriorityExecutor(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                return AgentProcess.getInstance().getDistinctId();
+            }
+        });
+
     }
 
     /**
@@ -333,15 +345,26 @@ public class AnalysysAgent {
      *
      * @param key 属性名称,以字母或$开头,可以包含大小写字母/数字/ _ /$,不支持中文和乱码,长度必须小于99字符
      */
-    public static Object getSuperProperty(Context context, String key) {
-        return AgentProcess.getInstance().getSuperProperty(key);
+    public static Object getSuperProperty(Context context, final String key) {
+        return (Object) AThreadPool.syncHighPriorityExecutor(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                return AgentProcess.getInstance().getSuperProperty(key);
+            }
+        });
     }
 
     /**
      * 获取全部通用属性
      */
     public static Map<String, Object> getSuperProperties(Context context) {
-        return AgentProcess.getInstance().getSuperProperty();
+        return (Map<String, Object>) AThreadPool.syncHighPriorityExecutor(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                return AgentProcess.getInstance().getSuperProperty();
+            }
+        });
+
     }
 
     /**
@@ -464,7 +487,12 @@ public class AnalysysAgent {
      * 获取预置属性
      */
     public static Map<String, Object> getPresetProperties(Context context) {
-        return AgentProcess.getInstance().getPresetProperties();
+        return (Map<String, Object>) AThreadPool.syncHighPriorityExecutor(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                return AgentProcess.getInstance().getPresetProperties();
+            }
+        });
     }
 
     /**
@@ -475,7 +503,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setVisitorDebugURL(Context context, String url) {
-        AgentProcess.getInstance().setVisitorDebugURL(url, true);
+        AgentProcess.getInstance().setVisitorDebugURL(url);
     }
 
     /**
@@ -486,7 +514,7 @@ public class AnalysysAgent {
      * 长度小于255字符
      */
     public static void setVisitorConfigURL(Context context, String url) {
-        AgentProcess.getInstance().setVisitorConfigURL(url, true);
+        AgentProcess.getInstance().setVisitorConfigURL(url);
     }
 
     /**
@@ -620,7 +648,7 @@ public class AnalysysAgent {
      * 清除本地缓存的所有事件
      */
     public static void cleanDBCache() {
-        ANSThreadPool.execute(new Runnable() {
+        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 Context context = AnalysysUtil.getContext();

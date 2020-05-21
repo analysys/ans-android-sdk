@@ -29,6 +29,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            consumerProguardFiles('proguard-rules.pro')
         }
         debug {
             testCoverageEnabled = true
@@ -78,7 +79,13 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
 
-    implementation project(':analysys_core')
-    implementation project(':analysys_push')
+
+    if (apidemo_depend.toBoolean()) {
+        implementation project(':analysys_core')
+        implementation project(':analysys_push')
+    } else {
+        implementation 'cn.com.analysys:analysys-core:latest.release'
+        implementation 'cn.com.analysys:analysys-push:latest.release'
+    }
 
 }

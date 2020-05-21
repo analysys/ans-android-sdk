@@ -3,11 +3,10 @@ package com.analysys.utils;
 import android.content.Context;
 import android.os.Build;
 
-import com.analysys.AnalysysAgent;
-import com.analysys.AnalysysConfig;
 import com.analysys.network.NetworkUtils;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.SessionManage;
+import com.analysys.userinfo.UserInfo;
 
 import java.util.Locale;
 import java.util.TimeZone;
@@ -181,7 +180,7 @@ public class InternalAgent {
      * 是否登录
      */
     public static boolean getLogin(Context context) {
-        return CommonUtils.getLogin(context);
+        return UserInfo.getLoginState();
     }
 
     /**
@@ -209,7 +208,8 @@ public class InternalAgent {
      */
     public static String getDeviceId(Context context) {
         if(AgentProcess.getInstance().getConfig().isAutoTrackDeviceId()){
-            return CommonUtils.getDeviceId(context);
+//            return CommonUtils.getDeviceId(context);
+            return UserInfo.getDeviceId();
         } else {
             return null;
         }
@@ -222,12 +222,12 @@ public class InternalAgent {
         return CommonUtils.getLaunchSource();
     }
 
-    /**
-     * 获取original id
-     */
-    public static Object getOriginalId(Context context) {
-        return CommonUtils.getOriginalId(context);
-    }
+//    /**
+//     * 获取original id
+//     */
+//    public static Object getOriginalId(Context context) {
+//        return CommonUtils.getOriginalId(context);
+//    }
 
     public static boolean isEmpty(Object object) {
         return CommonUtils.isEmpty(object);
@@ -306,10 +306,6 @@ public class InternalAgent {
 
     public static void v(Object... object) {
         ANSLog.v(object);
-    }
-
-    public static ExecutorService getNetExecutor() {
-        return ANSThreadPool.getNetExecutor();
     }
 
     public static SSLSocketFactory createSSL(Context context) {

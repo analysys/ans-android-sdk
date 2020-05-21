@@ -1,6 +1,6 @@
 package com.analysys.visual.viewcrawler;
 
-import com.analysys.utils.ANSThreadPool;
+import com.analysys.utils.AThreadPool;
 import com.analysys.utils.InternalAgent;
 import com.analysys.visual.websocket.client.BaseWebSocketClient;
 import com.analysys.visual.websocket.drafts.Draft_6455;
@@ -9,7 +9,6 @@ import com.analysys.visual.websocket.exceptions.WebsocketNotConnectedException;
 import com.analysys.visual.websocket.framing.Framedata;
 import com.analysys.visual.websocket.handshake.ServerHandshake;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
@@ -96,7 +95,7 @@ class EditorConnection {
         public void onOpen(ServerHandshake handshakedata) {
             InternalAgent.d(TAG, "Websocket connected");
             mOpenTime = System.currentTimeMillis();
-            ANSThreadPool.execute(mCheckConnRunnable);
+            AThreadPool.asyncLowPriorityExecutor(mCheckConnRunnable);
         }
 
         private Runnable mCheckConnRunnable = new Runnable() {

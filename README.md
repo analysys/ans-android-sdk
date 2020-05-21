@@ -1,5 +1,5 @@
 
-## [**易观简介**](https://www.analysys.cn) [![License](https://img.shields.io/github/license/analysys/ans-android-sdk.svg)](https://github.com/analysys/ans-android-sdk/blob/master/LICENSE)  [![GitHub release](https://img.shields.io/github/release/analysys/ans-android-sdk.svg)](https://github.com/analysys/ans-android-sdk/releases) 
+## [**易观简介**](https://www.analysys.cn) [![License](https://img.shields.io/github/license/analysys/ans-android-sdk.svg)](https://github.com/analysys/ans-android-sdk/blob/master/LICENSE)  [![GitHub release](https://img.shields.io/github/release/analysys/ans-android-sdk.svg)](https://github.com/analysys/ans-android-sdk/releases)
 
 易观是中国领先的大数据公司，始终追求客户成功的经营宗旨。自成立以来，易观打造了以海量数字用户资产及算法模型为核心的大数据产品、平台及解决方案，可以帮助企业高效管理数字用户资产和对产品进行精细化运营，通过数据驱动营销闭环，从而实现收入增长、成本降低和效率提升，并显著规避经营风险，实现精益成长。易观的数据平台是易观方舟，产品家族包括易观千帆、易观万像以及行业解决方案。
 
@@ -43,7 +43,7 @@ ans-android-sdk 是一款商用级别的用户行为采集项目，目前支持�
 ```
 
 2.在**Application**中始化
-    
+
 ``` java
 
 // 初始化

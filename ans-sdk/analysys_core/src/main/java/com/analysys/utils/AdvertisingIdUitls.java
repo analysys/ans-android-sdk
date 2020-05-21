@@ -10,6 +10,8 @@ import android.os.IInterface;
 import android.os.Parcel;
 import android.text.TextUtils;
 
+import com.analysys.userinfo.UserInfo;
+
 /**
  * @Copyright © 2019 Analysys Inc. All rights reserved.
  * @Description: google广告id
@@ -23,7 +25,8 @@ public class AdvertisingIdUitls {
         if (!CommonUtils.isMainProcess(context)) {
             return;
         }
-        String adId = SharedUtil.getString(context, Constants.SP_ADID, null);
+//        String adId = SharedUtil.getString(context, Constants.SP_ADID, null);
+        String adId = UserInfo.getADID();
         if (!TextUtils.isEmpty(adId)) {
             return;
         }
@@ -55,7 +58,8 @@ public class AdvertisingIdUitls {
                 AdvertisingInterface adInterface = new AdvertisingInterface(service);
                 String id = adInterface.getId();
                 if (!TextUtils.isEmpty(id)) {
-                    SharedUtil.setString(context, Constants.SP_ADID, id);
+//                    SharedUtil.setString(context, Constants.SP_ADID, id);
+                    UserInfo.setADID(id);
                 }
             } catch (Throwable ignore) {
                 ExceptionUtil.exceptionThrow(ignore);

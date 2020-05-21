@@ -9,7 +9,8 @@ import android.widget.ExpandableListView;
 import android.widget.RadioGroup;
 
 import com.analysys.allgro.AllegroUtils;
-import com.analysys.utils.ANSThreadPool;
+import com.analysys.process.PathGeneral;
+import com.analysys.utils.AThreadPool;
 import com.analysys.utils.ExceptionUtil;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.Set;
  * Date: 2019-11-21 15:56
  * Version: 1.0
  */
-public class ASMProbeHelp implements ASMHookInterface {
+public class ASMProbeHelp{
 
     private static class Holder {
         public static final ASMProbeHelp instance = new ASMProbeHelp();
@@ -49,9 +50,8 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     // ------------------------ Fragment ---------------------------------------
 
-    @Override
     public void onFragmentViewCreated(final Object object, final View rootView, final Bundle savedInstanceState, final boolean hasTrackPvAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -65,14 +65,14 @@ public class ASMProbeHelp implements ASMHookInterface {
         });
     }
 
-    @Override
     public void trackFragmentResume(final Object object, final boolean hasTrackPvAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackFragmentResume(object, hasTrackPvAnn);
+                        observer.trackFragmentResume(object, hasTrackPvAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -82,15 +82,15 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackFragmentSetUserVisibleHint(final Object object, final boolean isVisibleToUser, final boolean hasTrackPvAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
                     //        Log.d("javen",String.format("call trackFragmentSetUserVisibleHint in %s ",object.getClass().getSimpleName()));
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackFragmentSetUserVisibleHint(object, isVisibleToUser, hasTrackPvAnn);
+                        observer.trackFragmentSetUserVisibleHint(object, isVisibleToUser, hasTrackPvAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -101,15 +101,15 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackOnHiddenChanged(final Object object, final boolean hidden, final boolean hasTrackPvAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
                     //        Log.d("javen",String.format("call trackOnHiddenChanged in %s ",object.getClass().getSimpleName()));
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackOnHiddenChanged(object, hidden, hasTrackPvAnn);
+                        observer.trackOnHiddenChanged(object, hidden, hasTrackPvAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -122,9 +122,9 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     // ------------------------ Click ---------------------------------------
 
-    @Override
     public void trackDialog(final DialogInterface dialogInterface, final int which, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -132,7 +132,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackDialog(dialogInterface, which, hasTrackClickAnn);
+                        observer.trackDialog(dialogInterface, which, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -142,9 +142,9 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackTabLayout(final Object object, final Object tab, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -152,7 +152,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackTabLayout(object, tab, hasTrackClickAnn);
+                        observer.trackTabLayout(object, tab, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -162,9 +162,9 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackTabHost(final String tabName, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -172,7 +172,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackTabHost(tabName, hasTrackClickAnn);
+                        observer.trackTabHost(tabName, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -183,9 +183,9 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackRadioGroup(final RadioGroup parent, final int checkedId, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -197,7 +197,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackRadioGroup(parent, checkedId, hasTrackClickAnn);
+                        observer.trackRadioGroup(parent, checkedId, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -207,9 +207,9 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackExpListViewChildClick(final ExpandableListView parent, final View v, final int groupPosition, final int childPosition, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -217,7 +217,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackExpListViewChildClick(parent, v, groupPosition, childPosition, hasTrackClickAnn);
+                        observer.trackExpListViewChildClick(parent, v, groupPosition, childPosition, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -227,9 +227,9 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackExpListViewGroupClick(final ExpandableListView parent, final View v, final int groupPosition, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -237,7 +237,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackExpListViewGroupClick(parent, v, groupPosition, hasTrackClickAnn);
+                        observer.trackExpListViewGroupClick(parent, v, groupPosition, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -247,9 +247,9 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackListView(final AdapterView<?> parent, final View v, final int position, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -257,7 +257,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackListView(parent, v, position, hasTrackClickAnn);
+                        observer.trackListView(parent, v, position, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -267,29 +267,37 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackViewOnClick(final View v, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (isInLimitTime(v)) {
-                        return;
+        try {
+//            final int viewIdx = PathGeneral.getInstance().getIndex(v);
+//        final String path = PathGeneral.getInstance().general(v, viewIdx);
+
+            final long currentTime = System.currentTimeMillis();
+            AThreadPool.asyncLowPriorityExecutor(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (isInLimitTime(v)) {
+                            return;
+                        }
+                        for (ASMHookInterface observer : mObservers) {
+                            observer.trackViewOnClick(v, hasTrackClickAnn,currentTime);
+                        }
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
-                    for (ASMHookInterface observer : mObservers) {
-                        observer.trackViewOnClick(v, hasTrackClickAnn);
-                    }
-                } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
                 }
-            }
-        });
+            });
+        }catch (Throwable ignore){
+            ExceptionUtil.exceptionThrow(ignore);
+        }
+
 
     }
 
-    @Override
     public void trackMenuItem(final Object obj, final MenuItem menuItem, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -297,7 +305,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                         return;
                     }
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackMenuItem(obj, menuItem, hasTrackClickAnn);
+                        observer.trackMenuItem(obj, menuItem, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -307,14 +315,13 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn) {
 
     }
 
-    @Override
     public void trackDrawerSwitch(final View drawerLayout, final boolean isOpen, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
+        final long currentTime = System.currentTimeMillis();
+        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -323,7 +330,7 @@ public class ASMProbeHelp implements ASMHookInterface {
                     }
 
                     for (ASMHookInterface observer : mObservers) {
-                        observer.trackDrawerSwitch(drawerLayout, isOpen, hasTrackClickAnn);
+                        observer.trackDrawerSwitch(drawerLayout, isOpen, hasTrackClickAnn,currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
@@ -333,36 +340,40 @@ public class ASMProbeHelp implements ASMHookInterface {
 
     }
 
-    @Override
     public void maybeClickInXML(final View v, final boolean methodName, final boolean hasTrackClickAnn) {
-        ANSThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (isInLimitTime(v)) {
-                        return;
+        try {
+            final long currentTime = System.currentTimeMillis();
+            AThreadPool.asyncLowPriorityExecutor(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (isInLimitTime(v)) {
+                            return;
+                        }
+                        Object listenerInfo = AllegroUtils.getFieldValue(v, "mListenerInfo");
+                        if (listenerInfo == null) {
+                            return;
+                        }
+                        Object onClickListener = AllegroUtils.getFieldValue(listenerInfo, "mOnClickListener");
+                        if (onClickListener == null) {
+                            return;
+                        }
+                        Object mtdName = AllegroUtils.getFieldValue(onClickListener, "mMethodName");
+                        if (mtdName == null || !mtdName.equals(methodName)) {
+                            return;
+                        }
+                        for (ASMHookInterface observer : mObservers) {
+                            observer.trackViewOnClick(v, hasTrackClickAnn,currentTime);
+                        }
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
-                    Object listenerInfo = AllegroUtils.getFieldValue(v, "mListenerInfo");
-                    if (listenerInfo == null) {
-                        return;
-                    }
-                    Object onClickListener = AllegroUtils.getFieldValue(listenerInfo, "mOnClickListener");
-                    if (onClickListener == null) {
-                        return;
-                    }
-                    Object mtdName = AllegroUtils.getFieldValue(onClickListener, "mMethodName");
-                    if (mtdName == null || !mtdName.equals(methodName)) {
-                        return;
-                    }
-                    for (ASMHookInterface observer : mObservers) {
-                        observer.trackViewOnClick(v, hasTrackClickAnn);
-                    }
-                } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
-                }
 
-            }
-        });
+                }
+            });
+        }catch (Throwable ignore){
+            ExceptionUtil.exceptionThrow(ignore);
+        }
 
     }
 

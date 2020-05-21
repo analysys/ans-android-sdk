@@ -243,14 +243,14 @@
         <meta-data
             android:name="JPUSH_PKGNAME"
             android:value="com.analysys.demo" />
-        <meta-data
-            android:name="JPUSH_APPKEY"
-            android:value="74abc6f71d9cd90db9ddfa40"
-            tools:replace="android:value"/>
-        <meta-data
-            android:name="JPUSH_CHANNEL"
-            android:value="developer-default"
-            tools:replace="android:value"/>
+<!--        <meta-data-->
+<!--            android:name="JPUSH_APPKEY"-->
+<!--            android:value="74abc6f71d9cd90db9ddfa40"-->
+<!--            tools:replace="android:value"/>-->
+<!--        <meta-data-->
+<!--            android:name="JPUSH_CHANNEL"-->
+<!--            android:value="developer-default"-->
+<!--            tools:replace="android:value"/>-->
 
     </application>
 </manifest>

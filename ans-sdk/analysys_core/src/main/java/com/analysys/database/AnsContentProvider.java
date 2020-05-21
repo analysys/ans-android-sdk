@@ -13,7 +13,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.Process;
+import android.text.TextUtils;
 
+import com.analysys.AnsRamControl;
 import com.analysys.utils.ExceptionUtil;
 
 
@@ -40,6 +44,7 @@ public class AnsContentProvider extends ContentProvider {
 
             uriMatcher.addURI(authority, EventTableMetaData.TABLE_FZ, EventTableMetaData.TABLE_FZ_DIR);
             uriMatcher.addURI(authority, EventTableMetaData.TABLE_SP, EventTableMetaData.TABLE_SP_DIR);
+            uriMatcher.addURI(authority, EventTableMetaData.TABLE_RAM, EventTableMetaData.TABLE_RAM_DIR);
         }
 
         return true;
@@ -70,6 +75,9 @@ public class AnsContentProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         if (uri == null) {
+            return null;
+        }
+        if (Process.myUid() != Binder.getCallingUid()) {
             return null;
         }
         Cursor cursor = null;
@@ -146,6 +154,23 @@ public class AnsContentProvider extends ContentProvider {
                 }
             }
             break;
+            case EventTableMetaData.TABLE_RAM_DIR: {
+                try {
+                    String key = projection[0];
+                    String defValue = projection[1];
+                    String ramValue = AnsRamControl.RamData.getInstance().getMap().get(key);
+                    MatrixCursor matrixCursor = new MatrixCursor(new String[]{"column_name"});
+                    if (ramValue != null) {
+                        matrixCursor.addRow(new Object[]{ramValue});
+                    } else {
+                        matrixCursor.addRow(new Object[]{defValue});
+                    }
+                    cursor = matrixCursor;
+                } catch (Throwable e) {
+                    ExceptionUtil.exceptionThrow(e);
+                }
+            }
+            break;
             default:
                 break;
         }
@@ -163,6 +188,10 @@ public class AnsContentProvider extends ContentProvider {
             break;
             case EventTableMetaData.TABLE_SP_DIR: {
                 type = EventTableMetaData.CONTENT_TYPE_ITEM;
+            }
+            break;
+            case EventTableMetaData.TABLE_RAM_DIR: {
+                type = EventTableMetaData.CONTENT_TYPE_RAM;
             }
             break;
             default:
@@ -194,6 +223,9 @@ public class AnsContentProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         Uri tmpUri = uri;
         if (uri == null || uriMatcher == null) {
+            return tmpUri;
+        }
+        if (Process.myUid() != Binder.getCallingUid()) {
             return tmpUri;
         }
         switch (uriMatcher.match(uri)) {
@@ -253,6 +285,20 @@ public class AnsContentProvider extends ContentProvider {
 
             }
             break;
+            case EventTableMetaData.TABLE_RAM_DIR: {
+
+                try {
+                    String key = values.getAsString("key");
+                    String value = values.getAsString("values");
+
+                    AnsRamControl.RamData.getInstance().getMap().put(key, value);
+
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
+                }
+
+            }
+            break;
             default:
                 break;
         }
@@ -275,6 +321,9 @@ public class AnsContentProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         if (uri == null) {
             return -2;
+        }
+        if (Process.myUid() != Binder.getCallingUid()) {
+            return -4;
         }
         int code = -3;
         switch (uriMatcher.match(uri)) {
@@ -317,36 +366,47 @@ public class AnsContentProvider extends ContentProvider {
         if (uri == null || values == null) {
             return -2;
         }
+        if (Process.myUid() != Binder.getCallingUid()) {
+            return -4;
+        }
         int code = -3;
-        switch (uriMatcher.match(uri)) {
-            case EventTableMetaData.TABLE_FZ_DIR: {
-                try {
-                    updateDb(uri, values, selection, selectionArgs);
-                } catch (SQLiteDatabaseCorruptException sql) {
-                    dataCorruptException();
-                } catch (SQLiteException sqLiteException) {
-                    tableException(sqLiteException);
-                } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
-                }
-            }
-            break;
-            case EventTableMetaData.TABLE_SP_DIR: {
-                checkSp();
-                if (mContext != null) {
-                    SharedPreferences.Editor editor = sharedPreferencesHelp.getEditor(mContext);
-                    if (editor != null) {
-                        editor.remove(values.getAsString("key")).commit();
+        try {
+            switch (uriMatcher.match(uri)) {
+                case EventTableMetaData.TABLE_FZ_DIR: {
+                    try {
+                        code =updateDb(uri, values, selection, selectionArgs);
+                    } catch (SQLiteDatabaseCorruptException sql) {
+                        dataCorruptException();
+                    } catch (SQLiteException sqLiteException) {
+                        tableException(sqLiteException);
+                    } catch (Throwable ignore) {
+                        ExceptionUtil.exceptionThrow(ignore);
                     }
                 }
-            }
-            break;
-            default:
                 break;
+                case EventTableMetaData.TABLE_SP_DIR: {
+                    checkSp();
+                    if (mContext != null) {
+                        SharedPreferences.Editor editor = sharedPreferencesHelp.getEditor(mContext);
+                        if (editor != null) {
+                            String keyValue = values.getAsString("key");
+                            if(!TextUtils.isEmpty(keyValue)) {
+                                editor.remove(keyValue).commit();
+                            }
+                        }
+                    }
+                }
+                break;
+                default:
+                    break;
+            }
+            if (mContext != null && mContext.getContentResolver() != null) {
+                mContext.getContentResolver().notifyChange(uri, null);
+            }
+        }catch (Throwable ignore) {
+           ExceptionUtil.exceptionThrow(ignore);
         }
-        if (mContext != null && mContext.getContentResolver() != null) {
-            mContext.getContentResolver().notifyChange(uri, null);
-        }
+
         return code;
     }
 

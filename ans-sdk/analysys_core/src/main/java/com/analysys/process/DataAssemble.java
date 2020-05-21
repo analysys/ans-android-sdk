@@ -49,12 +49,14 @@ public class DataAssemble {
      */
     public JSONObject getEventData(Object... values) throws Throwable {
         if (values != null && mContext != null) {
-            String apiName = String.valueOf(values[0]);
-            String eventName = String.valueOf(values[1]);
-            Map<String, Object> data = toMap(values[2]);
+            long currentTime = (long) values[0];
+
+            String apiName = String.valueOf(values[1]);
+            String eventName = String.valueOf(values[2]);
+            Map<String, Object> data = toMap(values[3]);
             JSONObject eventMould = getEventMould(eventName);
             if (Constants.TRACK.equals(eventName)) {
-                String eventInfo = String.valueOf(values[4]);
+                String eventInfo = String.valueOf(values[5]);
                 if (!CheckUtils.checkTrackEventName(eventName, eventInfo)) {
                     LogPrompt.showLog(apiName, LogBean.getLog());
 
@@ -68,9 +70,10 @@ public class DataAssemble {
             if (data == null) {
                 data = new HashMap<String, Object>();
             }
-            mergeParameter(data, values[3]);
+            mergeParameter(data, values[4]);
             mergeSuperProperty(eventName, data);
-            return fillData(eventName, eventMould, data);
+
+            return fillData(eventName, eventMould, data,currentTime);
         }
         return null;
     }
@@ -131,7 +134,7 @@ public class DataAssemble {
      * 通过遍历字段模板填充数据
      */
     private JSONObject fillData(String eventName, JSONObject eventMould,
-                                Map<String, Object> xContextMap) throws Throwable {
+                                Map<String, Object> xContextMap,long currentTime) throws Throwable {
         JSONObject allJob = null;
         JSONArray outerKeysArray = eventMould.optJSONArray(OUTER);
         String outFields = null;
@@ -162,6 +165,7 @@ public class DataAssemble {
                     //  3.获取value并校验
                     Object outerValue = getValue(fieldsRuleMould, eventName);
                     CommonUtils.pushToJSON(allJob, outFields, outerValue);
+                    allJob.put("xwhen", currentTime);
                 }
             }
         }

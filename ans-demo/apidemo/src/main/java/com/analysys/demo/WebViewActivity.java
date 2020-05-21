@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
@@ -58,7 +57,6 @@ public class WebViewActivity extends AppCompatActivity implements ANSAutoPageTra
         }
         super.onDestroy();
         AnalysysAgent.resetHybridModel(mContext, mWebView);
-        System.exit(0);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -67,11 +65,13 @@ public class WebViewActivity extends AppCompatActivity implements ANSAutoPageTra
         LinearLayout linearLayout = findViewById(R.id.webViewLayout);
         linearLayout.addView(mWebView);
         mWebView.loadUrl("http://uc.analysys.cn/huaxiang/hybrid-4.3.0.10/");
-        mWebView.setWebViewClient(new MyWebviewClient());
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+//        mWebView.setWebViewClient(new OldWebviewClient());
+        // 设置UserAgent
         AnalysysAgent.setHybridModel(mContext, mWebView);
+        // 设置WebViewClient
+        mWebView.setWebViewClient(new MyWebviewClient());
     }
 
     @Override
@@ -84,6 +84,19 @@ public class WebViewActivity extends AppCompatActivity implements ANSAutoPageTra
         return "WebView 页";
     }
 
+    class OldWebviewClient extends WebViewClient {
+        @Override
+        public void onPageFinished(WebView view, String url) {
+        }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("analysys.hybrid", "old: shouldOverrideUrlLoading url:" + url);
+//            AnalysysAgent.interceptUrl(mContext, url, view);
+            return false;
+        }
+    }
+
     class MyWebviewClient extends WebViewClient {
         @Override
         public void onPageFinished(WebView view, String url) {
@@ -92,6 +105,8 @@ public class WebViewActivity extends AppCompatActivity implements ANSAutoPageTra
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("analysys.hybrid", "new: shouldOverrideUrlLoading url:" + url);
+            // 设置URL拦截
             AnalysysAgent.interceptUrl(mContext, url, view);
             return false;
         }

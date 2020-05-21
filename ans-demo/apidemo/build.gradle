@@ -26,12 +26,32 @@ android {
         manifestPlaceholders = Eval.me(ManifestPlaceholders)
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    if(apidemo_type.toBoolean()) {
+        signingConfigs {
+            release {
+                keyAlias 'apidemo'
+                keyPassword '123456'
+                storeFile file('apidemo')
+                storePassword '123456'
+            }
         }
     }
+
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            consumerProguardFiles('proguard-rules.pro')
+
+            if(apidemo_type.toBoolean()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+
+
 
     dexOptions {
         preDexLibraries false
@@ -70,7 +90,14 @@ android {
 
 dependencies {
 
-    api project(':analysys_arkanalysys')
+    if (apidemo_depend.toBoolean()) {
+        api project(':analysys_arkanalysys')
+    } else {
+        api 'cn.com.analysys:analysys-arkanalysys:latest.release'
+    }
+
+
+//    api project(':analysys-tools')
 
     api project(':compatibilityDemo')
     api project(':visualDemo')
