@@ -193,6 +193,7 @@ public class ViewCrawler {
         public SensorHelper() {
             mFlipGesture = new FlipGesture(this);
             installConnectionSensor();
+            ActivityLifecycleUtils.addCallback(mLifecycleCallback);
             if (ActivityLifecycleUtils.getCurrentActivity() != null) {
                 mEditState.onActivityResumed();
             }
@@ -215,7 +216,6 @@ public class ViewCrawler {
                         SensorManager.SENSOR_DELAY_NORMAL);
                 mIsSensorRegistered = true;
             }
-            ActivityLifecycleUtils.addCallback(mLifecycleCallback);
         }
 
         private void uninstallConnectionSensor() {
@@ -226,7 +226,6 @@ public class ViewCrawler {
                 mFlipGesture.reset();
                 mIsSensorRegistered = false;
             }
-            ActivityLifecycleUtils.removeCallback(mLifecycleCallback);
         }
     }
 
