@@ -11,6 +11,8 @@ import com.analysys.AnalysysConfig;
 import com.analysys.AnsIDControl;
 import com.analysys.AnsRamControl;
 import com.analysys.AutomaticAcquisition;
+import com.analysys.ObserverListener;
+import com.analysys.easytouch.EasytouchProcess;
 import com.analysys.hybrid.HybridBridge;
 import com.analysys.network.UploadManager;
 import com.analysys.push.PushListener;
@@ -166,6 +168,9 @@ public class AgentProcess {
         });
     }
 
+    public void setObserverListener(ObserverListener listener) {
+        EasytouchProcess.getInstance().setObserverListener(listener);
+    }
     /**
      * debug 信息处理
      */
@@ -408,6 +413,7 @@ public class AgentProcess {
                     return;
                 }
 //                CommonUtils.setIdFile(context, Constants.SP_DISTINCT_ID, distinctId);
+                EasytouchProcess.getInstance().setXwho(distinctId);
                 UserInfo.setDistinctID(distinctId);
 
             }
@@ -458,6 +464,7 @@ public class AgentProcess {
                                 currentTime,Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
 
                         if (!CommonUtils.isEmpty(eventData)) {
+                            EasytouchProcess.getInstance().setXwho(aliasId);
                             trackEvent(context, Constants.API_ALIAS, Constants.ALIAS, eventData);
                             sendProfileSetOnce(context, 0,currentTime);
                         } else {
@@ -496,6 +503,7 @@ public class AgentProcess {
                                 currentTime,Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
 
                         if (!CommonUtils.isEmpty(eventData)) {
+                            EasytouchProcess.getInstance().setXwho(aliasId);
                             trackEvent(context, Constants.API_ALIAS, Constants.ALIAS, eventData);
                             sendProfileSetOnce(context, 0,currentTime);
                         } else {
@@ -1607,6 +1615,7 @@ public class AgentProcess {
             if (LogBean.getCode() == Constants.CODE_SUCCESS) {
                 LogPrompt.showLog(apiName, true);
             }
+            EasytouchProcess.getInstance().setEventMessage(eventData.toString());
             UploadManager.getInstance(context).sendManager(eventName, eventData);
         }
     }

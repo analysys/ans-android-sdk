@@ -21,6 +21,9 @@
 -keep public interface com.analysys.AnalysysAgent$AnalysysNetworkType{
  *;
 }
+-keep public interface com.analysys.ObserverListener{
+ *;
+}
 -keep class com.analysys.ANSAutoPageTracker{
  *;
 }

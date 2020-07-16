@@ -146,6 +146,16 @@ public class AnalysysAgent {
     }
 
     /**
+     * 设置时间和用户属性的监听
+     *
+     * @param context
+     * @param listener
+     */
+    public static void setObserverListener(Context context, ObserverListener listener) {
+        AgentProcess.getInstance().setObserverListener(listener);
+    }
+
+    /**
      * 设置上传间隔时间
      * debug 设置为 0 时,数据上传时间间隔,单位:秒
      *
@@ -686,4 +696,3 @@ public class AnalysysAgent {
         int AnalysysNetworkALL = 0xFF;
     }
 }
-
