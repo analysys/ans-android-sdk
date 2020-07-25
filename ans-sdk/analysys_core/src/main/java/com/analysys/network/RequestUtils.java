@@ -102,7 +102,9 @@ class RequestUtils {
         try {
             URL url = new URL(path);
             connection = (HttpsURLConnection) url.openConnection();
-            connection.setSSLSocketFactory(CommonUtils.getSSLSocketFactory(context));
+            if (CommonUtils.getSSLSocketFactory(context) != null) {
+                connection.setSSLSocketFactory(CommonUtils.getSSLSocketFactory(context));
+            }
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setUseCaches(false);
