@@ -20,9 +20,6 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug {
-            testCoverageEnabled = true
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
