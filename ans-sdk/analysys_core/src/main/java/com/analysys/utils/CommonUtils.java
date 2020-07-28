@@ -1185,42 +1185,13 @@ public class CommonUtils {
             certName = getManifestData(context, Constants.DEV_KEYSTONE);
         }
         if (TextUtils.isEmpty(certName)) {
-            return getDefaultSSLSocketFactory();
+//            return getDefaultSSLSocketFactory();
+            return null;
         } else {
             return getUserSSLSocketFactory(context, certName);
         }
     }
 
-    /**
-     * 默认信任所有证书
-     */
-    private static SSLSocketFactory getDefaultSSLSocketFactory() {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(X509Certificate[] x509Certificates,
-                                                       String s) {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(X509Certificate[] x509Certificates,
-                                                       String s) {
-                        }
-
-                        @Override
-                        public X509Certificate[] getAcceptedIssuers() {
-                            return new X509Certificate[0];
-                        }
-                    }
-            }, null);
-            return sslContext.getSocketFactory();
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-        }
-        return null;
-    }
 
     /**
      * 需要配置证书

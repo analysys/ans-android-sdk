@@ -19,9 +19,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro', 'proguard-custom.pro','proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
         }
-        debug {
-            testCoverageEnabled = true
-        }
     }
     compileOptions {
         sourceCompatibility rootProject.ext.sourceJavaVersion

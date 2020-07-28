@@ -48,7 +48,9 @@ public class StrategyTask implements Runnable {
             URL url = new URL(mUrl);
             if (mUrl.startsWith("https")) {
                 cn = (HttpsURLConnection) url.openConnection();
-                ((HttpsURLConnection) cn).setSSLSocketFactory(InternalAgent.createSSL(mContext));
+                if (InternalAgent.createSSL(mContext) != null) {
+                    ((HttpsURLConnection) cn).setSSLSocketFactory(InternalAgent.createSSL(mContext));
+                }
             } else {
                 cn = (HttpURLConnection) url.openConnection();
             }
