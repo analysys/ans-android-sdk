@@ -1,6 +1,6 @@
 ext {
 
-    version = '4.4.13'
+    version = '4.4.14'
 
 
 
@@ -27,7 +27,6 @@ ext {
 
 
     moduleName = ['analysys_core_' + "${version}",
-                  'analysys_encryption_' + "${version}",
                   'analysys_push_' + "${version}",
                   'analysys_visual_' + "${version}",
                   'analysys_allgro_' + "${version}"

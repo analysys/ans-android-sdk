@@ -5,7 +5,6 @@ include ':analysys_core' , ':analysys_encryption', ':analysys_push', ':analysys_
 include ':analysys_arkanalysys_no_op'
 
 project(':analysys_core').projectDir = new File(settingsDir, './ans-sdk/analysys_core')
-project(':analysys_encryption').projectDir = new File(settingsDir, './ans-sdk/analysys_encryption')
 project(':analysys_push').projectDir = new File(settingsDir, './ans-sdk/analysys_push')
 project(':analysys_visual').projectDir = new File(settingsDir, './ans-sdk/analysys_visual')
 project(':analysys_allgro').projectDir = new File(settingsDir, './ans-sdk/analysys_allgro')

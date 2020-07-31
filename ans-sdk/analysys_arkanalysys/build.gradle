@@ -28,7 +28,6 @@ android {
 
 dependencies {
     api project(':analysys_core')
-    api project(':analysys_encryption')
     api project(':analysys_push')
     api project(':analysys_visual')
     api project(':analysys_allgro')

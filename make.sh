@@ -2,7 +2,6 @@
 ./gradlew clean
 ./gradlew delRelease
 ./gradlew analysys_core:uploadArchives
-./gradlew analysys_encryption:uploadArchives
 ./gradlew analysys_push:uploadArchives
 ./gradlew analysys_visual:uploadArchives
 ./gradlew analysys_allgro:uploadArchives
