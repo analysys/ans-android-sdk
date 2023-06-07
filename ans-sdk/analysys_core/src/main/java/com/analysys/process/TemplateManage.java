@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.LogPrompt;
 
 import org.json.JSONArray;
@@ -73,6 +74,17 @@ public class TemplateManage {
             }
 
         }
+    }
+
+    public static JSONObject getFieldsMould(Context context) {
+        if (fieldsMould == null) {
+            try {
+                initMould(context);
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
+            }
+        }
+        return fieldsMould;
     }
 
     /**

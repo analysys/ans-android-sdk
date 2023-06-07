@@ -24,6 +24,9 @@
 -keep public interface com.analysys.ObserverListener{
  *;
 }
+-keep public interface com.analysys.LogObserverListener{
+ *;
+}
 -keep class com.analysys.ANSAutoPageTracker{
  *;
 }
@@ -53,6 +56,14 @@
  *;
  }
 
+ -keep class com.analysys.thread.AnsLogicThread {
+ *;
+ }
+
+  -keep class com.analysys.thread.AnsLogicThread$PriorityLevel {
+  *;
+  }
+
  -keep class com.analysys.utils.ExceptionUtil {
   *;
   }
@@ -75,6 +86,9 @@
  -keep class com.analysys.process.AgentProcess {
   *;
  }
+ -keep class com.analysys.process.AgentProcess$* {
+  *;
+ }
  -keep class com.analysys.process.SystemIds {
   *;
 }
@@ -92,7 +106,81 @@
      <methods>;
  }
 
+-keep class com.analysys.hybrid.BaseWebViewInjector {
+ *;
+}
+
+-keep class com.analysys.hybrid.WebViewInjectManager {
+ *;
+}
+
+-keep class com.analysys.hybrid.HybridObject {
+ *;
+}
+
 -keep class com.analysys.push.PushProvider {
     <fields>;
  }
 
+-keep class com.analysys.allgro.plugin.ASMProbeHelp {
+*;
+}
+
+-keep class com.analysys.allgro.plugin.ASMHookAdapter {
+ *;
+}
+
+-keep class com.analysys.ui.RootView {
+ *;
+}
+
+-keep class com.analysys.ui.UniqueViewHelper {
+ *;
+}
+
+-keep class com.analysys.ui.WindowUIHelper {
+ *;
+}
+
+-keep class com.analysys.ui.WindowUIHelper$* {
+ *;
+}
+
+-keep class com.analysys.utils.ANSLog {
+ *;
+}
+
+-keep class com.analysys.network.NetworkUtils {
+ *;
+}
+
+-keep class com.analysys.strategy.PolicyManager {
+ *;
+}
+-keep class com.analysys.AnsRamControl {
+ *;
+}
+
+-keep class com.analysys.ipc.IIpcProxy {
+ *;
+}
+
+-keep class com.analysys.ipc.IAnalysysClient {
+ *;
+}
+
+-keep class com.analysys.ipc.IAnalysysMain {
+ *;
+}
+
+-keep class com.analysys.ipc.IpcManager {
+ *;
+}
+
+-keep class com.analysys.ipc.BytesParcelable {
+ *;
+}
+
+-keep class com.analysys.process.HeatMap {
+ *;
+}

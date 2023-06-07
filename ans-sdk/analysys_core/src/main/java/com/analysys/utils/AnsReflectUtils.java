@@ -24,7 +24,7 @@ public class AnsReflectUtils {
         try {
             clz = Class.forName(name);
         } catch (Throwable ignore) {
-            ExceptionUtil.exceptionPrint(ignore);
+//            ExceptionUtil.exceptionPrint(ignore);
             return null;
         }
         return clz;
@@ -33,7 +33,14 @@ public class AnsReflectUtils {
     /**
      * 调用无参静态函数
      */
-    public static Object invokeStaticMethod(Class<?> clz, String methodName) {
+    public static Object invokeStaticMethod(String clzName, String methodName) {
+        Class clz;
+        try {
+            clz = Class.forName(clzName);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
+            return null;
+        }
         return invokeStaticMethod(clz, methodName, null, null);
     }
 
@@ -120,7 +127,6 @@ public class AnsReflectUtils {
             try {
                 method = clz.getDeclaredMethod(methodName, paramTypes);
             } catch (Throwable ignore) {
-                ExceptionUtil.exceptionPrint(ignore);
             }
             if (clz == Object.class) {
                 break;
@@ -214,28 +220,30 @@ public class AnsReflectUtils {
     /**
      * 设置成员变量
      */
-    public static void setField(Object obj, String fieldName, Object fieldValue) {
-        setField(null, obj, fieldName, fieldValue);
+    public static boolean setField(Object obj, String fieldName, Object fieldValue) {
+        return setField(null, obj, fieldName, fieldValue);
     }
 
-    private static void setField(Class clz, Object obj, String fieldName, Object fieldValue) {
+    private static boolean setField(Class clz, Object obj, String fieldName, Object fieldValue) {
         if (clz == null) {
             if (obj != null) {
                 clz = obj.getClass();
             } else {
-                return;
+                return false;
             }
         }
         Field field = findField(clz, fieldName);
         if (field == null) {
-            return;
+            return false;
         }
         try {
             field.setAccessible(true);
             field.set(obj, fieldValue);
+            return true;
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionPrint(ignore);
         }
+        return false;
     }
 
     public static boolean isSubClass(String[] parentClzArr, Class<?> clz) {
@@ -251,6 +259,20 @@ public class AnsReflectUtils {
             } catch (Throwable ignore) {
                 ExceptionUtil.exceptionPrint(ignore);
             }
+        }
+        return false;
+    }
+
+    public static boolean isSubClass(Class<?> parentClz, String clzName) {
+        if (parentClz == null || clzName == null) {
+            return false;
+        }
+        try {
+            Class clz = Class.forName(clzName);
+            if (parentClz.isAssignableFrom(clz)) {
+                return true;
+            }
+        } catch (Throwable ignore) {
         }
         return false;
     }

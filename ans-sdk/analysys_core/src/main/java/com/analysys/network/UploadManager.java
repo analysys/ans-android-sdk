@@ -7,12 +7,15 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
+import com.analysys.AnalysysConfig;
 import com.analysys.database.TableAllInfo;
+import com.analysys.easytouch.EasytouchProcess;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.LifeCycleConfig;
 import com.analysys.strategy.BaseSendStatus;
 import com.analysys.strategy.PolicyManager;
 import com.analysys.utils.ANSLog;
+import com.analysys.utils.AnalysysDeduplicationUtil;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CheckUtils;
 import com.analysys.utils.CommonUtils;
@@ -28,7 +31,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -83,6 +86,13 @@ public class UploadManager {
         if (CommonUtils.isEmpty(sendData)) {
             return;
         }
+
+        if (AgentProcess.getInstance().getConfig().isNeedDeduplication()) {
+           if (!AnalysysDeduplicationUtil.getInstance(mContext).judgeDeduplication(sendData)) {
+               return;
+           }
+        }
+
         dbCacheCheck();
         TableAllInfo.getInstance(mContext).insert(sendData.toString(), type);
         if (CommonUtils.isMainProcess(mContext)) {
@@ -96,6 +106,7 @@ public class UploadManager {
     }
 
     private void dbCacheCheck() {
+
         long maxCount = AgentProcess.getInstance().getMaxCacheSize();
         long count = TableAllInfo.getInstance(mContext).selectCount();
         if (maxCount <= count) {
@@ -180,6 +191,15 @@ public class UploadManager {
             return;
         }
 
+        //只在主进程操作
+        if (Constants.isTimeCheck) {
+            if (!Constants.isFinishCalibration) {
+                ANSLog.d("时间校准未完成,等时间校准之后数据发送");
+                return;
+            }
+        }
+
+
         if (NetworkUtils.isNetworkAvailable(mContext)) {
             JSONArray eventArray = TableAllInfo.getInstance(mContext).select();
             // 上传数据检查校验
@@ -225,7 +245,8 @@ public class UploadManager {
      * 校准XWhen时间
      */
     private long calibrationTime(long time) {
-        if (Constants.isTimeCheck) {
+//        Constants.isCalibration  表示时间校准成功之后保存的状态
+        if (Constants.isTimeCheck&&Constants.isCalibration) {
             time += Constants.diffTime;
         }
         return time;
@@ -237,26 +258,34 @@ public class UploadManager {
     private void calibrationTime(String url) {
         // 获取网络时间
         long serverTime = RequestUtils.getRequest(url);
-        if (serverTime != 0) {
-            // 计算网络时间与本地时间差值
-            long currentTime = System.currentTimeMillis();
-            long diff = serverTime - currentTime;
-            long absDiff = Math.abs(diff);
-            if (absDiff > Constants.ignoreDiffTime) {
-                Constants.diffTime = diff;
-                // 将差值存储文件，解决跨进程问题
-                SharedUtil.setString(mContext,
-                        Constants.SP_DIFF_TIME, Long.toString(diff));
-                Constants.isCalibration = true;
-                LogPrompt.showCheckTimeLog(serverTime, currentTime, absDiff);
+        try {
+            if (serverTime != 0) {
+                // 计算网络时间与本地时间差值
+                long currentTime = System.currentTimeMillis();
+                long diff = serverTime - currentTime;
+                long absDiff = Math.abs(diff);
+                if (absDiff > Constants.ignoreDiffTime) {
+                    Constants.diffTime = diff;
+                    EasytouchProcess.getInstance().setTime(diff);
+                    // 将差值存储文件，解决跨进程问题
+                    SharedUtil.setString(mContext,
+                            Constants.SP_DIFF_TIME, Long.toString(diff));
+                    Constants.isCalibration = true;
+                    LogPrompt.showCheckTimeLog(serverTime, currentTime, absDiff);
+                }
             }
+        } catch (Throwable e) {
+            ExceptionUtil.exceptionThrow(e);
         }
+
+        Constants.isFinishCalibration = true;
     }
 
     /**
      * 数据加密
      */
     private void encryptData(String url, String value) throws IOException {
+        ANSLog.i("encryptData");
         if (CommonUtils.isEmpty(spv)) {
             spv = CommonUtils.getSpvInfo(mContext);
         }
@@ -285,6 +314,7 @@ public class UploadManager {
      * 发送数据
      */
     private void sendRequest(String url, String dataInfo, Map<String, String> headInfo) {
+        ANSLog.i("sendRequest " + url);
         try {
             String returnInfo;
             if (url.startsWith(Constants.HTTP)) {
@@ -292,7 +322,8 @@ public class UploadManager {
             } else {
                 returnInfo = RequestUtils.postRequestHttps(mContext, url, dataInfo, spv, headInfo);
             }
-            policyAnalysis(analysisStrategy(returnInfo));
+            ANSLog.i("returnInfo: " + returnInfo);
+            policyAnalysys(analysysStrategy(returnInfo));
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
@@ -344,7 +375,7 @@ public class UploadManager {
     /**
      * 返回值解密转json
      */
-    private JSONObject analysisStrategy(String policy) {
+    private JSONObject analysysStrategy(String policy) {
         try {
             if (CommonUtils.isEmpty(policy)) {
                 return null;
@@ -356,10 +387,11 @@ public class UploadManager {
             }
             return new JSONObject(policy);
         } catch (Throwable ignore) {
-//            ExceptionUtil.exceptionThrow(ignore);
+            ExceptionUtil.exceptionPrint(ignore);
             try {
                 return new JSONObject(policy);
             } catch (Throwable e1) {
+                ExceptionUtil.exceptionPrint(ignore);
                 return null;
             }
         }
@@ -368,7 +400,8 @@ public class UploadManager {
     /**
      * 解析返回策略
      */
-    private void policyAnalysis(JSONObject json) {
+    private void policyAnalysys(JSONObject json) {
+        ANSLog.i("policyAnalysys: " + json);
         try {
             if (!CommonUtils.isEmpty(json)) {
                 int code = json.optInt(Constants.SERVICE_CODE, -1);
@@ -386,7 +419,7 @@ public class UploadManager {
                                 Constants.SP_SERVICE_HASH, null);
                         if (CommonUtils.isEmpty(serviceHash)
                                 || (policyJson != null && !serviceHash.equals(policyJson.optString(Constants.SERVICE_HASH)))) {
-                            PolicyManager.analysisStrategy(mContext, policyJson);
+                            PolicyManager.analysysStrategy(mContext, policyJson);
                         }
                     }
                     LogPrompt.showSendResults(false);

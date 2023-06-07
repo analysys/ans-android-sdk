@@ -61,6 +61,10 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         return Holder.Instance;
     }
 
+    public boolean isEnableCatch() {
+        return isEnableCatchThrowable;
+    }
+
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
         // 增加内部处理
@@ -118,9 +122,9 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
             HashMap<String, Object> crashMap = new HashMap<>(2);
             crashMap.put(Constants.CRASH_DATA, Log.getStackTraceString(ex));
-            crashMap.put(Constants.CRASH_TYPE, type);
+//            crashMap.put(Constants.CRASH_TYPE, type);
 
-            AgentProcess.getInstance().track(Constants.APP_CRASH_DATA, crashMap);
+            AgentProcess.getInstance().trackSync(Constants.APP_CRASH_DATA, crashMap);
 
         }
     }

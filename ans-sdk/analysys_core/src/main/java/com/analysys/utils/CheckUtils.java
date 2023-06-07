@@ -80,7 +80,7 @@ public class CheckUtils {
             LogBean.resetLogBean();
             if (TemplateManage.userKeysLimit != 0
                     && TemplateManage.userKeysLimit < parameters.size()) {
-                LogBean.setDetails(Constants.CODE_FAILED, LogPrompt.MAP_SIZE_ERROR);
+                LogPrompt.showLog(apiName, LogPrompt.MAP_SIZE_ERROR);
             }
             Set<String> keys = parameters.keySet();
             String key;
@@ -91,14 +91,17 @@ public class CheckUtils {
                 if (key == null) {
                     iterator.remove();
                     LogBean.setDetails(Constants.CODE_FAILED, LogPrompt.KEY_EMPTY);
+                    showCheckParameterLog(apiName);
                     continue;
                 }
                 if (Constants.CODE_FAILED
                         == reflexCheckParameter(apiName, key, TemplateManage.contextKey)) {
+                    showCheckParameterLog(apiName);
                     continue;
                 }
                 if (Constants.CODE_FAILED
                         == reflexCheckParameter(apiName, value, TemplateManage.contextValue)) {
+                    showCheckParameterLog(apiName);
                     continue;
                 }
                 if (LogBean.getCode() == Constants.CODE_CUT_OFF
@@ -106,15 +109,18 @@ public class CheckUtils {
                     parameters.put(key, LogBean.getValue());
                     LogBean.setValue(null);
                 }
-            }
-            if (Constants.API_PROFILE_UNSET.equals(apiName)) {
-                LogBean.setDetails(Constants.CODE_SUCCESS, null);
-            }
-            if (LogBean.getCode() != Constants.CODE_SUCCESS) {
-                LogPrompt.showLog(apiName, LogBean.getLog());
+                showCheckParameterLog(apiName);
             }
         }
         return true;
+    }
+
+    private static void showCheckParameterLog(String apiName) {
+        if (Constants.API_PROFILE_UNSET.equals(apiName)) {
+            LogBean.setDetails(Constants.CODE_SUCCESS, null);
+        } else if (LogBean.getCode() != Constants.CODE_SUCCESS) {
+            LogPrompt.showLog(apiName, LogBean.getLog());
+        }
     }
 
     /**

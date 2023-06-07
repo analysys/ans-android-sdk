@@ -101,6 +101,7 @@ public class ActivityLifecycleUtils {
         public void onActivityPaused(Activity activity) {
             if (sCurrentActivityRef != null) {
                 sCurrentActivityRef.clear();
+                sCurrentActivityRef = null;
             }
 
             BaseLifecycleCallback[] callbacks = getCallbacks();
@@ -141,11 +142,22 @@ public class ActivityLifecycleUtils {
         }
     }
 
+    public static void releaseLifecycle() {
+        Context context = AnalysysUtil.getContext();
+        if (context instanceof Application) {
+            ((Application) context).unregisterActivityLifecycleCallbacks(sCalback);
+        }
+    }
+
     public static Activity getCurrentActivity() {
         if (sCurrentActivityRef != null) {
             return sCurrentActivityRef.get();
         }
         return null;
+    }
+
+    public static boolean isActivityResumed() {
+        return sCurrentActivityRef != null;
     }
 
 }

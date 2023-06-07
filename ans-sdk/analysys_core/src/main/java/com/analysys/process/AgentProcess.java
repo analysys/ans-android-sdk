@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.util.LruCache;
 
@@ -11,14 +12,19 @@ import com.analysys.AnalysysConfig;
 import com.analysys.AnsIDControl;
 import com.analysys.AnsRamControl;
 import com.analysys.AutomaticAcquisition;
+import com.analysys.LogObserverListener;
 import com.analysys.ObserverListener;
+import com.analysys.database.TableAllInfo;
 import com.analysys.easytouch.EasytouchProcess;
 import com.analysys.hybrid.HybridBridge;
+import com.analysys.hybrid.WebViewInjectManager;
+import com.analysys.ipc.IpcManager;
 import com.analysys.network.UploadManager;
 import com.analysys.push.PushListener;
+import com.analysys.thread.AnsLogicThread;
+import com.analysys.thread.PriorityCallable;
 import com.analysys.userinfo.UserInfo;
 import com.analysys.utils.ANSLog;
-import com.analysys.utils.AThreadPool;
 import com.analysys.utils.ActivityLifecycleUtils;
 import com.analysys.utils.AdvertisingIdUitls;
 import com.analysys.utils.AnalysysUtil;
@@ -42,7 +48,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -57,11 +62,10 @@ public class AgentProcess {
     private final String GET_USER_AGENT = "getUserAgentString";
     private final String SET_USER_AGENT = "setUserAgentString";
     private final String START = "start";
-    private final String ANALYSYS_AGENT = "analysysagent";
-
 
     private Application mApp = null;
     private String mTitle = "", mUrl = "";
+    private int mPvHash;
     private Map<String, Object> properties;
 
     private AnalysysConfig mConfig = new AnalysysConfig();
@@ -70,6 +74,11 @@ public class AgentProcess {
         return Holder.INSTANCE;
     }
 
+    private LogObserverListener logObserverListener;
+
+    private String mUploadUrl;
+    private String mVisualDebugUrl;
+    private String mVisualConfigUrl;
 
     /**
      * 只能初始化一次
@@ -94,14 +103,21 @@ public class AgentProcess {
         return AnsRamControl.getInstance().getUploadNetworkType();
     }
 
+    public boolean isInited() {
+        return mInited;
+    }
+
     /**
      * 初始化接口 config,不调用初始化接口: 获取不到key/channel,页面自动采集失效,电池信息采集失效
      */
-    public void init(final Context context, final AnalysysConfig config) {
+    public synchronized void init(final Context context, final AnalysysConfig config) {
+        if (config != null && mConfig != config) {
+            mConfig = config;
+        }
         if (mInited) {
-            ANSLog.e("多次调用AnalysysAgent.init，请保证只初始化一次");
             return;
         }
+        ANSLog.i("uba init");
         mInited = true;
         AnalysysUtil.init(context);
         CrashHandler.getInstance().setCallback(new CrashHandler.CrashCallBack() {
@@ -110,15 +126,15 @@ public class AgentProcess {
                 CrashHandler.getInstance().reportException(context, e, CrashHandler.CrashType.crash_auto);
             }
         });
-        if (config != null) {
-            mConfig = config;
-        }
         ActivityLifecycleUtils.initLifecycle();
         ActivityLifecycleUtils.addCallback(new AutomaticAcquisition());
-        AThreadPool.initHighPriorityExecutor(new Callable() {
+        probeInit(context);
+
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
             public Object call() throws Exception {
                 try {
+                    IpcManager.getInstance().init();
                     Context cx = AnalysysUtil.getContext();
                     if (cx != null) {
                         TemplateManage.initMould(cx);
@@ -127,7 +143,7 @@ public class AgentProcess {
                         if (CommonUtils.isMainProcess(cx)) {
 
                             //首次安装渠道归因状态设置，避免后面把状态冲了
-                            Constants.isFirstInstall = CommonUtils.isFirstStart(context);
+                            Constants.isFirstInstall = CommonUtils.isFirst(context);
 
                             // 同时设置 UploadUrl/WebSocketUrl/ConfigUrl
                             setBaseUrl(cx, mConfig.getBaseUrl());
@@ -149,21 +165,20 @@ public class AgentProcess {
                         }
                         // 设置时间校准是否开启
                         Constants.isTimeCheck = mConfig.isTimeCheck();
-//                        if (AgentProcess.getInstance().getConfig().isAutoHeatMap()) {
-//                            SystemIds.getInstance().parserId();
-//                        }
                         LifeCycleConfig.initUploadConfig(cx);
+                        if (CommonUtils.isMainProcess(cx)) {
+                            trySendSavePageClose(context);
+                            HybridBridge.getInstance().trySendSaveH5PageClose(context);
+                        }
                         LogPrompt.showInitLog(true);
                     } else {
                         LogPrompt.showInitLog(false);
                     }
                     AdvertisingIdUitls.setAdvertisingId();
-                    return true;
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
-                    return true;
                 }
-
+                return null;
             }
         });
     }
@@ -171,17 +186,17 @@ public class AgentProcess {
     public void setObserverListener(ObserverListener listener) {
         EasytouchProcess.getInstance().setObserverListener(listener);
     }
+
     /**
      * debug 信息处理
      */
-    public void setDebug(final int debug) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+    public void setDebug(final Context context, final int debug) {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
-                Context context = AnalysysUtil.getContext();
+            public Object call() throws Exception {
                 if (context == null || debug < 0 || 2 < debug) {
-                    Log.w("analysys", Constants.API_SET_DEBUG_MODE + ": set failed!");
-                    return;
+                    ANSLog.w(Constants.API_SET_DEBUG_MODE + ": set failed!");
+                    return null;
                 }
                 debugResetUserInfo(context, debug);
                 SharedUtil.setInt(context, Constants.SP_USER_DEBUG, debug);
@@ -189,6 +204,7 @@ public class AgentProcess {
                     ANSLog.isShowLog = true;
                 }
                 LogPrompt.showLog(Constants.API_SET_DEBUG_MODE, true);
+                return null;
             }
         });
     }
@@ -196,8 +212,11 @@ public class AgentProcess {
     /**
      * 安装后首次启动/应用启动
      */
-    public void appStart(final boolean isFromBackground,final long currentTime) {
+    public void appStart(final boolean isFromBackground, final long currentTime) {
         try {
+            if (!isDataCollectEnable()) {
+                return;
+            }
             Context context = AnalysysUtil.getContext();
             if (context == null) {
                 return;
@@ -207,6 +226,7 @@ public class AgentProcess {
             if (!CommonUtils.isEmpty(Constants.utm)) {
                 startUpMap.putAll(Constants.utm);
             }
+
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(currentTime,
                     Constants.API_APP_START, Constants.STARTUP, null, startUpMap);
             trackEvent(context, Constants.API_APP_START, Constants.STARTUP, eventData);
@@ -227,6 +247,9 @@ public class AgentProcess {
      */
     public void appEnd(final String eventTime, final JSONObject realTimeField) {
         try {
+            if (!isDataCollectEnable()) {
+                return;
+            }
             if (!TextUtils.isEmpty(eventTime)) {
                 long time = CommonUtils.parseLong(eventTime, 0);
                 if (time > 0) {
@@ -254,36 +277,51 @@ public class AgentProcess {
                          final String pageName, final Map<String, Object> pageDetail) {
         if (context instanceof Activity) {
             Activity activity = (Activity) context;
-            mUrl = activity.getClass().getCanonicalName();
-            mTitle = String.valueOf(activity.getTitle());
+            mPvHash = activity.hashCode();
+            if (pageDetail != null && pageDetail.containsKey(Constants.PAGE_URL)) {
+                mUrl = (String) pageDetail.get(Constants.PAGE_URL);
+            } else {
+                mUrl = activity.getClass().getCanonicalName();
+            }
+            if (!TextUtils.isEmpty(pageName)) {
+                mTitle = pageName;
+            } else {
+                if (pageDetail != null && pageDetail.containsKey(Constants.PAGE_TITLE)) {
+                    mTitle = (String) pageDetail.get(Constants.PAGE_TITLE);
+                } else {
+                    mTitle = String.valueOf(activity.getTitle());
+                }
+            }
+        }
+        if (!isDataCollectEnable()) {
+            return;
         }
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
+
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.MIDDLE) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context == null) {
-                        return;
+                        return null;
                     }
                     Map<String, Object> pageInfo = CommonUtils.deepCopy(pageDetail);
-                    pageInfo.put(Constants.PAGE_TITLE, pageName);
 
                     Map<String, Object> autoCollectPageInfo = new HashMap<>();
                     if (!pageInfo.containsKey(Constants.PAGE_URL)) {
                         autoCollectPageInfo.put(Constants.PAGE_URL, mUrl);
                     }
-                    if (!pageInfo.containsKey(Constants.PAGE_TITLE)) {
-                        autoCollectPageInfo.put(Constants.PAGE_TITLE, mTitle);
-                    }
+                    autoCollectPageInfo.put(Constants.PAGE_TITLE, mTitle);
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                            currentTime,Constants.API_PAGE_VIEW, Constants.PAGE_VIEW,
+                            currentTime, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW,
                             pageInfo, autoCollectPageInfo);
 
                     trackEvent(context, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
-                } catch (Throwable ignored) {
-                    ExceptionUtil.exceptionThrow(ignored);
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -292,27 +330,34 @@ public class AgentProcess {
      * hybrid 使用 pageView 方法
      */
     public void hybridPageView(final String pageName, final Map<String, Object> pageDetail) {
+
+        if (!isDataCollectEnable()) {
+            return;
+        }
+
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncMiddlePriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.MIDDLE) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
+
                     Context context = AnalysysUtil.getContext();
                     if (context == null) {
-                        return;
+                        return null;
                     }
                     Map<String, Object> pageInfo = CommonUtils.deepCopy(pageDetail);
                     if (!CommonUtils.isEmpty(pageName) && pageDetail != null) {
                         pageDetail.put(Constants.PAGE_TITLE, pageName);
                     }
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                            currentTime,Constants.API_PAGE_VIEW,
+                            currentTime, Constants.API_PAGE_VIEW,
                             Constants.PAGE_VIEW, pageInfo, null);
                     trackEvent(context,
                             Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -320,25 +365,98 @@ public class AgentProcess {
     /**
      * 页面信息处理
      */
-    public void autoCollectPageView(final Map<String, Object> pageInfo,final long currentTime) throws Throwable {
+    public void autoCollectPageView(final Map<String, Object> pageInfo, final long currentTime) throws Throwable {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         Context context = AnalysysUtil.getContext();
         if (context != null) {
+            // save page_close
+            if(AgentProcess.getInstance().getConfig().isAutoPageViewDuration()) {
+
+
+                JSONObject jo = new JSONObject(pageInfo);
+                jo.put(Constants.PV_START_TIME, currentTime);
+
+                SharedUtil.setString(context, Constants.PAGE_CLOSE_INFO,
+                        new String(Base64.encode(String.valueOf(jo).getBytes(), Base64.NO_WRAP)));
+            }
+
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                    currentTime,Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, pageInfo, null);
+                    currentTime, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, pageInfo, null);
             trackEvent(context, Constants.API_PAGE_VIEW, Constants.PAGE_VIEW, eventData);
+        }
+    }
+
+    private void trySendSavePageClose(Context context) {
+        String txt = SharedUtil.getString(context, Constants.PAGE_CLOSE_INFO, "");
+        if (TextUtils.isEmpty(txt)) {
+            return;
+        }
+        if (!AgentProcess.getInstance().getConfig().isAutoPageViewDuration()) {
+            if (!TextUtils.isEmpty(txt)) {
+                SharedUtil.setString(context, Constants.PAGE_CLOSE_INFO, null);
+            }
+            return;
+        }
+        try {
+            txt = new String(Base64.decode(txt.getBytes(), Base64.NO_WRAP));
+            JSONObject jo = new JSONObject(txt);
+            long startTime = jo.getLong(Constants.PV_START_TIME);
+            String timeStr = SharedUtil.getString(context, Constants.LAST_OP_TIME, "");
+            long time = CommonUtils.parseLong(timeStr, 0);
+            long pageStayTime = time - startTime;
+            if (pageStayTime > 0) {
+                jo.put(Constants.PAGE_STAY_TIME, pageStayTime);
+                jo.remove(Constants.PV_START_TIME);
+                AgentProcess.getInstance().track(Constants.PAGE_CLOSE, CommonUtils.jsonToMap(jo), time);
+            }
+            SharedUtil.setString(context, Constants.PAGE_CLOSE_INFO, null);
+        } catch (Throwable e) {
+            ExceptionUtil.exceptionPrint(e);
+        }
+    }
+
+    public void autoCollectPageClose(int pageHash, final Map<String, Object> pageInfo, final long currentTime) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
+        Context context = AnalysysUtil.getContext();
+        if (context != null) {
+            if (pageHash == mPvHash) {
+                if (!TextUtils.isEmpty(mUrl)) {
+
+
+                    pageInfo.put(Constants.PAGE_URL, mUrl);
+                }
+                if (!TextUtils.isEmpty(mTitle)) {
+                    pageInfo.put(Constants.PAGE_TITLE, mTitle);
+                }
+            }
+
+            if (!TextUtils.isEmpty(HybridBridge.getInstance().lastWebUrl)) {
+                String url = HybridBridge.getInstance().lastWebUrl;
+                pageInfo.put(Constants.PAGE_URL,url);
+
+                HybridBridge.getInstance().lastWebUrl = "";
+            }
+            track(Constants.PAGE_CLOSE, pageInfo, currentTime);
         }
     }
 
     /**
      * Touch事件处理
      */
-    void pageTouchInfo(final Map<String, Object> screenDetail,final long currentTime) {
+    void pageTouchInfo(final Map<String, Object> screenDetail, final long currentTime) {
         try {
+            if (!isDataCollectEnable()) {
+                return;
+            }
             Context context = AnalysysUtil.getContext();
             Map<String, Object> screenInfo = CommonUtils.deepCopy(screenDetail);
             if (context != null) {
                 JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                        currentTime,Constants.API_APP_CLICK, Constants.APP_CLICK, null, screenInfo);
+                        currentTime, Constants.API_APP_CLICK, Constants.APP_CLICK, null, screenInfo);
                 trackEvent(context, Constants.API_APP_CLICK, Constants.APP_CLICK, eventData);
             }
         } catch (Throwable ignore) {
@@ -351,46 +469,77 @@ public class AgentProcess {
      *
      * @param clickInfo 点击上报信息
      */
-    public void autoTrackViewClick(final Map<String, Object> clickInfo,final long currentTime) throws Throwable {
+    public void autoTrackViewClick(final Map<String, Object> clickInfo, final long currentTime) throws Throwable {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         Context context = AnalysysUtil.getContext();
         if (context != null) {
-            JSONObject eventData = DataAssemble.getInstance(context).getEventData(currentTime,Constants.API_USER_CLICK, Constants.USER_CLICK, null, clickInfo);
+            JSONObject eventData = DataAssemble.getInstance(context).getEventData(currentTime, Constants.API_USER_CLICK, Constants.USER_CLICK, null, clickInfo);
             trackEvent(context, Constants.API_USER_CLICK, Constants.USER_CLICK, eventData);
         }
     }
 
     /**
+     * 多个事件信息处理 同步
+     */
+    public void trackSync(final String eventName, final Map<String, Object> eventDetail) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
+        final long currentTime = System.currentTimeMillis();
+        try {
+            getTrackRunnable(eventName, eventDetail, currentTime).call();
+        } catch (Throwable e) {
+            ExceptionUtil.exceptionThrow(e);
+        }
+
+    }
+
+    /**
      * 多个事件信息处理
      */
-    public void track(final String eventName, final Map<String, Object> eventDetail) {
-        final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncLowPriorityExecutor(new Runnable() {
+    public void track(final String eventName, final Map<String, Object> eventDetail, long currentTime) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
+        AnsLogicThread.async(getTrackRunnable(eventName, eventDetail, currentTime));
+    }
+
+    private PriorityCallable getTrackRunnable(final String eventName, final Map<String, Object> eventDetail, final long currentTime) {
+        return new PriorityCallable(AnsLogicThread.PriorityLevel.LOW) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Map<String, Object> eventInfo = CommonUtils.deepCopy(eventDetail);
                     Context context = AnalysysUtil.getContext();
                     if (context == null || eventName == null) {
                         LogPrompt.showLog(Constants.API_TRACK, false);
-                        return;
+                        return null;
                     }
+
+                    if (Constants.PAGE_CLOSE.equals(eventName)) {
+                        SharedUtil.setString(context, Constants.PAGE_CLOSE_INFO, null);
+                    }
+
                     JSONObject eventData;
                     if (isPushTrack(eventName)) {
                         updateLastOperateTime(context);
                         eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_TRACK, Constants.TRACK,
+                                currentTime, Constants.API_TRACK, Constants.TRACK,
                                 null, eventInfo, eventName);
                     } else {
                         eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_TRACK, Constants.TRACK,
+                                currentTime, Constants.API_TRACK, Constants.TRACK,
                                 eventInfo, null, eventName);
                     }
                     trackEvent(context, Constants.API_TRACK, eventName, eventData);
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
-        });
+        };
     }
 
     private void updateLastOperateTime(Context context) {
@@ -405,17 +554,17 @@ public class AgentProcess {
      * distinct id 存储
      */
     public void identify(final String distinctId) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 if (!CheckUtils.checkIdLength(distinctId)) {
                     LogPrompt.showLog(Constants.SP_DISTINCT_ID, LogBean.getLog());
-                    return;
+                    return null;
                 }
 //                CommonUtils.setIdFile(context, Constants.SP_DISTINCT_ID, distinctId);
                 EasytouchProcess.getInstance().setXwho(distinctId);
                 UserInfo.setDistinctID(distinctId);
-
+                return null;
             }
         });
     }
@@ -424,7 +573,12 @@ public class AgentProcess {
      * 获取distinctId
      */
     public String getDistinctId() {
-        return UserInfo.getDistinctID();
+        return (String) AnsLogicThread.sync(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
+            @Override
+            public Object call() throws Exception {
+                return UserInfo.getDistinctID();
+            }
+        });
     }
 
     /**
@@ -432,20 +586,20 @@ public class AgentProcess {
      */
     public void alias(final String aliasId, final String originalId) {
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         if (!CheckUtils.checkIdLength(aliasId)) {
                             LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
-                            return;
+                            return null;
                         }
                         if (!CommonUtils.isEmpty(originalId)
                                 && !CheckUtils.checkOriginalIdLength(originalId)) {
                             LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
-                            return;
+                            return null;
                         }
                         String original = originalId;
                         if (CommonUtils.isEmpty(original)) {
@@ -461,12 +615,12 @@ public class AgentProcess {
                         aliasMap.put(Constants.ORIGINAL_ID, original);
 
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
+                                currentTime, Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
 
                         if (!CommonUtils.isEmpty(eventData)) {
                             EasytouchProcess.getInstance().setXwho(aliasId);
                             trackEvent(context, Constants.API_ALIAS, Constants.ALIAS, eventData);
-                            sendProfileSetOnce(context, 0,currentTime);
+                            sendProfileSetOnce(context, 0, currentTime);
                         } else {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
@@ -474,21 +628,22 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
 
     public void alias(final String aliasId) {
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         if (!CheckUtils.checkIdLength(aliasId)) {
                             LogPrompt.showLog(Constants.API_ALIAS, LogBean.getLog());
-                            return;
+                            return null;
                         }
                         String original = UserInfo.getDistinctID();
 //                        SharedUtil.setString(context, Constants.SP_ORIGINAL_ID, original);
@@ -500,12 +655,12 @@ public class AgentProcess {
                         aliasMap.put(Constants.ORIGINAL_ID, original);
 
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
+                                currentTime, Constants.API_ALIAS, Constants.ALIAS, aliasMap, null);
 
                         if (!CommonUtils.isEmpty(eventData)) {
                             EasytouchProcess.getInstance().setXwho(aliasId);
                             trackEvent(context, Constants.API_ALIAS, Constants.ALIAS, eventData);
-                            sendProfileSetOnce(context, 0,currentTime);
+                            sendProfileSetOnce(context, 0, currentTime);
                         } else {
                             LogPrompt.showLog(Constants.API_ALIAS, false);
                         }
@@ -513,6 +668,7 @@ public class AgentProcess {
                 } catch (Throwable ignored) {
                     ExceptionUtil.exceptionThrow(ignored);
                 }
+                return null;
             }
         });
     }
@@ -530,16 +686,19 @@ public class AgentProcess {
      * profile set json
      */
     public void profileSet(final Map<String, Object> profileDetail) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_PROFILE_SET,
+                                currentTime, Constants.API_PROFILE_SET,
                                 Constants.PROFILE_SET, profileInfo, null);
                         trackEvent(context, Constants.API_PROFILE_SET,
                                 Constants.PROFILE_SET, eventData);
@@ -547,6 +706,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -555,16 +715,19 @@ public class AgentProcess {
      * profileSetOnce json
      */
     public void profileSetOnce(final Map<String, Object> profileDetail) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_PROFILE_SET_ONCE,
+                                currentTime, Constants.API_PROFILE_SET_ONCE,
                                 Constants.PROFILE_SET_ONCE, profileInfo, null);
 
                         trackEvent(context, Constants.API_PROFILE_SET_ONCE,
@@ -575,6 +738,7 @@ public class AgentProcess {
                 } catch (Throwable ignored) {
                     ExceptionUtil.exceptionThrow(ignored);
                 }
+                return null;
             }
         });
     }
@@ -597,17 +761,20 @@ public class AgentProcess {
      * profile increment
      */
     public void profileIncrement(final Map<String, ? extends Number> profileDetail) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, ? extends Number> profileInfo =
                                 CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_PROFILE_INCREMENT,
+                                currentTime, Constants.API_PROFILE_INCREMENT,
                                 Constants.PROFILE_INCREMENT, profileInfo, null);
 
                         trackEvent(context, Constants.API_PROFILE_INCREMENT,
@@ -618,6 +785,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -640,16 +808,19 @@ public class AgentProcess {
      * 给一个列表类型的Profile增加一个元素
      */
     public void profileAppend(final Map<String, Object> profileDetail) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         Map<String, Object> profileInfo = CommonUtils.deepCopy(profileDetail);
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_PROFILE_APPEND,
+                                currentTime, Constants.API_PROFILE_APPEND,
                                 Constants.PROFILE_APPEND, profileInfo, null);
 
                         trackEvent(context, Constants.API_PROFILE_APPEND,
@@ -660,6 +831,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -696,10 +868,13 @@ public class AgentProcess {
      * 删除单个用户属性
      */
     public void profileUnset(final String propertyKey) {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(propertyKey)) {
@@ -707,7 +882,7 @@ public class AgentProcess {
                         profileMap.put(propertyKey, "");
 
                         JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                                currentTime,Constants.API_PROFILE_UNSET,
+                                currentTime, Constants.API_PROFILE_UNSET,
                                 Constants.PROFILE_UNSET, profileMap, null);
 
                         trackEvent(context, Constants.API_PROFILE_UNSET,
@@ -719,6 +894,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -727,17 +903,20 @@ public class AgentProcess {
      * 清除所有用户属性
      */
     public void profileDelete() {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context == null) {
-                        return;
+                        return null;
                     }
                     JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                            currentTime,Constants.API_PROFILE_DELETE,
+                            currentTime, Constants.API_PROFILE_DELETE,
                             Constants.PROFILE_DELETE, null, null);
 
                     trackEvent(context, Constants.API_PROFILE_DELETE,
@@ -746,6 +925,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -768,13 +948,13 @@ public class AgentProcess {
     }
 
     private void handleSuperProperty(final String key, final Object value, final String type) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context == null) {
-                        return;
+                        return null;
                     }
                     Map<String, Object> property = new HashMap<>();
                     property.put(key, value);
@@ -791,7 +971,7 @@ public class AgentProcess {
                 } catch (Throwable ignored) {
                     ExceptionUtil.exceptionThrow(ignored);
                 }
-
+                return null;
             }
         });
     }
@@ -813,15 +993,15 @@ public class AgentProcess {
     }
 
     private void handleSuperProperties(final Map<String, Object> propertyDetail, final String type) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context == null) {
                         LogPrompt.showLog(
                                 Constants.API_REGISTER_SUPER_PROPERTIES, LogBean.getLog());
-                        return;
+                        return null;
                     }
                     Map<String, Object> propertyInfo = CommonUtils.deepCopy(propertyDetail);
                     if (CheckUtils.checkParameter(
@@ -835,11 +1015,66 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
-
         });
     }
 
+
+    /**
+     * 注册针对预置事件的属性
+     */
+    public void registerPreEventUserProperties(final Map<String, Object> propertyDetail) {
+
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
+            @Override
+            public Object call() throws Exception {
+                try {
+                    Context context = AnalysysUtil.getContext();
+                    if (context == null) {
+                        LogPrompt.showLog(
+                                Constants.API_REGISTER_PREEVENT_USER_PROPERTIES, LogBean.getLog());
+                        return null;
+                    }
+                    Map<String, Object> propertyInfo = CommonUtils.deepCopy(propertyDetail);
+                    if (CheckUtils.checkParameter(
+                            Constants.API_REGISTER_PREEVENT_USER_PROPERTIES, propertyInfo)) {
+                        if (LogBean.getCode() == Constants.CODE_SUCCESS) {
+                            LogPrompt.showLog(
+                                    Constants.API_REGISTER_PREEVENT_USER_PROPERTIES, true);
+                        }
+                        saveSuperProperty(context, propertyInfo, Constants.SP_PRE_USER_PROPERTY);
+                    }
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
+                }
+                return null;
+            }
+        });
+    }
+
+    public Map<String, Object> getPreEventUserProperties() {
+        Map<String, Object> map = new HashMap<String, Object>(16);
+        try {
+            Context context = AnalysysUtil.getContext();
+            if (context == null) {
+                return new HashMap<>();
+            }
+            String superProperty = SharedUtil.getString(context,
+                    Constants.SP_PRE_USER_PROPERTY, null);
+            JSONObject superPropertyJson = null;
+            if (superProperty != null && superProperty.length() > 0) {
+                superPropertyJson = new JSONObject(superProperty);
+            }
+            if (superPropertyJson != null) {
+                map.putAll(CommonUtils.jsonToMap(superPropertyJson));
+            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
+
+        return map;
+    }
 
     /**
      * 用户获取super Property
@@ -929,6 +1164,10 @@ public class AgentProcess {
         handleSuperProperty(superPropertyName, Constants.SP_JS_SUPER_PROPERTY);
     }
 
+    public void unregisterPreEventUserProperty (final String propertyName) {
+        handleSuperProperty(propertyName,Constants.SP_PRE_USER_PROPERTY);
+    }
+
     /**
      * 删除超级属性
      *
@@ -939,9 +1178,9 @@ public class AgentProcess {
     }
 
     private void handleSuperProperty(final String superPropertyName, final String type) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(superPropertyName)) {
@@ -959,6 +1198,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -978,9 +1218,9 @@ public class AgentProcess {
     }
 
     private void handleClearSuperProperty(final String type) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
@@ -991,6 +1231,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -999,9 +1240,9 @@ public class AgentProcess {
      * 用户自定义上传间隔时间
      */
     public void setIntervalTime(final long time) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 Context context = AnalysysUtil.getContext();
                 if (context != null && 1 <= time) {
                     SharedUtil.setLong(
@@ -1010,6 +1251,7 @@ public class AgentProcess {
                 } else {
                     LogPrompt.showLog(Constants.API_SET_INTERVAL_TIME, "time must be > 1,otherwise use default.");
                 }
+                return null;
             }
         });
     }
@@ -1018,9 +1260,9 @@ public class AgentProcess {
      * 用户自定义上传条数
      */
     public void setMaxEventSize(final long count) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 Context context = AnalysysUtil.getContext();
                 if (context != null && 1 <= count) {
                     SharedUtil.setLong(
@@ -1030,6 +1272,7 @@ public class AgentProcess {
                     LogPrompt.showLog(Constants.API_SET_MAX_EVENT_SIZE, "count must be > 1,otherwise use default.");
 
                 }
+                return null;
             }
         });
     }
@@ -1050,17 +1293,38 @@ public class AgentProcess {
      * 设置最大缓存条数
      */
     public void setMaxCacheSize(final long count) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 if (count >= 100 && count <= 10000) {
-                    LogPrompt.showLog(Constants.API_SET_MAX_CACHE_SIZE,true);
+                    LogPrompt.showLog(Constants.API_SET_MAX_CACHE_SIZE, true);
                     AnsRamControl.getInstance().setCacheMaxCount(count);
-                }else{
-                    LogPrompt.showLog(Constants.API_SET_MAX_CACHE_SIZE,"count must be > 100 and <=10000,otherwise use default.");
+                } else {
+                    LogPrompt.showLog(Constants.API_SET_MAX_CACHE_SIZE, "count must be > 100 and <=10000,otherwise use default.");
                 }
+                return null;
             }
         });
+    }
+
+    /**
+     * 允许数据采集和上报
+     */
+    public void setDataCollectEnable(boolean enable) {
+        Context context = AnalysysUtil.getContext();
+        if (context != null) {
+            SharedUtil.setBoolean(context, Constants.SP_ENABLE_DATA_COLLECT, enable);
+        }
+        if (isDataCollectEnable() && !enable) {
+            AnsRamControl.getInstance().setDataCollectEnable(false);
+            ActivityLifecycleUtils.releaseLifecycle();
+            ANSLog.isShowLog = false;
+        }
+    }
+
+    public boolean isDataCollectEnable() {
+        Boolean bl = AnsRamControl.getInstance().getDataCollectEnable();
+        return bl == null ? true : bl;
     }
 
     /**
@@ -1068,21 +1332,22 @@ public class AgentProcess {
      */
     public void reset() {
         final long currentTime = System.currentTimeMillis();
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
                         resetInfo(context);
 //                        CommonUtils.setIdFile(context, Constants.SP_UUID, "");
                         LogPrompt.showLog(Constants.API_RESET, true);
-                        sendProfileSetOnce(context, 1,currentTime);
+                        sendProfileSetOnce(context, 1, currentTime);
                     }
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                     LogPrompt.showLog(Constants.API_RESET, false);
                 }
+                return null;
             }
         });
     }
@@ -1092,9 +1357,10 @@ public class AgentProcess {
      * 存储url
      */
     public void setUploadURL(final String url) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        mUploadUrl = url;
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null && !CommonUtils.isEmpty(url)) {
@@ -1105,7 +1371,7 @@ public class AgentProcess {
                             getUrl = CommonUtils.checkUrl(url);
                         } else {
                             LogPrompt.showLog(Constants.API_SET_UPLOAD_URL, false);
-                            return;
+                            return null;
                         }
                         if (!CommonUtils.isEmpty(getUrl)) {
                             saveUploadUrl(context, getUrl + "/up");
@@ -1114,31 +1380,48 @@ public class AgentProcess {
                         }
                     }
                 } catch (Throwable ignored) {
+                    ExceptionUtil.exceptionThrow(ignored);
                 }
+                return null;
             }
         });
     }
 
+    public String getUploadURL() {
+        return mUploadUrl;
+    }
 
     /**
      * 用户调用上传接口
      */
     public void flush() {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 Context context = AnalysysUtil.getContext();
                 if (context != null) {
                     UploadManager.getInstance(context).flushSendManager();
                 }
+                return null;
             }
         });
     }
 
+
+    public Map<String, Object> getSyncPresetProperties() {
+        return (Map<String, Object>) AnsLogicThread.sync(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
+            @Override
+            public Object call() throws Exception {
+                return getPresetProperties();
+            }
+        });
+    }
+
+
     /**
      * 获取预置属性
      */
-    public Map<String, Object> getPresetProperties() {
+    private Map<String, Object> getPresetProperties() {
         try {
             Context context = AnalysysUtil.getContext();
             if (context != null) {
@@ -1190,9 +1473,12 @@ public class AgentProcess {
                     return;
                 }
 
-                String decodedURL = java.net.URLDecoder.decode(url, "UTF-8");
-                if (decodedURL.startsWith(ANALYSYS_AGENT)) {
-                    HybridBridge.getInstance().execute(decodedURL, view);
+//                String decodedURL = java.net.URLDecoder.decode(url, "UTF-8");
+//                if (decodedURL.startsWith(HybridBridge.SCHEME)) {
+//                    HybridBridge.getInstance().execute(decodedURL, view);
+//                }
+                if (url.startsWith(HybridBridge.SCHEME)) {
+                    HybridBridge.getInstance().execute(url.substring((HybridBridge.SCHEME.length() + 1)), view);
                 }
 
                 // 调用原来的WebViewClient
@@ -1224,6 +1510,14 @@ public class AgentProcess {
     // 防止同一个url在极短时间内频繁调用
     private static final int URL_VISIT_MIN_TIME_INTERVAL = 100;
     private LruCache<String, Long> mWebViewUrlVisitCache;
+
+    public void setAnalysysAgentHybrid(Object webView) {
+        WebViewInjectManager.getInstance().injectHybridObject(webView);
+    }
+
+    public void resetAnalysysAgentHybrid(Object webView) {
+        WebViewInjectManager.getInstance().clearHybrid(webView);
+    }
 
     /**
      * UA 增加 AnalysysAgent/Hybrid 字段
@@ -1284,11 +1578,6 @@ public class AgentProcess {
                 if (mWebViewClientCache != null) {
                     mWebViewClientCache.remove(webView.hashCode());
                 }
-
-                // 删除UrlVisitCache
-                if (mWebViewClientCache != null) {
-                    mWebViewClientCache.clear();
-                }
             }
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
@@ -1299,31 +1588,27 @@ public class AgentProcess {
      * 设置可视化base mUrl
      */
     private void setVisitorBaseURL(final String url) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Context context = AnalysysUtil.getContext();
-                    if (context != null) {
-                        LifeCycleConfig.initVisualConfig(context);
-                        if (LifeCycleConfig.visualBase != null) {
-                            setVisualUrl(context, LifeCycleConfig.visualBase.optString(START), url);
-                        }
-                    }
-                } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
+        try {
+            Context context = AnalysysUtil.getContext();
+            if (context != null) {
+                LifeCycleConfig.initVisualConfig(context);
+                if (LifeCycleConfig.visualBase != null) {
+                    setVisualUrl(context, LifeCycleConfig.visualBase.optString(START), url);
                 }
             }
-        });
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
     }
 
     /**
      * 设置可视化websocket服务器地址
      */
     public void setVisitorDebugURL(final String url) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        mVisualDebugUrl = url;
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
@@ -1335,17 +1620,23 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
+    }
+
+    public String getVisitorDebugURL() {
+        return mVisualDebugUrl;
     }
 
     /**
      * 设置线上请求埋点配置的服务器地址
      */
     public void setVisitorConfigURL(final String url) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        mVisualConfigUrl = url;
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
@@ -1359,14 +1650,19 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
 
+    public String getVisitorConfigURL() {
+        return mVisualConfigUrl;
+    }
+
     public void enablePush(final String provider, final String pushId) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
@@ -1384,15 +1680,17 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
 
     public void trackCampaign(final String campaign,
                               final boolean isClick, final PushListener listener) {
-        AThreadPool.asyncHighPriorityExecutor(new Runnable() {
+
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.LOW) {
             @Override
-            public void run() {
+            public Object call() throws Exception {
                 try {
                     Context context = AnalysysUtil.getContext();
                     if (context != null) {
@@ -1409,6 +1707,7 @@ public class AgentProcess {
                 } catch (Throwable ignore) {
                     ExceptionUtil.exceptionThrow(ignore);
                 }
+                return null;
             }
         });
     }
@@ -1499,10 +1798,13 @@ public class AgentProcess {
     /**
      * 渠道归因
      */
-    private void sendFirstInstall(Context context,final long currentTime) throws Throwable {
+    private void sendFirstInstall(Context context, final long currentTime) throws Throwable {
+        if (!isDataCollectEnable()) {
+            return;
+        }
         if (context != null) {
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                    currentTime,Constants.API_FIRST_INSTALL, Constants.FIRST_INSTALL,
+                    currentTime, Constants.API_FIRST_INSTALL, Constants.FIRST_INSTALL,
                     null, Constants.utm);
             trackEvent(context, Constants.API_FIRST_INSTALL,
                     Constants.FIRST_INSTALL, eventData);
@@ -1532,8 +1834,11 @@ public class AgentProcess {
     /**
      * 首次安装后是否发送profile_set_once
      */
-    private void sendProfileSetOnce(Context context, int type,final long currentTime) throws Throwable {
+    private void sendProfileSetOnce(Context context, int type, final long currentTime) throws Throwable {
         if (Constants.isAutoProfile) {
+            if (!isDataCollectEnable()) {
+                return;
+            }
             Map<String, Object> profileInfo = new HashMap<>();
             if (type == 0) {
                 profileInfo.put(Constants.DEV_FIRST_VISIT_TIME,
@@ -1547,7 +1852,7 @@ public class AgentProcess {
                 return;
             }
             JSONObject eventData = DataAssemble.getInstance(context).getEventData(
-                    currentTime,Constants.API_PROFILE_SET_ONCE,
+                    currentTime, Constants.API_PROFILE_SET_ONCE,
                     Constants.PROFILE_SET_ONCE, null, profileInfo);
             trackEvent(context,
                     Constants.API_PROFILE_SET_ONCE, Constants.PAGE_VIEW, eventData);
@@ -1616,8 +1921,21 @@ public class AgentProcess {
                 LogPrompt.showLog(apiName, true);
             }
             EasytouchProcess.getInstance().setEventMessage(eventData.toString());
+            if (mEventObserver != null) {
+                mEventObserver.onEvent(eventName, eventData);
+            }
             UploadManager.getInstance(context).sendManager(eventName, eventData);
         }
+    }
+
+    public interface IEventObserver {
+        void onEvent(String eventName, JSONObject sendData);
+    }
+
+    private IEventObserver mEventObserver;
+
+    public void setEventObserver(IEventObserver observer) {
+        mEventObserver = observer;
     }
 
     /**
@@ -1638,6 +1956,22 @@ public class AgentProcess {
                 path.substring(index + 1),
                 new Class[]{Context.class, String.class},
                 context, url);
+    }
+
+    private void probeInit(Context context) {
+        try {
+            LifeCycleConfig.initProbeConfig(context);
+            if (LifeCycleConfig.probe != null) {
+                String path = LifeCycleConfig.probe.optString(START);
+                int index = path.lastIndexOf(".");
+                CommonUtils.reflexStaticMethod(
+                        path.substring(0, index),
+                        path.substring(index + 1),
+                        new Class[]{});
+            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
     }
 
     public void setHeatMapBlackListByPages(List<String> pages) {
@@ -1854,13 +2188,21 @@ public class AgentProcess {
         return false;
     }
 
-
     /**
-     * 设置元素类型级黑名单
+     * 设置元素级黑名单
      */
     public void setAutoClickBlackListByView(Object element) {
         if (element != null) {
             mIgnoreByView.add(element.hashCode());
+        }
+    }
+
+    /**
+     * 将元素从黑名单中删除
+     */
+    public void removeViewFromAutoClickBlackList(Object element) {
+        if (element != null) {
+            mIgnoreByView.remove(element.hashCode());
         }
     }
 
@@ -1907,4 +2249,29 @@ public class AgentProcess {
         return mConfig;
     }
 
+    public LogObserverListener getLogObserverListener() {
+        return logObserverListener;
+    }
+
+    public void setLogObserverListener(LogObserverListener logObserverListener) {
+        this.logObserverListener = logObserverListener;
+    }
+
+    /**
+     * 清空数据库
+     *
+     * @param context
+     */
+    public void cleanDBCache(final Context context) {
+        AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.HIGH) {
+            @Override
+            public Object call() throws Exception {
+                if (context != null) {
+                    TableAllInfo.getInstance(context).deleteAll();
+                }
+                return null;
+            }
+        });
+
+    }
 }

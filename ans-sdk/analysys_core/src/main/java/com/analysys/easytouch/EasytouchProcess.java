@@ -11,6 +11,7 @@ import com.analysys.utils.CommonUtils;
 public class EasytouchProcess {
 
     private final static String OBSERVER_XWHO = "xwho";
+    private final static String CALIBRATION_TIME = "calibration_time";
 
     private static EasytouchProcess sInstance;
 
@@ -40,6 +41,12 @@ public class EasytouchProcess {
     public void setXwho(final String xwho) {
         if (this.listener != null) {
             this.listener.onUserProfile(OBSERVER_XWHO, xwho);
+        }
+    }
+
+    public void setTime(long value) {
+        if (this.listener != null) {
+            this.listener.onUserProfile(CALIBRATION_TIME, String.valueOf(value));
         }
     }
 

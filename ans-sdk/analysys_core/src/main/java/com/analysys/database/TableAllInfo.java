@@ -237,4 +237,55 @@ public class TableAllInfo {
         }
 
     }
+
+    /**
+     * 查询上传
+     */
+    public JSONArray selectUpload() {
+        JSONArray array = new JSONArray();
+        Cursor cursor = null;
+        try {
+            if (CommonUtils.isEmpty(mContext)) {
+                return null;
+            }
+
+            Uri uri = EventTableMetaData.getTableFZ(mContext);
+            String[] projection = new String[]{
+                    DBConfig.TableAllInfo.Column.INFO,
+                    DBConfig.TableAllInfo.Column.ID,
+                    DBConfig.TableAllInfo.Column.TYPE
+            };
+            String sortOrder = DBConfig.TableAllInfo.Column.ID + " asc ";
+            cursor = mContext.getContentResolver().query(uri, projection,null,null,sortOrder);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                List<Integer> ids = new ArrayList<>();
+                do {
+                    String info = cursor.getString(
+                            cursor.getColumnIndexOrThrow(DBConfig.TableAllInfo.Column.INFO));
+                    int id = cursor.getInt(
+                            cursor.getColumnIndexOrThrow(DBConfig.TableAllInfo.Column.ID));
+                    ids.add(id);
+                    //updateSign(mContext, id);
+                    info = CommonUtils.dbDecrypt(info);
+                    if (CommonUtils.isEmpty(info)) {
+                        continue;
+                    }
+                    array.put(new JSONObject(info));
+                } while (cursor.moveToNext());
+                //更新状态为 上传中
+                if (!updateAll(mContext, ids)) {
+                    return null;
+                }
+            }
+            return array;
+        } catch (Throwable e) {
+            ExceptionUtil.exceptionThrow(e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return array;
+    }
 }

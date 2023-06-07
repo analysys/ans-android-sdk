@@ -3,23 +3,20 @@ package com.analysys.process;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CheckedTextView;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.view.ViewParent;
+import android.widget.AdapterView;
 
-import com.analysys.utils.AThreadPool;
-import com.analysys.utils.AnsReflectUtils;
+import com.analysys.thread.AnsLogicThread;
+import com.analysys.thread.PriorityCallable;
+import com.analysys.utils.ActivityLifecycleUtils;
+import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
@@ -53,6 +50,28 @@ public class HeatMap {
 //        SystemIds.getInstance().parserId();
     }
 
+    private static final Handler sHandler = new Handler(Looper.getMainLooper());
+
+    private static Runnable sHookClickRunnble = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                Activity activity = ActivityLifecycleUtils.getCurrentActivity();
+                if (activity != null) {
+                    HeatMap.getInstance()
+                            .hookDecorViewClick(activity.getClass().getName(), activity.getWindow().getDecorView());
+                }
+            } catch (Throwable ignore) {
+                ExceptionUtil.exceptionThrow(ignore);
+            }
+        }
+    };
+
+    public static void tryHookClick() {
+        sHandler.removeCallbacks(sHookClickRunnble);
+        sHandler.postDelayed(sHookClickRunnble, 200);
+    }
+
     /**
      * 初始化页面宽高分辨率等信息
      */
@@ -74,26 +93,26 @@ public class HeatMap {
      * 递归调用解析view
      * @param decorView 根节点view
      */
-    public void hookDecorViewClick(View decorView) throws Exception {
+    public void hookDecorViewClick(String pageName, View decorView) throws Exception {
         if (decorView instanceof ViewGroup) {
-            hookViewClick(decorView);
+            hookViewClick(pageName, decorView);
             int count = ((ViewGroup) decorView).getChildCount();
             for (int i = 0; i < count; i++) {
                 if (((ViewGroup) decorView).getChildAt(i) instanceof ViewGroup) {
-                    hookDecorViewClick(((ViewGroup) decorView).getChildAt(i));
+                    hookDecorViewClick(pageName, ((ViewGroup) decorView).getChildAt(i));
                 } else {
-                    hookViewClick(((ViewGroup) decorView).getChildAt(i));
+                    hookViewClick(pageName, ((ViewGroup) decorView).getChildAt(i));
                 }
             }
         } else {
-            hookViewClick(decorView);
+            hookViewClick(pageName, decorView);
         }
     }
 
     /**
      * 反射给View注册监听
      */
-    private void hookViewClick(View view) throws Exception {
+    private void hookViewClick(String pageName, View view) throws Exception {
         int visibility = view.getVisibility();
         if (visibility == 4 || visibility == 8) {
             return;
@@ -118,22 +137,59 @@ public class HeatMap {
         if (!(touchListenerObj instanceof HookTouchListener)) {
 //            printLog(view, touchListenerObj);
             HookTouchListener touchListenerProxy =
-                    new HookTouchListener((View.OnTouchListener) touchListenerObj);
+                    new HookTouchListener(pageName, (View.OnTouchListener) touchListenerObj);
             mOnClickListenerField.set(listenerInfoObject, touchListenerProxy);
         }
-
     }
 
-    private void setCoordinate(final View v, final MotionEvent event) {
+    private View getClickableView(View view) {
+        while (view.getId() != android.R.id.content) {
+            Boolean rnClickable = AnalysysUtil.getRNViewClickable(view);
+            if (rnClickable != null && rnClickable) {
+                return view;
+            }
+            if (view.isClickable()) {
+                return view;
+            }
+            ViewParent vp = view.getParent();
+            if (vp instanceof View) {
+                if (vp instanceof AdapterView) {
+                    return view;
+                }
+                view = (View) vp;
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private void setCoordinate(final View view, final MotionEvent event, final String pageName) {
+        if (!belongContentView(view)) {
+            return;
+        }
         final float rawX = event.getRawX();
         final float rawY = event.getRawY();
         if (isTouch(rawX, rawY)) {
-            x = event.getX();
-            y = event.getY();
+            rx = rawX;
+            ry = rawY;
+            final View clickableView = getClickableView(view);
+            final View v;
+            if (clickableView == null) {
+                v = view;
+                x = event.getX();
+                y = event.getY();
+            } else {
+                v = clickableView;
+                int[] vPosRaw = new int[2];
+                v.getLocationOnScreen(vPosRaw);
+                x = rx - vPosRaw[0];
+                y = ry - vPosRaw[1];
+            }
             final long currentTime = System.currentTimeMillis();
-            AThreadPool.asyncLowPriorityExecutor(new Runnable() {
+            AnsLogicThread.async(new PriorityCallable(AnsLogicThread.PriorityLevel.LOW) {
                 @Override
-                public void run() {
+                public Object call() throws Exception {
                     try {
                         if (clickInfo == null) {
                             clickInfo = new ConcurrentHashMap<>();
@@ -143,18 +199,37 @@ public class HeatMap {
                         final String path = PathGeneral.getInstance().general(v);
                         boolean isAddPath = setPath(path);
                         if (isAddPath) {
-                            rx = rawX;
-                            ry = rawY;
                             setClickCoordinate();
-                            setClickContent(v);
+                            int click = clickableView != null ? 1 : 0;
+                            clickInfo.put(Constants.TOUCH_ELEMENT_CLICKABLE, click);
+                            setClickContent(v, clickableView != null);
+                            if (pageName != null) {
+                                pageInfo.put(Constants.PAGE_URL, pageName);
+                            }
                             clickInfo.putAll(pageInfo);
                             AgentProcess.getInstance().pageTouchInfo(clickInfo,currentTime);
                         }
                     } catch (Throwable ignore) {
                         ExceptionUtil.exceptionThrow(ignore);
                     }
+                    return null;
                 }
             });
+        }
+    }
+
+    private boolean belongContentView(View v) {
+        while (true) {
+            if (v.getId() == android.R.id.content) {
+                return true;
+            } else {
+                ViewParent vp = v.getParent();
+                if (vp instanceof View) {
+                    v = (View) vp;
+                } else {
+                    return false;
+                }
+            }
         }
     }
 
@@ -184,17 +259,12 @@ public class HeatMap {
     /**
      * 添加点击控件类型及内容
      */
-    private void setClickContent(View v) throws Exception {
-        int click = 0;
-        if (v instanceof ImageButton || v instanceof Button) {
-            click = 1;
-        }
-        clickInfo.put(Constants.TOUCH_ELEMENT_CLICKABLE, click);
-        clickInfo.put(Constants.ELEMENT_TYPE, v.getClass().getName());
+    private void setClickContent(View v, boolean isClickable) throws Exception {
+        String[] viewTypeAndText = CommonUtils.getViewTypeAndText(v, isClickable);
+        clickInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
         // 控件内容
-        String content = getContent(v);
-        if (!TextUtils.isEmpty(content)) {
-            clickInfo.put(Constants.ELEMENT_CONTENT, content);
+        if (!TextUtils.isEmpty(viewTypeAndText[1])) {
+            clickInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
         }
     }
 
@@ -206,66 +276,16 @@ public class HeatMap {
         return false;
     }
 
-    private String getContent(View view) throws Exception {
-        Class<?> compatClass = null;
-        compatClass = AnsReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
-        if (compatClass == null) {
-            compatClass = AnsReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
-        }
-        CharSequence charSequence = null;
-        if (compatClass != null
-                && compatClass.isInstance(view)) {
-            CompoundButton compoundButton = (CompoundButton) view;
-            Method method;
-            if (compoundButton.isChecked()) {
-                method = view.getClass().getMethod("getTextOn");
-            } else {
-                method = view.getClass().getMethod("getTextOff");
-            }
-            charSequence = (String) method.invoke(view);
-        } else if (view instanceof CheckBox) {
-            CheckBox checkBox = (CheckBox) view;
-            charSequence = checkBox.getText();
-        } else if (view instanceof RadioButton) {
-            RadioButton radioButton = (RadioButton) view;
-            charSequence = radioButton.getText();
-        } else if (view instanceof ToggleButton) {
-            ToggleButton toggleButton = (ToggleButton) view;
-            boolean isChecked = toggleButton.isChecked();
-            if (isChecked) {
-                charSequence = toggleButton.getTextOn();
-            } else {
-                charSequence = toggleButton.getTextOff();
-            }
-        } else if (view instanceof Button) {
-            Button button = (Button) view;
-            charSequence = button.getText();
-        } else if (view instanceof CheckedTextView) {
-            CheckedTextView textView = (CheckedTextView) view;
-            charSequence = textView.getText();
-        } else if (view instanceof TextView) {
-            TextView textView = (TextView) view;
-            charSequence = textView.getText();
-        } else if (view instanceof ImageView) {
-            ImageView imageView = (ImageView) view;
-            if (!TextUtils.isEmpty(imageView.getContentDescription())) {
-                charSequence = String.valueOf(imageView.getContentDescription());
-            }
-        }
-        if (!TextUtils.isEmpty(charSequence)) {
-            return String.valueOf(charSequence);
-        }
-        return "";
-    }
-
     private static class Holder {
         public static final HeatMap INSTANCE = new HeatMap();
     }
 
     private class HookTouchListener implements View.OnTouchListener {
         private View.OnTouchListener onTouchListener;
+        private String pageName;
 
-        private HookTouchListener(View.OnTouchListener onTouchListener) {
+        private HookTouchListener(String pageName, View.OnTouchListener onTouchListener) {
+            this.pageName = pageName;
             this.onTouchListener = onTouchListener;
         }
 
@@ -277,7 +297,7 @@ public class HeatMap {
                     try {
                         // 黑白名单判断
                         if (isTackHeatMap(v)) {
-                            setCoordinate(v, event);
+                            setCoordinate(v, event, pageName);
                         }
                     } catch (Throwable ignore) {
                         ExceptionUtil.exceptionThrow(ignore);
@@ -359,14 +379,14 @@ public class HeatMap {
     private boolean isTackHeatMap(View v) {
 
         try {
-            if (isInIgnoreList(v)) {
+            if (!AgentProcess.getInstance().getConfig().isAutoHeatMap() || isInIgnoreList(v)) {
                 // 命中黑名单
                 return false;
             } else if (hasAutoList()) {
                 // 存在白名单
                 return isInAutoList(v); // 命中白名单
             }
-        }catch (Throwable ignore) {
+        } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
 

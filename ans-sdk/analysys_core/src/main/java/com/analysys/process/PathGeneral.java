@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import com.analysys.ui.UniqueViewHelper;
 import com.analysys.utils.ANSLog;
 import com.analysys.utils.ExceptionUtil;
 
@@ -161,8 +162,14 @@ public class PathGeneral {
                 if (viewId != -1) {
                     String mpid = SystemIds.getInstance().nameFromId(view.getResources(), viewId);
                     if (!TextUtils.isEmpty(mpid)) {
-                        obj.put("mp_id_name", mpid);
-                        obj.put("index", 0);
+                        // 特殊处理
+                        ViewParent parent = view.getParent();
+                        if (parent != null) {
+                            if (!UniqueViewHelper.isExtendsFromUniqueClass(parent.getClass().getName(), UniqueViewHelper.UNIQUE_CLZ_RECYCLER_VIEW)) {
+                                obj.put("mp_id_name", mpid);
+                                obj.put("index", 0);
+                            }
+                        }
                     }
                 }
             }

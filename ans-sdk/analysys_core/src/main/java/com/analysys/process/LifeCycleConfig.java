@@ -27,6 +27,7 @@ public class LifeCycleConfig {
     public static JSONObject visualConfig = null;
     public static JSONObject pushParse = null;
     public static JSONObject pushClick = null;
+    public static JSONObject probe = null;
     static JSONObject configJson = null;
 
     /**
@@ -75,6 +76,19 @@ public class LifeCycleConfig {
         if (configJson != null) {
             pushParse = configJson.optJSONObject("PushParse");
             pushClick = configJson.optJSONObject("PushClick");
+        }
+    }
+
+    /**
+     * 初始化probe
+     */
+    public static void initProbeConfig(Context context) throws JSONException {
+        if (configJson == null) {
+            String config = CommonUtils.getMould(context, CONFIG_FILE_NAME);
+            configJson = new JSONObject(config);
+        }
+        if (configJson != null) {
+            probe = configJson.optJSONObject("Probe");
         }
     }
 }

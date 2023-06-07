@@ -26,5 +26,9 @@
   "PushClick": {
     "start": "com.analysys.push.PushAgent.trackCampaign",
     "finished": ""
+  },
+  "Probe": {
+    "start": "com.analysys.allgro.AnalysysProbe.init",
+    "finished": ""
   }
 }

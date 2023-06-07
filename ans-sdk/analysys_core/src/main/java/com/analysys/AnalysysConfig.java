@@ -25,12 +25,10 @@ public class AnalysysConfig {
     private boolean autoTrackPageView = true;
     private boolean autoTrackFragmentPageView = false;
     private boolean autoTrackClick = false;
-
-
-
     private boolean autoTrackDeviceId = false;
+    private boolean autoPageViewDuration = false;
 
-
+    private boolean needDeduplication = false;
 
     /**
      * 获取 App key
@@ -150,7 +148,9 @@ public class AnalysysConfig {
         CrashHandler.getInstance().setEnableCatch(crashEnable);
     }
 
-
+    public boolean isAutoTrackCrash() {
+        return CrashHandler.getInstance().isEnableCatch();
+    }
 
     /**
      * 热图 总开关
@@ -209,5 +209,23 @@ public class AnalysysConfig {
         return autoTrackDeviceId;
     }
 
+    public void setAutoPageViewDuration(boolean value) {
+        this.autoPageViewDuration = value;
+    }
+
+    public boolean isAutoPageViewDuration() {
+        return autoPageViewDuration;
+    }
+
+    public boolean isNeedDeduplication() {
+        return needDeduplication;
+    }
+    /**
+     * 设置在插入数据库前，对数据库重复数据进行对比
+     * 默认为flase
+     */
+    public void setNeedDeduplication(boolean needDeduplication) {
+        this.needDeduplication = needDeduplication;
+    }
 }
 

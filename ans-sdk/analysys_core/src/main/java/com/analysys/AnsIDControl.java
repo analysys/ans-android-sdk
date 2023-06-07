@@ -36,8 +36,8 @@ public class AnsIDControl {
     public static void resetInfo(Context context) {
         // 重置首次访问
         SharedUtil.remove(context, Constants.SP_FIRST_START_TIME);
-        // 重置首日访问
-        SharedUtil.remove(context, Constants.DEV_IS_FIRST_DAY);
+//        // 重置首日访问
+//        SharedUtil.remove(context, Constants.DEV_IS_FIRST_DAY);
         // 重置 通用属性
         SharedUtil.remove(context, Constants.SP_SUPER_PROPERTY);
         // 重置JS通用属性

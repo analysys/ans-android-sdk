@@ -95,6 +95,7 @@ public class ThirdPushManager {
      * @param listener 可为空，提供给用户的回调接口
      */
     public void trackCampaign(String campaign, boolean isClick, PushListener listener) {
+        InternalAgent.i("trackCampaign campaign: " + campaign + ", isClick: " + isClick);
         boolean canPush = InternalAgent.checkClass(Constants.PUSH_PACKAGE, Constants.PUSH_CLASS);
         if (!canPush) {
             InternalAgent.w("该版本未集成Push功能");
@@ -107,6 +108,7 @@ public class ThirdPushManager {
 
         Map<String, Object> customParams = getParamsFromJson(campaign);
         if (customParams == null) {
+            InternalAgent.e("customParams is null");
             return;
         }
         if (isClick) {
@@ -117,7 +119,7 @@ public class ThirdPushManager {
         }
     }
 
-    private Map<String, Object> getParamsFromJson(String campaignJson) {
+    private  Map<String, Object> getParamsFromJson(String campaignJson) {
         HashMap<String, Object> customParams = null;
         try {
             customParams = new HashMap<String, Object>();
@@ -162,9 +164,11 @@ public class ThirdPushManager {
 
     public void dealPushCallback(Map<String, Object> customParams, PushListener listener) {
         try {
+            InternalAgent.i("dealPushCallback customParams: " + customParams);
             int code = (Integer) customParams.get(Constants.PUSH_EVENT_ACTIONTYPE);
             String action = (String) customParams.get(Constants.PUSH_EVENT_ACTION);
             String cpd = (String) customParams.get(Constants.PUSH_EVENT_CPD);
+            InternalAgent.i("dealPushCallback code: " + code + ", action: " + action + ", cpd: " + cpd);
             switch (code) {
                 case 1:
                     dealOpenApp(listener, action, customParams, cpd);
@@ -199,6 +203,7 @@ public class ThirdPushManager {
                 String packageName = mContext.getPackageName();
                 Intent intent = pm.getLaunchIntentForPackage(packageName);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                InternalAgent.i("dealOpenApp " + intent.toString());
                 mContext.startActivity(intent);
                 AnalysysAgent.track(mContext, InternalAgent.PUSH_EVENT_PROCESS_SUCCESS,
                         customParams);

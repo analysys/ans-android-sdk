@@ -22,35 +22,49 @@ if(project.name.equals("analysys_allgro")){
     maven_artifactId = "analysys-push"
 }else if(project.name.equals("analysys_visual")) {
     maven_artifactId = "analysys-visual"
+}else if(project.name.equals("analysys_mpaas")) {
+    maven_artifactId = "analysys-mpaas"
+}else if(project.name.equals("analysys_react_native")) {
+    maven_artifactId = "analysys-react-native"
 }else if(project.name.equals("analysys_arkanalysys_no_op")) {
     maven_artifactId = "analysys-arkanalysys-no-op"
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
+// local reposity
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//
+//            repository(url: uri('/Users/zurich/Desktop/Eguan/uba_packages'))
+//
+//            pom.project {
+//                name maven_artifactId
+//                groupId maven_groupId
+//                artifactId maven_artifactId
+//                version maven_version
+//                packaging 'aar'
+//            }
+//        }
+//    }
+//}
 
-            repository(url: uri('../../../repo'))
-
-            pom.project {
-                name maven_artifactId
-                groupId maven_groupId
-                artifactId maven_artifactId
-                version maven_version
-                packaging 'aar'
-            }
-        }
-    }
-}
-
+// custom reposity
 //uploadArchives {
 //    repositories {
 //        mavenDeployer {
 //            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
-//                authentication(userName: maven_username, password: maven_userpassword)
+//            repository(url: 'https://packages.aliyun.com/maven/repository/2158329-release-3aNbLH/') {
+//                authentication(
+//                        userName: '619b47f5fc1ed3a24354651f',
+//                        password: 'xDLjX5q9kCqC'
+//                )
 //            }
-//
+//            snapshotRepository(url: 'https://packages.aliyun.com/maven/repository/2158329-snapshot-TNYnd7/') {
+//                authentication(
+//                        userName: '619b47f5fc1ed3a24354651f',
+//                        password: 'xDLjX5q9kCqC'
+//                )
+//            }
 //
 //            pom.project {
 //                name maven_artifactId
@@ -81,10 +95,52 @@ uploadArchives {
 //                }
 //            }
 //        }
-//
-//
 //    }
 //}
+
+// central reposity
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                authentication(userName: maven_username, password: maven_userpassword)
+            }
+
+
+            pom.project {
+                name maven_artifactId
+                groupId maven_groupId
+                artifactId maven_artifactId
+                version maven_version
+                packaging 'aar'
+                url 'https://github.com/analysys/ans-android-sdk'
+                description maven_artifactId
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name 'analysys'
+                        email 'analysys@analysys.com.cn'
+                        url 'https://ark.analysys.cn'
+                    }
+                }
+
+                scm {
+                    connection 'https://github.com/analysys/ans-android-sdk'
+                    developerConnection 'https://github.com/analysys/ans-android-sdk'
+                    url 'https://github.com/analysys/ans-android-sdk'
+                }
+            }
+        }
+
+
+    }
+}
 
 // 进行数字签名
 signing {

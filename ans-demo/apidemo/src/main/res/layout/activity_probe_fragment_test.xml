@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="pageInfo"
+            type="com.analysys.demo.ProbeFragmentTestActivity" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#ffaabbcc"
+                android:onClick="@{pageInfo::onViewClick}"
+                android:text="FragmentProbOne"
+                android:textAllCaps="false"
+                android:textColor="@drawable/tab_text_fragment" />
+
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#bbaacc"
+                android:onClick="@{pageInfo::onViewClick}"
+                android:text="FragmentProbTwo"
+                android:textAllCaps="false"
+                android:textColor="@drawable/tab_text_fragment" />
+        </LinearLayout>
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"></androidx.viewpager.widget.ViewPager>
+    </LinearLayout>
+</layout>

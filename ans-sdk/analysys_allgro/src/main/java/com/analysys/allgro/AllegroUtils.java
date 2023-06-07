@@ -13,25 +13,9 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CheckedTextView;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ExpandableListView;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RatingBar;
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.analysys.ANSAutoPageTracker;
 import com.analysys.utils.AnalysysUtil;
@@ -39,7 +23,6 @@ import com.analysys.utils.AnsReflectUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +48,7 @@ public class AllegroUtils {
                 }
             }
         } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
+            ExceptionUtil.exceptionPrint(ignore);
         }
         return idString;
     }
@@ -89,126 +72,9 @@ public class AllegroUtils {
                 idString = AnalysysUtil.getContext().getResources().getResourceEntryName(id);
             }
         } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
+//            ExceptionUtil.exceptionThrow(ignore);
         }
         return idString;
-    }
-
-    public static String[] getViewTypeAndText(View view) {
-        String viewType = "";
-        CharSequence viewText = "";
-        if (view instanceof CheckBox) {
-            // CheckBox
-//            viewType = "CheckBox";
-            CheckBox checkBox = (CheckBox) view;
-            viewText = checkBox.getText();
-        } else if (view instanceof RadioButton) {
-            // RadioButton
-//            viewType = "RadioButton";
-            RadioButton radioButton = (RadioButton) view;
-            viewText = radioButton.getText();
-        } else if (view instanceof ToggleButton) {
-            // ToggleButton
-//            viewType = "ToggleButton";
-            viewText = getCompoundButtonText(view);
-        } else if (view instanceof CompoundButton) {
-//            viewType = getViewTypeByReflect(view);
-            viewText = getCompoundButtonText(view);
-        } else if (view instanceof Button) {
-            // Button
-//            viewType = "Button";
-            Button button = (Button) view;
-            viewText = button.getText();
-        } else if (view instanceof CheckedTextView) {
-            // CheckedTextView
-//            viewType = "CheckedTextView";
-            CheckedTextView textView = (CheckedTextView) view;
-            viewText = textView.getText();
-        } else if (view instanceof TextView) {
-            // TextView
-//            viewType = "TextView";
-            TextView textView = (TextView) view;
-            viewText = textView.getText();
-        } else if (view instanceof ImageView) {
-            // ImageView
-//            viewType = "ImageView";
-            ImageView imageView = (ImageView) view;
-            if (!TextUtils.isEmpty(imageView.getContentDescription())) {
-                viewText = imageView.getContentDescription().toString();
-            }
-        } else if (view instanceof RatingBar) {
-//            viewType = "RatingBar";
-            RatingBar ratingBar = (RatingBar) view;
-            viewText = String.valueOf(ratingBar.getRating());
-        } else if (view instanceof SeekBar) {
-//            viewType = "SeekBar";
-            SeekBar seekBar = (SeekBar) view;
-            viewText = String.valueOf(seekBar.getProgress());
-        } else if (view instanceof ExpandableListView) {
-//            viewType = "ExpandableListView";
-            viewText = "";
-        } else if (view instanceof ListView) {
-//            viewType = "ListView";
-            viewText = "";
-        } else if (view instanceof GridView) {
-//            viewType = "GridView";
-            viewText = "";
-        } else if (view instanceof Spinner) {
-//            viewType = "Spinner";
-            StringBuilder stringBuilder = new StringBuilder();
-            viewText = traverseView(stringBuilder, (ViewGroup) view);
-            if (!TextUtils.isEmpty(viewText)) {
-                viewText = viewText.toString().substring(0, viewText.length() - 1);
-            }
-        } else if (view instanceof ViewGroup) {
-//            viewType = getViewGroupTypeByReflect(view);
-            viewText = view.getContentDescription();
-            if (TextUtils.isEmpty(viewText)) {
-                try {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    viewText = traverseView(stringBuilder, (ViewGroup) view);
-                    if (!TextUtils.isEmpty(viewText)) {
-                        viewText = viewText.toString().substring(0, viewText.length() - 1);
-                    }
-                } catch (Throwable ignore) {
-                    ExceptionUtil.exceptionThrow(ignore);
-                }
-            }
-        }
-
-//        if (TextUtils.isEmpty(viewType)) {
-            viewType = view.getClass().getName();
-//        }
-
-        if (TextUtils.isEmpty(viewText)) {
-            viewText = "";
-            if (!TextUtils.isEmpty(view.getContentDescription())) {
-                viewText = view.getContentDescription().toString();
-            }
-        }
-        return new String[]{viewType, viewText.toString()};
-    }
-
-    /**
-     * 获取 CompoundButton text
-     *
-     * @param view view
-     * @return CompoundButton 显示的内容
-     */
-    private static String getCompoundButtonText(View view) {
-        try {
-            CompoundButton switchButton = (CompoundButton) view;
-            Method method;
-            if (switchButton.isChecked()) {
-                method = view.getClass().getMethod("getTextOn");
-            } else {
-                method = view.getClass().getMethod("getTextOff");
-            }
-            return (String) method.invoke(view);
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-            return "UNKNOWN";
-        }
     }
 
 //    /**
@@ -233,112 +99,6 @@ public class AllegroUtils {
 //        }
 //        return view.getClass().getName();
 //    }
-
-    private static String traverseView(StringBuilder stringBuilder, ViewGroup root) {
-        try {
-            if (stringBuilder == null) {
-                stringBuilder = new StringBuilder();
-            }
-
-            if (root == null) {
-                return stringBuilder.toString();
-            }
-
-            final int childCount = root.getChildCount();
-            for (int i = 0; i < childCount; ++i) {
-                final View child = root.getChildAt(i);
-
-                if (child != null) {
-                    if (child.getVisibility() != View.VISIBLE) {
-                        continue;
-                    }
-
-                    if (child instanceof ViewGroup) {
-                        traverseView(stringBuilder, (ViewGroup) child);
-                    } else {
-                        String viewText = getViewText(child);
-                        if (!TextUtils.isEmpty(viewText)) {
-                            stringBuilder.append(viewText);
-                            stringBuilder.append("-");
-                        }
-                    }
-                }
-            }
-            return stringBuilder.toString();
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-            return stringBuilder != null ? stringBuilder.toString() : "";
-        }
-    }
-
-    private static String getViewText(View child) {
-        if (child == null) {
-            return "";
-        }
-        if (child instanceof EditText) {
-            return "";
-        }
-        try {
-            Class<?> switchCompatClass = null;
-            switchCompatClass = AnsReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
-
-            if (switchCompatClass == null) {
-                switchCompatClass = AnsReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
-            }
-
-            CharSequence viewText = null;
-
-            if (child instanceof CheckBox) {
-                CheckBox checkBox = (CheckBox) child;
-                viewText = checkBox.getText();
-            } else if (switchCompatClass != null && switchCompatClass.isInstance(child)) {
-                CompoundButton switchCompat = (CompoundButton) child;
-                Method method;
-                if (switchCompat.isChecked()) {
-                    method = child.getClass().getMethod("getTextOn");
-                } else {
-                    method = child.getClass().getMethod("getTextOff");
-                }
-                viewText = (String) method.invoke(child);
-            } else if (child instanceof RadioButton) {
-                RadioButton radioButton = (RadioButton) child;
-                viewText = radioButton.getText();
-            } else if (child instanceof ToggleButton) {
-                ToggleButton toggleButton = (ToggleButton) child;
-                boolean isChecked = toggleButton.isChecked();
-                if (isChecked) {
-                    viewText = toggleButton.getTextOn();
-                } else {
-                    viewText = toggleButton.getTextOff();
-                }
-            } else if (child instanceof Button) {
-                Button button = (Button) child;
-                viewText = button.getText();
-            } else if (child instanceof CheckedTextView) {
-                CheckedTextView textView = (CheckedTextView) child;
-                viewText = textView.getText();
-            } else if (child instanceof TextView) {
-                TextView textView = (TextView) child;
-                viewText = textView.getText();
-            } else if (child instanceof ImageView) {
-                ImageView imageView = (ImageView) child;
-                if (!TextUtils.isEmpty(imageView.getContentDescription())) {
-                    viewText = imageView.getContentDescription().toString();
-                }
-            } else {
-                viewText = child.getContentDescription();
-            }
-            if (TextUtils.isEmpty(viewText) && child instanceof TextView) {
-                viewText = ((TextView) child).getHint();
-            }
-            if (!TextUtils.isEmpty(viewText)) {
-                return viewText.toString();
-            }
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-        }
-        return "";
-    }
 
     /**
      * 通过反射判断类的类型
@@ -480,12 +240,12 @@ public class AllegroUtils {
                 }
             }
 
-            if(flag){
+//            if(flag){
                 // 页面宽高
-                int[] pageHeightAndWidth = getPageHeightAndWidth(pageObj);
-                pageInfo.put(Constants.PAGE_HEIGHT, pageHeightAndWidth[0]);
-                pageInfo.put(Constants.PAGE_WIDTH, pageHeightAndWidth[1]);
-            }
+//                int[] pageHeightAndWidth = getPageHeightAndWidth(pageObj);
+//                pageInfo.put(Constants.PAGE_HEIGHT, pageHeightAndWidth[0]);
+//                pageInfo.put(Constants.PAGE_WIDTH, pageHeightAndWidth[1]);
+//            }
 
 
         } catch (Throwable ignore) {
@@ -605,7 +365,7 @@ public class AllegroUtils {
                     }
                 }
 
-                if (!TextUtils.isEmpty(activityTitle)) {
+                if (TextUtils.isEmpty(activityTitle)) {
                     activityTitle = activity.getTitle().toString();
                 }
 
@@ -836,7 +596,7 @@ public class AllegroUtils {
      * 通过View获取Dialog
      */
     private static Dialog getDialogFromView(View v) {
-        Object result = callMethod(v, "getWindow");
+        Object result = AnsReflectUtils.invokeMethod(v, "getWindow");
         if (result instanceof Window) {
             Window window = (Window) result;
             Window.Callback callback = window.getCallback();
@@ -865,40 +625,5 @@ public class AllegroUtils {
 //        }
 //        return "";
 //    }
-
-    /**
-     * 获取对象字段值
-     */
-    public static Object getFieldValue(Object obj, String fieldName) {
-        try {
-            Field field = obj.getClass().getField(fieldName);
-            field.setAccessible(true);
-            return field.get(obj);
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
-        }
-        return null;
-    }
-
-    /**
-     * 调用对象方法
-     */
-    public static Object callMethod(Object obj, String methodName, Object... params) {
-        try {
-            Class<?>[] parameterTypes = null;
-            if (params != null) {
-                parameterTypes = new Class[params.length];
-                for (int i = 0; i < params.length; i++) {
-                    parameterTypes[i] = params[i].getClass();
-                }
-            }
-            Method method = obj.getClass().getMethod(methodName, parameterTypes);
-            method.setAccessible(true);
-            return method.invoke(obj, params);
-        } catch (Throwable ignore) {
-//            ExceptionUtil.exceptionThrow(ignore);
-        }
-        return null;
-    }
 }
 

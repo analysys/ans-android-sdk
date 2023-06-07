@@ -1,7 +1,11 @@
 package com.analysys.userinfo;
 
+import android.content.SharedPreferences;
+import android.provider.Settings;
 import android.text.TextUtils;
 
+import com.analysys.AnalysysConfig;
+import com.analysys.process.AgentProcess;
 import com.analysys.utils.AnalysysUtil;
 import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
@@ -138,6 +142,7 @@ public class UserInfo {
      * @return
      */
    public static String getADID() {
+
        String id = SharedUtil.getString(AnalysysUtil.getContext(), Constants.SP_ADID, null);
        return id;
    }
@@ -146,17 +151,20 @@ public class UserInfo {
      * device id advertisingId>androidid>uuid
      */
     public static String getDeviceId() {
+        if (AgentProcess.getInstance().getConfig().isAutoTrackDeviceId()) {
 
-        String id = getADID();
-        if(TextUtils.isEmpty(id)){
-            id = CommonUtils.getAndroidID(AnalysysUtil.getContext());
-
+            String id = getADID();
             if(TextUtils.isEmpty(id)){
-                id = getUUID();
-            }
-        }
+                id = CommonUtils.getAndroidID(AnalysysUtil.getContext());
 
-        return id;
+                if(TextUtils.isEmpty(id)){
+                    id = getUUID();
+                }
+            }
+
+            return id;
+        }
+        return "";
     }
 
     /**

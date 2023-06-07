@@ -4,86 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".PropertyActivity"
-    android:background="#FFFFFF">
+    tools:context="com.analysys.demo.PropertyActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textColor="#5a595b"
-        android:layout_marginTop="20dp"
-        android:text="通用属性测试"
-        android:textSize="30sp"
-        tools:ignore="HardcodedText" />
-
-    <TableRow
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp">
+        android:layout_margin="20dp"
+        android:onClick="onClick"
+        android:text="触发事件" />
 
-        <Button
-            android:id="@+id/singleRegisterSuperProperty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:text="注册单条通用属性"
-            tools:ignore="ButtonStyle,HardcodedText" />
-
-        <Button
-            android:id="@+id/multipleRegisterSuperProperty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:text="注册多条通用属性"
-            tools:ignore="ButtonStyle,HardcodedText" />
-    </TableRow>
-
-    <TableRow
+    <ListView
+        android:id="@+id/list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/singleUnregisterSuperProperty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:text="删除单个通用属性"
-            tools:ignore="ButtonStyle,HardcodedText" />
-
-        <Button
-            android:id="@+id/multipleClearSuperProperty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:text="清除所有通用属性"
-            tools:ignore="ButtonStyle,HardcodedText" />
-    </TableRow>
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/getSuperProperty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:text="获取单个通用属性"
-            tools:ignore="ButtonStyle,HardcodedText" />
-
-        <Button
-            android:id="@+id/getSuperProperties"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:text="获取所有通用属性"
-            tools:ignore="ButtonStyle,HardcodedText" />
-    </TableRow>
-
+        android:layout_height="wrap_content" />
 </LinearLayout>

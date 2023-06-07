@@ -1,18 +1,18 @@
 //demo
-include ':apidemo', ':visualDemo', ':compatibilityDemo'
+include ':apidemo', ':compatibilityDemo'
 //sdk
 include ':analysys_core' , ':analysys_encryption', ':analysys_push', ':analysys_visual', ':analysys_allgro',':analysys_arkanalysys'
-include ':analysys_arkanalysys_no_op'
+include ':analysys_arkanalysys_no_op', ':analysys_mpaas', 'analysys_react_native'
 
 project(':analysys_core').projectDir = new File(settingsDir, './ans-sdk/analysys_core')
 project(':analysys_encryption').projectDir = new File(settingsDir, './ans-sdk/analysys_encryption')
 project(':analysys_push').projectDir = new File(settingsDir, './ans-sdk/analysys_push')
 project(':analysys_visual').projectDir = new File(settingsDir, './ans-sdk/analysys_visual')
+project(':analysys_mpaas').projectDir = new File(settingsDir, './ans-sdk/analysys_mpaas')
 project(':analysys_allgro').projectDir = new File(settingsDir, './ans-sdk/analysys_allgro')
 project(':analysys_arkanalysys').projectDir = new File(settingsDir, './ans-sdk/analysys_arkanalysys')
 project(':analysys_arkanalysys_no_op').projectDir = new File(settingsDir, './ans-sdk/analysys_arkanalysys_no_op')
-
+project(':analysys_react_native').projectDir = new File(settingsDir, './ans-sdk/analysys_react_native')
 
 project(':compatibilityDemo').projectDir = new File(settingsDir, './ans-demo/compatibilityDemo')
-project(':visualDemo').projectDir = new File(settingsDir, './ans-demo/visualDemo')
 project(':apidemo').projectDir = new File(settingsDir, './ans-demo/apidemo')

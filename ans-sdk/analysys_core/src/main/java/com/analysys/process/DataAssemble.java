@@ -55,6 +55,9 @@ public class DataAssemble {
             String eventName = String.valueOf(values[2]);
             Map<String, Object> data = toMap(values[3]);
             JSONObject eventMould = getEventMould(eventName);
+            if (eventMould == null) {
+                return null;
+            }
             if (Constants.TRACK.equals(eventName)) {
                 String eventInfo = String.valueOf(values[5]);
                 if (!CheckUtils.checkTrackEventName(eventName, eventInfo)) {
@@ -72,6 +75,8 @@ public class DataAssemble {
             }
             mergeParameter(data, values[4]);
             mergeSuperProperty(eventName, data);
+            //合并预置事件自定义事件
+            mergePreEventUserProperty(eventName,data);
 
             return fillData(eventName, eventMould, data,currentTime);
         }
@@ -91,10 +96,14 @@ public class DataAssemble {
      * 获取事件字段模板
      */
     private JSONObject getEventMould(String eventName) {
-        if (eventName.startsWith(Constants.PROFILE)) {
-            return TemplateManage.fieldsMould.optJSONObject(Constants.PROFILE);
+        JSONObject jo = TemplateManage.getFieldsMould(AnalysysUtil.getContext());
+        if (jo == null) {
+            return null;
         }
-        return TemplateManage.fieldsMould.optJSONObject(eventName);
+        if (eventName.startsWith(Constants.PROFILE)) {
+            return jo.optJSONObject(Constants.PROFILE);
+        }
+        return jo.optJSONObject(eventName);
     }
 
     /**
@@ -127,6 +136,28 @@ public class DataAssemble {
                 }
             }
 
+        }
+    }
+
+    /**
+     * 添加预置事件用户自定义属性
+     */
+
+    private void mergePreEventUserProperty(String eventName,
+                                           Map<String, Object> xContextMap) throws Throwable {
+        if (Constants.END.equals(eventName) || Constants.STARTUP.equals(eventName) || Constants.APP_CRASH_DATA.equals(eventName) || Constants.ALIAS.equals(eventName) || Constants.PAGE_VIEW.equals(eventName)) {
+            Map mapSuper = AgentProcess.getInstance().getPreEventUserProperties();
+            if (mapSuper != null && mapSuper.size() > 0) {
+                Iterator iterator = mapSuper.keySet().iterator();
+                while (iterator.hasNext()) {
+                    String key = (String) iterator.next();
+                    if (key != null) {
+                        if (!xContextMap.containsKey(key)) {
+                            xContextMap.put(key, mapSuper.get(key));
+                        }
+                    }
+                }
+            }
         }
     }
 

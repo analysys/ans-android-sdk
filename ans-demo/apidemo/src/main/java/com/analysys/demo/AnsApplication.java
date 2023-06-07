@@ -2,13 +2,25 @@ package com.analysys.demo;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.StrictMode;
 
 import com.analysys.AnalysysAgent;
 import com.analysys.AnalysysConfig;
 import com.analysys.EncryptEnum;
 import com.analysys.apidemo.BuildConfig;
+import com.analysys.utils.AnalysysSSManager;
 import com.analysys.utils.AnsReflectUtils;
+
+import static com.analysys.demo.ModifyConfigActivity.PREF_FILE;
+import static com.analysys.demo.ModifyConfigActivity.PREF_KEY_APP_KEY;
+import static com.analysys.demo.ModifyConfigActivity.PREF_KEY_CHANNEL_ID;
+import static com.analysys.demo.ModifyConfigActivity.PREF_KEY_UPLOAD_URL;
+import static com.analysys.demo.ModifyConfigActivity.PREF_KEY_VISUAL_CONFIG_URL;
+import static com.analysys.demo.ModifyConfigActivity.PREF_KEY_VISUAL_DEBUG_URL;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Copyright © 2019 EGuan Inc. All rights reserved.
@@ -27,10 +39,15 @@ public class AnsApplication extends Application {
 //    public static final String UPLOAD_URL = "https://172.81.254.172:4089";
 //    private static final String SOCKET_URL = "wss://172.81.254.172:4091";
 //    private static final String CONFIG_URL = "https://172.81.254.172:4089";
-    public static final String APP_KEY = "2709692586aa3e42";
-    public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
-    private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
-    private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
+//    public static final String APP_KEY = "2709692586aa3e42";
+//    public static final String UPLOAD_URL = "https://arkpaastest.analysys.cn:4089";
+//    private static final String SOCKET_URL = "wss://arkpaastest.analysys.cn:4091";
+//    private static final String CONFIG_URL = "https://arkpaastest.analysys.cn:4089";
+
+    public static final String APP_KEY = "3dc2312475ba8f98";
+    public static final String UPLOAD_URL = "https://uba-up.analysysdata.com";
+    private static final String SOCKET_URL = "wss://uba.analysysdata.com:4091";
+    private static final String CONFIG_URL = "https://uba-up.analysysdata.com";
     private static AnsApplication instance;
 
     private boolean isDebug = true;
@@ -44,34 +61,47 @@ public class AnsApplication extends Application {
         super.onCreate();
         instance = this;
 
+        AnalysysAgent.track(this,"test_before");
         // 设置严苛模式
-        strictMode();
+        //strictMode();
 
         // 初始化方舟SDK
-        initAnalsysy();
+        initAnalysys();
+        //AnalysysAgent.alias();
 
         // 尝试初始化对应模块
-        if ("compatibility".equals(BuildConfig.Build_Type)) {
-            AnsReflectUtils.invokeStaticMethod("com.analysys.compatibilitydemo.CompatibilityDemoInit", "init", Context.class, this);
-        }
+//        if ("compatibility".equals(BuildConfig.Build_Type)) {
+//            AnsReflectUtils.invokeStaticMethod("com.analysys.compatibilitydemo.CompatibilityDemoInit", "init", Context.class, this);
+//        }
+
+        TrackEventObserver.getInstance().init();
+        AnalysysAgent.registerSuperProperty(this,"testSuper","111111111");
+        AnalysysAgent.setCacheDataLength(getApplicationContext(),20);
+        AnalysysAgent.setUseGravity(getApplicationContext(),true);
+        AnalysysAgent.setListenDuration(getApplicationContext(),10);
+        AnalysysAgent.startListen(getApplicationContext());
     }
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+
     }
 
     /**
      * 初始化方舟SDK相关API
      */
-    private void initAnalsysy() {
+    private void initAnalysys() {
+        SharedPreferences sp = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+
         AnalysysAgent.setDebugMode(this, DEBUG_MODE);
         //  设置 debug 模式，值：0、1、2
         AnalysysConfig config = new AnalysysConfig();
-        // 设置key(目前使用电商demo的key)
-        config.setAppKey(APP_KEY);
+        // 设置key
+        config.setAppKey(sp.getString(PREF_KEY_APP_KEY, APP_KEY));
+        //config.setAppKey("3dc2312475ba8f98");
         // 设置渠道
-        config.setChannel("AnalsysyDemo");
+        config.setChannel(sp.getString(PREF_KEY_CHANNEL_ID, "AnalysysDemo"));
         // 设置追踪新用户的首次属性
         config.setAutoProfile(true);
         // 设置使用AES加密
@@ -86,23 +116,39 @@ public class AnsApplication extends Application {
         config.setAutoHeatMap(true);
         // pageView自动上报总开关（默认开启）
         config.setAutoTrackPageView(true);
+        // pageClose自动上报开关（默认关闭）
+        config.setAutoPageViewDuration(true);
         // fragment-pageView自动上报开关（默认关闭）
-        config.setAutoTrackFragmentPageView(false);
+        config.setAutoTrackFragmentPageView(true);
         // 点击自动上报开关（默认关闭）
         config.setAutoTrackClick(false);
 
         config.setAutoTrackCrash(true);
 
         config.setAutoTrackDeviceId(true);
+        config.setNeedDeduplication(true);
+
         // 初始化
         AnalysysAgent.init(this, config);
-        AnalysysAgent.setUploadNetworkType(AnalysysAgent.AnalysysNetworkType.AnalysysNetworkWIFI);
         // 设置数据上传/更新地址
-        AnalysysAgent.setUploadURL(this, UPLOAD_URL);
-        // 设置 WebSocket 连接 Url
-        AnalysysAgent.setVisitorDebugURL(this, SOCKET_URL);
-        // 设置配置下发 Url
-        AnalysysAgent.setVisitorConfigURL(this, CONFIG_URL);
+        //AnalysysAgent.setUploadURL(this,"https://uba-up.analysysdata.com");
+
+        //AnalysysAgent.setUploadURL(this,"https://uba-up.analysysdata.com");
+
+        AnalysysAgent.setUploadURL(this, sp.getString(PREF_KEY_UPLOAD_URL, UPLOAD_URL));
+//        // 设置 WebSocket 连接 Url
+        AnalysysAgent.setVisitorDebugURL(this, sp.getString(PREF_KEY_VISUAL_DEBUG_URL, SOCKET_URL));
+//        // 设置配置下发 Url
+        AnalysysAgent.setVisitorConfigURL(this, sp.getString(PREF_KEY_VISUAL_CONFIG_URL, CONFIG_URL));
+
+//        AnalysysAgent.getSSManager(this);
+//        Map<String, Object> propMap = new HashMap<>();
+//        propMap.put("test00001","啦啦啦啦啦哦哦哦0001");
+//        propMap.put("test00002","啦啦啦啦啦哦哦哦0002");
+//        AnalysysAgent.registerPreEventUserProperties(this,propMap);
+//        AnalysysAgent.unRegisterPreEventUserProperties(this,"test00001");a
+
+
     }
 
     /**

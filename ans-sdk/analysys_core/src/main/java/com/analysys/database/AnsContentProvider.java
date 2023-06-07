@@ -14,10 +14,14 @@ import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.IBinder;
 import android.os.Process;
 import android.text.TextUtils;
 
 import com.analysys.AnsRamControl;
+import com.analysys.ipc.AnalysysBinderCursor;
+import com.analysys.ipc.IAnalysysMain;
+import com.analysys.ipc.IpcManager;
 import com.analysys.utils.ExceptionUtil;
 
 
@@ -34,19 +38,18 @@ public class AnsContentProvider extends ContentProvider {
     private static UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private SharedPreferencesHelp sharedPreferencesHelp = null;
 
-
     @Override
     public boolean onCreate() {
         mContext = this.getContext();
 
         if (mContext != null) {
-            String authority = mContext.getPackageName() + ".AnsContentProvider";
+            String authority = mContext.getPackageName() + EventTableMetaData.PROVIDER_NAME;
 
             uriMatcher.addURI(authority, EventTableMetaData.TABLE_FZ, EventTableMetaData.TABLE_FZ_DIR);
             uriMatcher.addURI(authority, EventTableMetaData.TABLE_SP, EventTableMetaData.TABLE_SP_DIR);
             uriMatcher.addURI(authority, EventTableMetaData.TABLE_RAM, EventTableMetaData.TABLE_RAM_DIR);
+            uriMatcher.addURI(authority, EventTableMetaData.TABLE_IPC, EventTableMetaData.TABLE_IPC_DIR);
         }
-
         return true;
     }
 
@@ -171,6 +174,14 @@ public class AnsContentProvider extends ContentProvider {
                 }
             }
             break;
+            case EventTableMetaData.TABLE_IPC_DIR: {
+                IAnalysysMain iMain = IpcManager.getInstance().getMainBinder();
+                IBinder binder = null;
+                if (iMain != null) {
+                    binder = iMain.asBinder();
+                }
+                return new AnalysysBinderCursor(binder);
+            }
             default:
                 break;
         }
@@ -192,6 +203,10 @@ public class AnsContentProvider extends ContentProvider {
             break;
             case EventTableMetaData.TABLE_RAM_DIR: {
                 type = EventTableMetaData.CONTENT_TYPE_RAM;
+            }
+            break;
+            case EventTableMetaData.TABLE_IPC_DIR: {
+                type = EventTableMetaData.CONTENT_TYPE_IPC;
             }
             break;
             default:

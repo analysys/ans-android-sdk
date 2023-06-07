@@ -1,11 +1,19 @@
 package com.analysys.visual;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.text.TextUtils;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 
+import com.analysys.network.NetworkUtils;
+import com.analysys.utils.ANSLog;
+import com.analysys.utils.CommonUtils;
+import com.analysys.utils.ExceptionUtil;
 import com.analysys.utils.InternalAgent;
+import com.analysys.visual.bind.VisualBindManager;
 import com.analysys.visual.utils.Constants;
-import com.analysys.visual.viewcrawler.VisualManager;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -16,16 +24,14 @@ import com.analysys.visual.viewcrawler.VisualManager;
  */
 public class VisualAgent {
 
-    private static boolean sIsSetDebugUrl;
-
     /**
      * 设置基础
      */
     public static void setVisualBaseURL(Context context, String url) {
-        InternalAgent.setString(context, Constants.SP_DEBUG_VISUAL_URL,
-                Constants.WSS + url + Constants.WSS_PORT + getParams(context));
-        InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL,
-                com.analysys.utils.Constants.HTTPS + url + Constants.HTTPS_PORT + "/configure");
+//        InternalAgent.setString(context, Constants.SP_DEBUG_VISUAL_URL,
+//                Constants.WSS + url + Constants.WSS_PORT + getParams(context));
+//        InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL,
+//                com.analysys.utils.Constants.HTTPS + url + Constants.HTTPS_PORT + "/configure");
     }
 
     /**
@@ -33,25 +39,34 @@ public class VisualAgent {
      */
     public static void setVisitorDebugURL(Context context, String url) {
         try {
-            String getUrl = "";
-            if (InternalAgent.isEmpty(context) || InternalAgent.isEmpty(url)) {
+            if (!CommonUtils.isMainProcess(context)) {
                 return;
+            }
+            if (VisualManager.getInstance().isStarted()) {
+                return;
+            }
+            String getUrl;
+            if (InternalAgent.isEmpty(context) || InternalAgent.isEmpty(url)) {
+                throw new IllegalArgumentException();
             }
             if (url.startsWith(Constants.WS)) {
                 getUrl = InternalAgent.checkUrl(url);
             } else if (url.startsWith(Constants.WSS)) {
                 getUrl = InternalAgent.checkUrl(url);
             } else {
-                return;
+                throw new IllegalArgumentException();
             }
             if (!InternalAgent.isEmpty(getUrl)) {
-                /** 拼接完成url地址，读取配置文件，获取反射路径，反射调用传入地址 */
-                InternalAgent.setString(context, Constants.SP_DEBUG_VISUAL_URL,
-                        getUrl + getParams(context));
-                sIsSetDebugUrl = true;
-                initVisual(context);
+//                /** 拼接完成url地址，读取配置文件，获取反射路径，反射调用传入地址 */
+//                InternalAgent.setString(context, Constants.SP_DEBUG_VISUAL_URL,
+//                        getUrl + getParams(context));
+                getUrl += getParams(context);
+                ANSLog.i(VisualManager.TAG, "Set visual debug url success: " + getUrl);
+                VisualManager.getInstance().start(getUrl);
             }
         } catch (Throwable ignore) {
+            ANSLog.i(VisualManager.TAG, "Set visual debug url fail: " + (context == null) + ", " + url);
+            ExceptionUtil.exceptionPrint(ignore);
         }
     }
 
@@ -76,7 +91,7 @@ public class VisualAgent {
                     .append(Constants.PLATFORM_ANDROID);
 
             return sb.toString();
-        } catch (Throwable ignore) {
+        } catch (Throwable e) {
             return "";
         }
     }
@@ -86,50 +101,79 @@ public class VisualAgent {
      */
     public static void setVisitorConfigURL(Context context, String url) {
         try {
-            String getUrl = "";
+            String getUrl;
             if (InternalAgent.isEmpty(context) || InternalAgent.isEmpty(url)) {
-                return;
+                throw new IllegalArgumentException();
             }
             if (url.startsWith("http://")) {
                 getUrl = InternalAgent.checkUrl(url);
             } else if (url.startsWith("https://")) {
                 getUrl = InternalAgent.checkUrl(url);
             } else {
-                return;
+                throw new IllegalArgumentException();
             }
             if (!InternalAgent.isEmpty(getUrl)) {
-                /** 拼接成完整的url，读取配置文件，获取反射路径，反射调用传入地址 */
-                InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL, getUrl +
-                        "/configure");
-                initConfig(context);
+                // 先读本地配置，避免网络卡顿导致事件绑定延迟
+                VisualBindManager.getInstance().loadConfigFromLocal();
+//                /** 拼接成完整的url，读取配置文件，获取反射路径，反射调用传入地址 */
+//                InternalAgent.setString(context, Constants.SP_GET_STRATEGY_URL, getUrl +
+//                        "/configure");
+                if (CommonUtils.isMainProcess(context)) {
+                    getUrl += ("/configure" + getParams(context));
+                    ANSLog.i(VisualManager.TAG, "Set visual config url success: " + getUrl);
+                    if (NetworkUtils.isNetworkAvailable(context)) {
+                        loadConfigFromServer(getUrl);
+                    } else {
+                        ANSLog.i(VisualManager.TAG, "wait network available");
+                        waitNetAvailable(context, getUrl);
+                    }
+                }
             }
         } catch (Throwable ignore) {
+            ANSLog.i(VisualManager.TAG, "Set visual config url fail: " + (context == null) + ", " + url);
+            ExceptionUtil.exceptionPrint(ignore);
         }
     }
 
-    /**
-     * 初始化可视化
-     */
-    public static synchronized void initConfig(Context context) {
-        StrategyGet.getInstance(context).getVisualBindingConfig();
-        InternalAgent.d("Visual init: success.");
-    }
+    static class NetReceiver extends BroadcastReceiver {
 
-    /**
-     * 初始化可视化埋点功能 此方法可以自定义调用时机,延时调用,用来优化App初始化相关(放在App初始化完成后调用);
-     * 也可以随init接口一起初始化
-     *
-     * TODO:优化方式可在init接口增加'是否延时加载可视化'参数,确定initVisual方法是否延时调用
-     * hit:方法为内部方法,调用前，请确保已经调用init方法
-     */
-    private static void initVisual(final Context context) {
-        final String url = InternalAgent.getString(context, Constants.SP_DEBUG_VISUAL_URL, null);
-        if (!TextUtils.isEmpty(url)) {
-            VisualManager.getInstance(context);
+        private String url;
+
+        NetReceiver(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                if (NetworkUtils.isNetworkAvailable(context)) {
+                    ANSLog.i(VisualManager.TAG, "network available, url: " + url);
+                    context.unregisterReceiver(this);
+                    loadConfigFromServer(url);
+                }
+            } catch (Throwable e) {
+                ExceptionUtil.exceptionPrint(e);
+            }
         }
     }
 
-    public static boolean isInDebug() {
-        return sIsSetDebugUrl;
+    ;
+
+    private static void waitNetAvailable(final Context ctx, final String url) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        ctx.registerReceiver(new NetReceiver(url), filter);
+    }
+
+    private static void loadConfigFromServer(final String url) {
+        // 单独起一个线程，不使用已有队列，避免阻塞
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                VisualBindManager.getInstance().loadConfigFromServer(url);
+            }
+        }).start();
     }
 }

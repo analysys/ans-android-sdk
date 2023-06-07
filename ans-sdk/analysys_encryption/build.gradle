@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply from: "../maven.gradle"
 
-def jarName = "analysys_encryption.jar"
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildTypes {

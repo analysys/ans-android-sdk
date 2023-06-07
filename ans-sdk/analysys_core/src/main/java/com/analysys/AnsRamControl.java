@@ -1,13 +1,16 @@
 package com.analysys;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.analysys.database.EventTableMetaData;
 import com.analysys.utils.AnalysysUtil;
+import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
+import com.analysys.utils.SharedUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +27,10 @@ public class AnsRamControl {
     private static volatile AnsRamControl instance = null;
 
     private AnsRamControl() {
+        Context context = AnalysysUtil.getContext();
+        if (context != null && CommonUtils.isMainProcess(context)) {
+            setDataCollectEnable(SharedUtil.getBoolean(context, Constants.SP_ENABLE_DATA_COLLECT, true));
+        }
     }
 
     public static AnsRamControl getInstance() {
@@ -128,6 +135,28 @@ public class AnsRamControl {
      */
     public void setCacheMaxCount(long cacheMaxCount) {
         set(Constants.RAM_CACHE_MAX_COUNT, String.valueOf(cacheMaxCount));
+    }
+
+    /**
+     * 获取数据采集开关
+     */
+    public Boolean getDataCollectEnable() {
+        try {
+            String value = get(Constants.RAM_DATA_COLLECT_ENABLE, null);
+            if (value != null) {
+                return Boolean.valueOf(value);
+            }
+        } catch (Throwable e) {
+            ExceptionUtil.exceptionThrow(e);
+        }
+        return null;
+    }
+
+    /**
+     * 设置数据采集开关
+     */
+    public void setDataCollectEnable(boolean enable) {
+        set(Constants.RAM_DATA_COLLECT_ENABLE, String.valueOf(enable));
     }
 
     public static final class RamData {

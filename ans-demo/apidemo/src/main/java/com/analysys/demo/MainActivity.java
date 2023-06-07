@@ -1,81 +1,127 @@
 package com.analysys.demo;
 
+
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 
 import com.analysys.ANSAutoPageTracker;
 import com.analysys.AnalysysAgent;
 import com.analysys.apidemo.R;
-import com.analysys.demo.allgroTest.AllgroTestActivity;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Copyright © 2019 EGuan Inc. All rights reserved.
- * @Description: TODO
- * @Version: 1.0
- * @Create: 2019-07-01 00:48
- * @Author: Wang-X-C
+ * @Copyright © 2020 Analysys Inc. All rights reserved.
+ * @Description:
+ * @Create: 2020/7/20 7:00 PM
+ * @author: huchangqing
  */
-public class MainActivity extends AppCompatActivity implements ANSAutoPageTracker {
+public class MainActivity extends BaseActivity implements ViewPager.OnPageChangeListener {
+
+    private FragmentMini mFragmentMini = new FragmentMini();
+    private FragmentFull mFragmentFull = new FragmentFull();
+
+
+    private FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return mFragmentMini;
+                case 1:
+                    return mFragmentFull;
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    };
+
+    private ViewPager mViewPager;
+    private TextView mTVMini;
+    private TextView mTVFull;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent intent = getIntent();
-        if (intent != null && intent.getData() != null) {
-            // 判断如果是deepLink启动，设置启动来源为 3
-            AnalysysAgent.launchSource(3);
-        }
+        mViewPager = findViewById(R.id.view_pager);
+        mTVMini = findViewById(R.id.tv_mini);
+        mTVFull = findViewById(R.id.tv_full);
+        mViewPager.setAdapter(adapter);
+        mViewPager.addOnPageChangeListener(this);
+        mTVMini.setSelected(true);
+        mTVFull.setSelected(false);
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null) {
+//            actionBar.setDisplayShowTitleEnabled(true);
+//            actionBar.setTitle("易观方舟Demo");
+//        }
+//        AnalysysAgent.track(this,"homepage");
+    }
 
+
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
     }
 
-    public void onClick(View view) {
+    @Override
+    public void onPageSelected(int position) {
+        mTVMini.setSelected(position == 0);
+        mTVFull.setSelected(position == 1);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        MenuItem item = menu.findItem(R.id.action_modify);
+        SpannableString spannableString = new SpannableString(item.getTitle());
+        spannableString.setSpan(new ForegroundColorSpan(0xff2222ee), 0, spannableString.length(), 0);
+        item.setTitle(spannableString);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_modify) {
+            Intent intent = new Intent(this, ModifyConfigActivity.class);
+            intent.putExtra(BaseActivity.EXTRA_ACTIVITY_TITLE, "修改配置");
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onTabClick(View view) {
         int id = view.getId();
-        if (id == R.id.profileButton) {
-            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-        } else if (id == R.id.propertyButton) {
-            startActivity(new Intent(MainActivity.this, PropertyActivity.class));
-        } else if (id == R.id.eventButton) {
-            startActivity(new Intent(MainActivity.this, EventActivity.class));
-        } else if (id == R.id.userButton) {
-            startActivity(new Intent(MainActivity.this, UserSettingActivity.class));
-        } else if (id == R.id.webViewButton) {
-            startActivity(new Intent(MainActivity.this, WebViewActivity.class));
-        } else if (id == R.id.visualDemoButton) {
-            // 跳转可视化模块
-            try {
-                Class clz = Class.forName("com.analysys.visualdemo.activity.TopVisualMainActivity");
-                startActivity(new Intent(this, clz));
-            } catch (ClassNotFoundException e) {
-            }
-        } else if (id == R.id.TestHeatMapButton) {
-            // 热图黑名单测试
-            startActivity(new Intent(MainActivity.this, HeatMapTestActivity.class));
-        } else if (id == R.id.TestAllgroButton) {
-            // 跳转全埋点模块
-            startActivity(new Intent(MainActivity.this, AllgroTestActivity.class));
+        if (id == R.id.tv_mini) {
+            mViewPager.setCurrentItem(0, true);
+        } else if (id == R.id.tv_full) {
+            mViewPager.setCurrentItem(1, true);
         }
     }
-
-    @Override
-    public Map<String, Object> registerPageProperties() {
-        //  $title为自动采集使用key，用户可覆盖
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("$title", "详情页");
-        return properties;
-    }
-
-    @Override
-    public String registerPageUrl() {
-        // 页面$url字段，将覆盖SDK默认字段
-        return "HomePage";
-    }
-
 }

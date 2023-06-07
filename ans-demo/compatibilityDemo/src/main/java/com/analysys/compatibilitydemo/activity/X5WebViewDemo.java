@@ -25,20 +25,23 @@ public class X5WebViewDemo extends AppCompatActivity {
 
     private void webView() {
         x5WebView = (WebView) findViewById(R.id.forum_context);
-        x5WebView.loadUrl("http://uc.analysys.cn/huaxiang/hybrid-4.3.0.10/");
+        x5WebView.loadUrl("https://uc.analysys.cn/huaxiang/web_visual/index.html?v=" + System.currentTimeMillis());
         x5WebView.getSettings().setJavaScriptEnabled(true);
         x5WebView.setWebChromeClient(new WebChromeClient());
         x5WebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 //        x5WebView.setWebViewClient(new OldWebviewClient());
         // 设置UserAgent
-        AnalysysAgent.setHybridModel(mContext, x5WebView);
-        // 设置WebViewClient
-        x5WebView.setWebViewClient(new MyWebviewClient());
+//        AnalysysAgent.setHybridModel(mContext, x5WebView);
+//        // 设置WebViewClient
+//        x5WebView.setWebViewClient(new MyWebviewClient());
+        AnalysysAgent.setAnalysysAgentHybrid(x5WebView);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+//        AnalysysAgent.resetHybridModel(this, x5WebView);
+        AnalysysAgent.resetAnalysysAgentHybrid(x5WebView);
     }
 
     class OldWebviewClient extends WebViewClient {

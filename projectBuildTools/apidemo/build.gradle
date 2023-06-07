@@ -13,7 +13,7 @@ android {
 
 
         applicationId "com.analysys.demo"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -59,9 +59,7 @@ android {
 }
 
 dependencies {
-
-
-    implementation('cn.com.analysys:analysys-arkanalysys:latest.release')
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

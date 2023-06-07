@@ -48,6 +48,8 @@ android {
                 signingConfig signingConfigs.release
             }
         }
+        //repositories { maven { url "https://maven.aliyun.com/repository/google" } }
+
     }
 
 
@@ -62,6 +64,12 @@ android {
     aaptOptions {
         cruncherEnabled = false
         useNewCruncher = false
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs' //this way we can find the .aar file in libs folder
+        }
     }
 
     lintOptions {
@@ -89,22 +97,23 @@ android {
 }
 
 dependencies {
-
+    //implementation fileTree(include: ['*.aar'], dir: 'libs')
     if (apidemo_depend.toBoolean()) {
         api project(':analysys_arkanalysys')
     } else {
         api 'cn.com.analysys:analysys-arkanalysys:latest.release'
     }
 
+    //api project(':analysys-tools')
 
-//    api project(':analysys-tools')
-
-    api project(':compatibilityDemo')
-    api project(':visualDemo')
-
+    //api project(':compatibilityDemo')
+    //implementation(name: 'toolsLibrary', ext: 'aar')
+    //compile files('libs/toolsLibrary-debug.aar')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'
 
+    implementation 'androidx.fragment:fragment:1.0.0'
+    compileOnly 'androidx.recyclerview:recyclerview:1.0.0'
 }
 
 // 忽略文档编译错误. 设置编码

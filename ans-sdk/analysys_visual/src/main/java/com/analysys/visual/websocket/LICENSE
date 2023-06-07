@@ -29,5 +29,5 @@ Copyright (c) 2010-2012 Nathan Rajlich
 
 The software contained in this package has been slightly altered, in
 particular the package has been changed from "org.java_websocket" to
-"com.mixpanel.android.java_websocket" in order to prevent collisions with
+"com.analysys.visual.java_websocket" in order to prevent collisions with
 other uses of the java-websocket library.

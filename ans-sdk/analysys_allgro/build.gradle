@@ -11,7 +11,7 @@ android {
 
 
         buildConfigField("boolean", "ENABLE_BUGLY", false.toString())
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -19,6 +19,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../proguard-base.pro', 'proguard-custom.pro','proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
         }
+//        debug {
+//            testCoverageEnabled = true
+//        }
     }
     compileOptions {
         sourceCompatibility rootProject.ext.sourceJavaVersion
@@ -28,9 +31,9 @@ android {
         checkReleaseBuilds false
         abortOnError false
     }
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
+//    testOptions {
+//        unitTests.returnDefaultValues = true
+//    }
 
 }
 

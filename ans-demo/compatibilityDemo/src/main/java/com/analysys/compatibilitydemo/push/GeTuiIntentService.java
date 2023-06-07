@@ -40,10 +40,11 @@ public class GeTuiIntentService extends GTIntentService {
 
     @Override
     public void onReceiveMessageData(Context context, GTTransmitMessage gtTransmitMessage) {
+        // 透传消息，不会显示通知栏
         Log.e(TAG, "onReceiveMessageData -> " + "msg:" + gtTransmitMessage.toString());
         byte[] payload = gtTransmitMessage.getPayload();
         String data = new String(payload);
-        AnalysysAgent.trackCampaign(context, data, true, listener);
+        AnalysysAgent.trackCampaign(context, data, false, listener);
     }
 
     @Override
@@ -59,18 +60,25 @@ public class GeTuiIntentService extends GTIntentService {
     @Override
     public void onNotificationMessageArrived(Context context, GTNotificationMessage
             gtNotificationMessage) {
-        Log.e(TAG,"onNotificationMessageArrived:"+gtNotificationMessage.toString());
+        // 通知栏消息
+        Log.e(TAG, "onNotificationMessageArrived -> " + "msg:" + gtNotificationMessage.toString());
+        String data = gtNotificationMessage.getContent();
+        AnalysysAgent.trackCampaign(context, data, false, listener);
     }
 
     @Override
     public void onNotificationMessageClicked(Context context,
                                              GTNotificationMessage gtNotificationMessage) {
-        Log.e(TAG,"onNotificationMessageClicked:"+gtNotificationMessage.toString());
+        // 点击通知栏消息
+        Log.e(TAG, "onNotificationMessageClicked -> " + "msg:" + gtNotificationMessage.toString());
+        String data = gtNotificationMessage.getContent();
+        AnalysysAgent.trackCampaign(context, data, true, listener);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        Log.i(TAG, "Not yet implemented");
+        return null;
     }
 }

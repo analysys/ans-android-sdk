@@ -9,6 +9,10 @@
 ./gradlew analysys_arkanalysys:uploadArchives
 ./gradlew analysys_arkanalysys_no_op:uploadArchives
 
+#mpaas
+./gradlew analysys_mpaas:uploadArchives
+#rn
+./gradlew analysys_react_native:uploadArchives
 
 
 #./gradlew uploadArchives

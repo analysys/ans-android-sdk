@@ -71,7 +71,7 @@ public class PolicyManager {
     /**
      * 存储服务器返回值
      */
-    public static void analysisStrategy(Context context, JSONObject json) {
+    public static void analysysStrategy(Context context, JSONObject json) {
         if (json == null || json.length() <= 0) {
             return;
         }

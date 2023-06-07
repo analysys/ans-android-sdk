@@ -17,6 +17,7 @@ public class Constants {
     public static final String DEV_SDK_VERSION = BuildConfig.SDK_VERSION;
 
     public static final String PAGE_VIEW = "$pageview";
+    public static final String PAGE_CLOSE = "page_close";
     public static final String STARTUP = "$startup";
     public static final String END = "$end";
     public static final String ALIAS = "$alias";
@@ -45,6 +46,7 @@ public class Constants {
 
     public static final String PAGE_URL = "$url";
     public static final String PAGE_TITLE = "$title";
+    public static final String PAGE_STAY_TIME = "pageStayTime";
     public static final String PAGE_REFERRER = "$referrer";
     public static final String PARENT_URL = "$parent_url";
 
@@ -85,15 +87,22 @@ public class Constants {
     public static final String SP_DISTINCT_ID = "distinctId";
     public static final String SP_UUID = "uuid";
     public static final String SP_ADID = "adid";
+    public static final String SP_ANDID = "androidId";
+
     public static final String SP_ORIGINAL_ID = "originalId";
+
+    public static final String SP_MAC = "macAddress";
+    public static final String SP_IMEI = "imeiAddress";
     /************end 用户相关ID************/
 
     /****************存储到内存中的值***********/
     public static final String RAM_NET_WORK_TYPE = "ram_net_work_type";
     public static final String RAM_CACHE_MAX_COUNT = "ram_cache_max_count";
+    public static final String RAM_DATA_COLLECT_ENABLE = "ram_data_collect_enable";
     /****************************************/
 
     public static final String SP_SUPER_PROPERTY = "superProperty";
+    public static final String SP_PRE_USER_PROPERTY = "preUserProperty";
     public static final String SP_JS_SUPER_PROPERTY = "js_superProperty";
     public static final String SP_USER_URL = "userUrl";
 
@@ -112,6 +121,7 @@ public class Constants {
     public static final String SP_FAILURE_COUNT = "failureCount";
     public static final String SP_IS_LOGIN = "isLogin";
     public static final String SP_REQUEST_VERSION = "requestVersion";
+    public static final String SP_ENABLE_DATA_COLLECT = "enableDataCollect";
 
     /*****************start 页面自动采集********************/
     public static final String SP_SESSION_ID = "getSessionId";
@@ -124,8 +134,11 @@ public class Constants {
 
     public static final String APP_START_TIME = "app_start_time";   //app开始时间，本次生效
     public static final String APP_END_INFO = "app_end_info";       //app结束当时数据信息
+    public static final String PAGE_CLOSE_INFO = "page_close_info";
+    public static final String PAGE_CLOSE_H5_INFO = "page_close_h5_info";
     public static final String LAST_OP_TIME = "last_op_time";
     public static String SP_REFER = "referrer";         //页面引用来源
+    public static final String PV_START_TIME = "pv_start_time_eg";
 
 
     public static final String PAGE_COUNT = "page_count";
@@ -150,7 +163,6 @@ public class Constants {
     public static final String SERVICE_HASH = "hash";
 
     public static final String DEV_SYSTEM = "Android";
-    public static final String DEV_IS_FIRST_DAY = "$is_first_day";
     public static final String DEV_IS_FROM_BACKGROUND = "$is_from_background";
     public static final String DEV_DURATION = "$duration";
     public static final String DEV_FIRST_VISIT_TIME = "$first_visit_time";
@@ -220,6 +232,7 @@ public class Constants {
     public static final String API_PROFILE_DELETE = "profileDelete";
     public static final String API_REGISTER_SUPER_PROPERTY = "registerSuperProperty";
     public static final String API_REGISTER_SUPER_PROPERTIES = "registerSuperProperties";
+    public static final String API_REGISTER_PREEVENT_USER_PROPERTIES = "registerPreEventUserProperties";
     public static final String API_UNREGISTER_SUPER_PROPERTY = "unRegisterSuperProperty";
     public static final String API_CLEAR_SUPER_PROPERTIES = "clearSuperProperties";
     public static final String API_GET_SUPER_PROPERTY = "getSuperProperty";
@@ -247,6 +260,13 @@ public class Constants {
     public static final String API_INTERCEPT_URL = "interceptUrl";
     public static final String API_SET_HYBRID_MODEL = "setHybridModel";
     public static final String API_RESET_HYBRID_MODEL = "resetHybridModel";
+
+    public static final String API_FLUSH = "flush";
+    public static final String API_SET_VISITOR_DEBUG_URL = "setVisitorDebugURL";
+    public static final String API_SET_VISITOR_CONFIG_URL = "setVisitorConfigURL";
+    public static final String API_SET_PUSH_ID = "setPushID";
+    public static final String API_TRACK_COMPAIGN = "trackCampaign";
+    public static final String API_REPORT_EXCEPTION = "reportException";
 
     public static final String HTTP = "http://";
     public static final String HTTPS = "https://";
@@ -292,6 +312,8 @@ public class Constants {
     public static long diffTime = 0;
     // 网络时间获取成功
     public static boolean isCalibration = false;
+
+    public static boolean isFinishCalibration = false;
     // 应用启动来源
     public static int sourceNum = 1;
 

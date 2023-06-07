@@ -10,6 +10,9 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.analysys.LogObserverListener;
+import com.analysys.process.AgentProcess;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -217,7 +220,6 @@ public class ANSLog {
      * StringBuffer>StringBuild>Throwable>Intent>List>Map
      */
     private static void parserArgsMain(int level, Object[] args) {
-
         /** 确认打印 */
         if (!isShowLog) {
             return;
@@ -1254,6 +1256,10 @@ public class ANSLog {
      * 真正打印单个信息
      */
     private static void realPrint(int level, String tag, String printStr) {
+        LogObserverListener logObserverListener = AgentProcess.getInstance().getLogObserverListener();
+        if (logObserverListener != null) {
+            logObserverListener.onLogMessage(tag + ": " + printStr);
+        }
         switch (level) {
             case MLEVEL.DEBUG:
                 Log.d(tag, printStr);

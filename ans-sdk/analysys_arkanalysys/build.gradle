@@ -1,3 +1,5 @@
+import java.security.MessageDigest
+
 apply plugin: 'com.android.library'
 apply from: "../maven.gradle"
 
@@ -51,7 +53,7 @@ task releaseAar(type: Copy) {
     for (int i = 0; i < moduleName.size; i++) {
         def tmpName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
 
-        def endName = "${moduleName[i]}".replace("_","-")
+        def endName = "${moduleName[i]}".replaceAll("_", "-")
         from("../${tmpName}/build/outputs/aar/") {
             rename("${tmpName}-release.aar", "${endName}.aar")
             exclude("${tmpName}-release.aar.asc")
@@ -70,7 +72,7 @@ task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
 
         def tmpName = "${moduleName[i]}".replace("_${rootProject.ext.version}", "")
 
-        def endName = "${moduleName[i]}".replace("_","-")
+        def endName = "${moduleName[i]}".replaceAll("_", "-")
         from("../${tmpName}/build/outputs/mapping/release/") {
             include('mapping.txt')
             rename('mapping.txt', "mapping-${endName}.txt")
@@ -80,16 +82,16 @@ task releaseMapping(type: Copy, dependsOn: ['releaseAar']) {
     into '../release/mapping/'
 }
 
-task zipMapping(type: Zip,dependsOn: ['releaseMapping']) {
+task zipMapping(type: Zip, dependsOn: ['releaseMapping']) {
     from '../release/mapping/'
 
-    baseName = "analysys-pass-mapping-${releaseTimeVariable}"
+    archiveName = "analysys_pass_android_${version}_mapping_${releaseTimeVariable}.zip"
     destinationDir file("../release/zip")
 }
 
 
 for (int i = 0; i < moduleName.size(); i++) {
-    def endName = "${moduleName[i]}".replace("_","-")
+    def endName = "${moduleName[i]}".replaceAll("_", "-")
 
     task "unZipAAR${moduleName[i]}"(type: Copy) {
         from(zipTree("../release/aar/${endName}.aar"))
@@ -114,7 +116,7 @@ for (int i = 0; i < moduleName.size(); i++) {
 
     task "jar${moduleName[i]}"(type: Jar, dependsOn: ["unZipJar${moduleName[i]}"]) {
         from("../release/jar/tmp/${endName}/")
-        println("endName:"+endName)
+        println("endName:" + endName)
         baseName = "${endName}".replace("-${rootProject.ext.version}", "")
         destinationDir = file("../release/jar/")
 
@@ -146,19 +148,23 @@ for (int i = 0; i < moduleName.size(); i++) {
 
 task makeDemo(type: Copy) {
     from("../../ans-demo/") {
-        include("apidemo/")
-        exclude("apidemo/build.gradle")
+        include("apidemo/src/")
+        include("apidemo/proguard-rules.pro")
     }
     from("../../projectBuildTools/")
 
     into("../release/zip/demo")
 }
 
-task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
+task makeDemoAar(type: Copy, dependsOn: ["makeDemo"]) {
+    from("../release/aar/")
 
-    from("../release/zip/") {
-        include("demo/")
-    }
+    into("../release/zip/demo/apidemo/libs")
+}
+
+task makeZipAns(type: Zip, dependsOn: ["makeDemoAar"]) {
+
+    from("../release/zip/demo/")
 //    from("../release/") {
 //        include("aar/")
 //        include("jar/")
@@ -170,11 +176,10 @@ task makeZipAns(type: Zip, dependsOn: ["makeDemo"]) {
 //        include("repo/")
 //    }
 
-    baseName = "analysys-pass-android-Demo-${releaseTimeVariable}"
+    archiveName = "analysys_pass_android_${version}_Demo_${releaseTimeVariable}.zip"
     destinationDir file("../release/zip")
 
 }
-
 
 task makeZipAAR(type: Zip) {
     from("../release/") {
@@ -183,15 +188,45 @@ task makeZipAAR(type: Zip) {
         exclude("jar/analysys-allgro-*")
     }
 
-    baseName = "analysys-pass-android-SDK-${releaseTimeVariable}"
+    archiveName = "analysys_pass_android_${version}_SDK_${releaseTimeVariable}.zip"
     destinationDir file("../release/zip")
-
 }
 
-task makeZipAnsClean(type: Delete, dependsOn: ["makeZipAns","makeZipAAR"]) {
+task makeMd5() {
+    doLast {
+        File dir = file("../release/aar")
+        File[] list = dir.listFiles()
+        StringBuilder sbMd5 = new StringBuilder("文件md5\n\n")
+        for (File file : list) {
+            sbMd5.append(file.getName()).append(":").append(generateMD5(file)).append("\n");
+        }
+        File md5File = file("../release/aar/readme.md")
+        md5File.createNewFile()
+        md5File.text = sbMd5.toString()
+
+        dir = file("../release/jar")
+        list = dir.listFiles()
+        sbMd5 = new StringBuilder("文件md5\n\n")
+        for (File file : list) {
+            sbMd5.append(file.getName()).append(":").append(generateMD5(file)).append("\n");
+        }
+        md5File = file("../release/jar/readme.md")
+        md5File.createNewFile()
+        md5File.text = sbMd5.toString()
+    }
+}
+
+task makeZipAnsClean(type: Delete, dependsOn: ["makeZipAns", "makeMd5", "makeZipAAR"]) {
     delete("../release/zip/demo/")
     delete("../release/aar/")
     delete("../release/jar/")
 }
 
-
+static def generateMD5(file)
+{
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    file.eachByte 4096, {bytes, size ->
+        md.update(bytes, 0, size);
+    }
+    return md.digest().collect {String.format "%02x", it}.join()
+}

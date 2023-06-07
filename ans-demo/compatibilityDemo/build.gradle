@@ -13,7 +13,7 @@ android {
         }
         multiDexEnabled true
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // 个推相关配置
         manifestPlaceholders = Eval.me(ManifestPlaceholders)
@@ -30,7 +30,14 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             consumerProguardFiles('proguard-rules.pro')
+
+//            if(apidemo_type.toBoolean()) {
+//                signingConfig signingConfigs.release
+//            }
         }
+//        debug {
+//            testCoverageEnabled = true
+//        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -40,9 +47,9 @@ android {
         checkReleaseBuilds false
         abortOnError false
     }
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
+//    testOptions {
+//        unitTests.returnDefaultValues = true
+//    }
 
 }
 
@@ -58,10 +65,13 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 
     //阿里云推送
-    implementation 'com.aliyun.ams:alicloud-android-push:3.1.6'
+    implementation 'com.aliyun.ams:alicloud-android-push:3.4.0'
 
     //信鸽jar，不包含厂商通道
     implementation  'com.tencent.xinge:xinge:4.3.7-release'
+
+//    implementation 'com.tencent.tpns:tpns:1.2.2.0-release' //  TPNS 推送
+
     //jg包
     implementation'com.tencent.jg:jg:1.1'
     //wup包
@@ -69,13 +79,10 @@ dependencies {
     //mid包，minSdkVersion 14
     implementation 'com.tencent.mid:mid:4.0.7-Release'
 
-
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-
+    api fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
-
 
     if (apidemo_depend.toBoolean()) {
         implementation project(':analysys_core')

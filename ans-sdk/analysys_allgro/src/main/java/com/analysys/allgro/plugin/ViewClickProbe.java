@@ -1,27 +1,28 @@
 package com.analysys.allgro.plugin;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RadioGroup;
-import android.widget.RatingBar;
 import android.widget.TabHost;
 
 import com.analysys.allgro.AllegroUtils;
 import com.analysys.process.AgentProcess;
 import com.analysys.process.PathGeneral;
+import com.analysys.utils.AnalysysUtil;
+import com.analysys.utils.AnsReflectUtils;
+import com.analysys.utils.CommonUtils;
 import com.analysys.utils.Constants;
 import com.analysys.utils.ExceptionUtil;
-import com.analysys.utils.AnsReflectUtils;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +33,7 @@ import java.util.Map;
  * Date: 2019-11-05 22:20
  * Version: 1.0
  */
-class ViewClickProbe extends ASMHookAdapter {
+public class ViewClickProbe extends ASMHookAdapter {
 
     @Override
     public void trackMenuItem(MenuItem menuItem, boolean hasTrackClickAnn,long currentTime) {
@@ -103,13 +104,13 @@ class ViewClickProbe extends ASMHookAdapter {
                 return;
             }
 
-            Object result = AllegroUtils.getFieldValue(tab, "view");
+            Object result = AnsReflectUtils.getField(tab, "view");
             if (result == null) {
-                result = AllegroUtils.getFieldValue(tab, "mView");
+                result = AnsReflectUtils.getField(tab, "mView");
             }
 
             Map<String, Object> elementInfo = new HashMap<>();
-            elementInfo.put(Constants.ELEMENT_TYPE, "TabLayout");
+            elementInfo.put(Constants.ELEMENT_TYPE, tab.getClass().getName());
             Object pageObj = null;
             View rootView;
             if (!AllegroUtils.isPage(object)) {
@@ -130,7 +131,7 @@ class ViewClickProbe extends ASMHookAdapter {
                 return;
             }
 
-            result = AllegroUtils.callMethod(tab, "getText");
+            result = AnsReflectUtils.invokeMethod(tab, "getText");
             if (result instanceof CharSequence) {
                 elementInfo.put(Constants.ELEMENT_CONTENT, result.toString());
             }
@@ -152,13 +153,13 @@ class ViewClickProbe extends ASMHookAdapter {
             Object pageObj = AllegroUtils.getPageObjFromView(null);
             Class<?> tabClass = AnsReflectUtils.getClassByName(TabHost.class.getName());
             if (tabClass != null) {
-                TabHost tabHost = (TabHost) tabClass.newInstance();
+                TabHost tabHost = TabHost.class.getConstructor(Context.class).newInstance(AnalysysUtil.getContext());
                 if (!checkTrackClickEnable(pageObj, tabHost, hasTrackClickAnn)) {
                     return;
                 }
 
                 Map<String, Object> elementInfo = new HashMap<>();
-                elementInfo.put(Constants.ELEMENT_TYPE, "TabHost");
+                elementInfo.put(Constants.ELEMENT_TYPE, tabClass.getName());
                 elementInfo.put(Constants.ELEMENT_CONTENT, tabName);
                 autoTrackClick(pageObj, elementInfo, hasTrackClickAnn,currentTime);
             }
@@ -190,7 +191,7 @@ class ViewClickProbe extends ASMHookAdapter {
 
 
             Map<String, Object> elementInfo = new HashMap<>();
-            elementInfo.put(Constants.ELEMENT_TYPE, "Dialog");
+            String elementType = null;
             // View
             if (dialog instanceof android.app.AlertDialog) {
                 android.app.AlertDialog alertDialog = (android.app.AlertDialog) dialog;
@@ -204,6 +205,7 @@ class ViewClickProbe extends ASMHookAdapter {
                     if (!TextUtils.isEmpty(IdName)) {
                         elementInfo.put(Constants.ELEMENT_ID, IdName);
                     }
+                    elementType = button.getClass().getName();
                 } else {
                     ListView listView = alertDialog.getListView();
                     if (listView != null) {
@@ -213,6 +215,7 @@ class ViewClickProbe extends ASMHookAdapter {
                             elementInfo.put(Constants.ELEMENT_CONTENT, object);
                         }
                         elementInfo.put(Constants.ELEMENT_POSITION, which);
+                        elementType = listView.getChildAt(0).getClass().getName();
                     }
                 }
 
@@ -260,6 +263,7 @@ class ViewClickProbe extends ASMHookAdapter {
                         if (!TextUtils.isEmpty(IdName)) {
                             elementInfo.put(Constants.ELEMENT_ID, IdName);
                         }
+                        elementType = button.getClass().getName();
                     } else {
                         try {
                             Method getListViewMethod = dialog.getClass().getMethod("getListView");
@@ -271,6 +275,7 @@ class ViewClickProbe extends ASMHookAdapter {
                                     elementInfo.put(Constants.ELEMENT_CONTENT, object);
                                 }
                                 elementInfo.put(Constants.ELEMENT_POSITION, which);
+                                elementType = listView.getChildAt(0).getClass().getName();
                             }
                         } catch (Throwable ignore) {
                             ExceptionUtil.exceptionThrow(ignore);
@@ -278,6 +283,10 @@ class ViewClickProbe extends ASMHookAdapter {
                     }
                 }
             }
+            if (elementType == null) {
+                elementType = "Dialog";
+            }
+            elementInfo.put(Constants.ELEMENT_TYPE, elementType);
             autoTrackClick(dialog, elementInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
@@ -293,7 +302,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Map<String, Object> elementInfo = new HashMap<>();
-            elementInfo.put(Constants.ELEMENT_TYPE, "DrawerLayout");
+            elementInfo.put(Constants.ELEMENT_TYPE, drawerLayout.getClass().getName());
             elementInfo.put(Constants.ELEMENT_CONTENT, isOpen ? "Open" : "Close");
             autoTrackClick(pageObj, elementInfo, hasTrackClickAnn,currentTime);
         } catch (Throwable ignore) {
@@ -317,7 +326,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Map<String, Object> elementInfo = new HashMap<>();
-            String[] viewTypeAndText = AllegroUtils.getViewTypeAndText(childView);
+            String[] viewTypeAndText = CommonUtils.getViewTypeAndText(childView, true);
             elementInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
             elementInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             elementInfo.put(Constants.ELEMENT_POSITION, parent.indexOfChild(childView) + "");
@@ -340,7 +349,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Map<String, Object> viewInfo = new HashMap<>();
-            String[] viewTypeAndText = AllegroUtils.getViewTypeAndText(v);
+            String[] viewTypeAndText = CommonUtils.getViewTypeAndText(v, true);
             String viewType = "ListViewItem:" + viewTypeAndText[0];
             String viewText = viewTypeAndText[1];
             viewInfo.put(Constants.ELEMENT_TYPE, viewType);
@@ -372,9 +381,8 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Map<String, Object> viewInfo = new HashMap<>();
-            String[] viewTypeAndText = AllegroUtils.getViewTypeAndText(v);
-            String viewType = "ExpandableListViewChildItem:" + viewTypeAndText[0];
-            viewInfo.put(Constants.ELEMENT_TYPE, viewType);
+            String[] viewTypeAndText = CommonUtils.getViewTypeAndText(v, true);
+            viewInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             viewInfo.put(Constants.ELEMENT_POSITION, groupPosition + ":" + childPosition);
 
@@ -402,9 +410,8 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Map<String, Object> viewInfo = new HashMap<>();
-            String[] viewTypeAndText = AllegroUtils.getViewTypeAndText(v);
-            String viewType = "ExpandableListViewGroupItem:" + viewTypeAndText[0];
-            viewInfo.put(Constants.ELEMENT_TYPE, viewType);
+            String[] viewTypeAndText = CommonUtils.getViewTypeAndText(v, true);
+            viewInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             viewInfo.put(Constants.ELEMENT_POSITION, groupPosition);
 
@@ -433,7 +440,7 @@ class ViewClickProbe extends ASMHookAdapter {
             }
 
             Map<String, Object> viewInfo = new HashMap<>();
-            String[] viewTypeAndText = AllegroUtils.getViewTypeAndText(v);
+            String[] viewTypeAndText = CommonUtils.getViewTypeAndText(v, true);
             viewInfo.put(Constants.ELEMENT_TYPE, viewTypeAndText[0]);
             viewInfo.put(Constants.ELEMENT_CONTENT, viewTypeAndText[1]);
             String path = PathGeneral.getInstance().general(v);
@@ -476,15 +483,15 @@ class ViewClickProbe extends ASMHookAdapter {
      */
     private boolean checkTrackClickEnable(Object pageObj, Object element, boolean hasTrackClickAnn) {
         AgentProcess instance = AgentProcess.getInstance();
-        if (element instanceof View) {
-            View v = (View) element;
-            boolean isByUser = v.isPressed();
-            if (v instanceof RatingBar || v instanceof CompoundButton) {
-                if (!isByUser) {
-                    return false;
-                }
-            }
-        }
+//        if (element instanceof View) {
+//            View v = (View) element;
+//            boolean isByUser = v.isPressed();
+//            if (v instanceof RatingBar || v instanceof CompoundButton) {
+//                if (!isByUser) {
+//                    return false;
+//                }
+//            }
+//        }
 
         boolean isInBlack = instance.isThisViewInAutoClickBlackList(element)
                 || (element != null && instance.isThisViewTypeInAutoClickBlackList(element.getClass()))

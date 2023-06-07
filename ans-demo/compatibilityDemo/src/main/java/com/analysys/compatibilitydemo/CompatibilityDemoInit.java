@@ -104,21 +104,18 @@ public class CompatibilityDemoInit {
         注册信鸽服务的接口
         如果仅仅需要发推送消息调用这段代码即可
         */
-        XGPushManager.registerPush(mContext,
-                new XGIOperateCallback() {
-                    @Override
-                    public void onSuccess(Object data, int flag) {
-                        Log.w(Constants.LogTag, "+++ register push sucess. token:" + data + "flag" + flag);
-                    }
+        XGPushManager.registerPush(mContext, new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object data, int flag) {
+                //token在设备卸载重装的时候有可能会变
+                Log.d("TPush", "注册成功，设备token为：" + data);
+            }
 
-                    @Override
-                    public void onFail(Object data, int errCode, String msg) {
-                        Log.w(Constants.LogTag,
-                                "+++ register push fail. token:" + data
-                                        + ", errCode:" + errCode + ",msg:"
-                                        + msg);
-                    }
-                });
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                Log.d("TPush", "注册失败，错误码：" + errCode + ",错误信息：" + msg);
+            }
+        });
 
         // 获取token
         XGPushConfig.getToken(mContext);

@@ -8,9 +8,6 @@ package com.analysys.visual.utils;
  * @Author: chris
  */
 public class Constants {
-    //该版本后期，模块化需要有自己的版本，现在暂时跟主module方舟B主体版本保持一致
-    public final static String VERSION = "4.3.0";
-
     //public static String debugVisualUrl = null;
     //public static String visualConfigUrl = null;
 

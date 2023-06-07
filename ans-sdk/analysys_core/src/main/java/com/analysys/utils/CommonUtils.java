@@ -6,22 +6,46 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.nfc.Tag;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ExpandableListView;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RatingBar;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
+import com.analysys.AnalysysAgent;
+import com.analysys.process.AgentProcess;
+import com.analysys.thread.AnsLogicThread;
 import com.analysys.userinfo.UserInfo;
 
 import org.json.JSONArray;
@@ -39,13 +63,13 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +88,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * @Copyright © 2018 EGuan Inc. All rights reserved.
@@ -113,13 +136,21 @@ public class CommonUtils {
      */
     public static boolean isAutoCollect(Context context, String type) {
         try {
+            if (TextUtils.isEmpty(type)) {
+                return false;
+            }
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(
                     context.getPackageName(), PackageManager.GET_META_DATA);
-            if (!TextUtils.isEmpty(type)) {
-                return appInfo.metaData.getBoolean(type);
+            if (appInfo == null) {
+                return true;
             }
-        } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
+            Bundle metaData = appInfo.metaData;
+            if (metaData == null) {
+                return true;
+            }
+            return metaData.getBoolean(type);
+        } catch (Throwable e) {
+            ExceptionUtil.exceptionThrow(e);
         }
         return true;
     }
@@ -260,7 +291,8 @@ public class CommonUtils {
             String spv =
                     Constants.PLATFORM + "|" + appId + "|" + sdkVersion + "|" + policyVersion +
                             "|" + appVersion;
-            return new String(Base64.encode(spv.getBytes(), Base64.DEFAULT));
+//            return new String(Base64.encode(spv.getBytes(), Base64.DEFAULT));
+            return new String(Base64.encodeToString(spv.getBytes(),Base64.NO_WRAP));
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
@@ -270,11 +302,27 @@ public class CommonUtils {
     /**
      * 是否首次启动
      */
-    public static boolean isFirstStart(Context context) {
+    public static boolean isFirst(Context context) {
         if (!isEmpty(context)) {
             String first = SharedUtil.getString(context, Constants.SP_FIRST_START_TIME,
                     null);
             return isEmpty(first);
+        }
+        return false;
+    }
+
+    /**
+     * 是否首次启动
+     */
+    public static boolean isFirstStart(Context context) {
+        if (!isEmpty(context)) {
+            String first = SharedUtil.getString(context, Constants.SP_FIRST_START_TIME,
+                    null);
+            ANSLog.d("trackFirstInstall3" + first);
+            if(isEmpty(first)){
+                getFirstStartTime(context);
+                return true;
+            }
         }
         return false;
     }
@@ -354,19 +402,35 @@ public class CommonUtils {
         return true;
     }
 
+    private static Boolean sIsMainProcess = null;
+
     /**
      * 判断是否为主进程
      */
+
     public static boolean isMainProcess(Context context) {
+
+
+        if (sIsMainProcess != null) {
+            return sIsMainProcess;
+        }
         if (context == null) {
             return false;
         }
+
+        if (!AgentProcess.getInstance().isInited()) {
+            //在未初始化的时候，认为是未同意隐私协议开启，不能调用获取进程信息的方法，设置为false,hybird会不会有影响
+            return false;
+        }
+
+        sIsMainProcess = true;
         ActivityManager activityManager =
                 (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> runningApps = null;
         if (activityManager != null) {
             runningApps = activityManager.getRunningAppProcesses();
         }
+
         if (runningApps == null) {
             return false;
         }
@@ -378,7 +442,17 @@ public class CommonUtils {
                 }
             }
         }
-        return context.getPackageName().equals(process);
+        String mainProcessName = null;
+        ApplicationInfo applicationInfo = context.getApplicationInfo();
+        if (applicationInfo != null) {
+            mainProcessName = context.getApplicationInfo().processName;
+        }
+        if (mainProcessName == null) {
+            mainProcessName = context.getPackageName();
+        }
+        sIsMainProcess = mainProcessName.equals(process);
+
+        return sIsMainProcess;
     }
 
 
@@ -796,7 +870,16 @@ public class CommonUtils {
      */
     public static String getAndroidID(Context context) {
         try {
-            return Settings.System.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+
+            String androidId = SharedUtil.getString(AnalysysUtil.getContext(), Constants.SP_ANDID, null);
+            if (!TextUtils.isEmpty(androidId)) {
+                return androidId;
+            }
+            String cacheAndroidId = Settings.System.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            SharedUtil.setString(context,Constants.SP_ANDID,cacheAndroidId);
+            return cacheAndroidId;
+
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
             return null;
@@ -845,10 +928,18 @@ public class CommonUtils {
         }
     }
 
+    private static String sCarrierNameCache = null;
+
     /**
      * 获取当前的运营商
      */
     public static String getCarrierName(Context context) {
+
+
+        if (sCarrierNameCache != null) {
+            return sCarrierNameCache;
+        }
+        sCarrierNameCache = "";
         try {
             if (checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
                 TelephonyManager mTelephonyMgr = (TelephonyManager)
@@ -857,11 +948,11 @@ public class CommonUtils {
                     String imsi = mTelephonyMgr.getSubscriberId();
                     if (!isEmpty(imsi)) {
                         if (imsi.startsWith("46000") || imsi.startsWith("46002")) {
-                            return "中国移动";
+                            sCarrierNameCache = "中国移动";
                         } else if (imsi.startsWith("46001")) {
-                            return "中国联通";
+                            sCarrierNameCache = "中国联通";
                         } else if (imsi.startsWith("46003")) {
-                            return "中国电信";
+                            sCarrierNameCache = "中国电信";
                         }
                     }
                 }
@@ -869,7 +960,11 @@ public class CommonUtils {
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionPrint(ignore);
         }
-        return null;
+        if (TextUtils.isEmpty(sCarrierNameCache)) {
+            return null;
+        } else {
+            return sCarrierNameCache;
+        }
     }
 
     /**
@@ -927,13 +1022,13 @@ public class CommonUtils {
      * 是否首日访问
      */
     public static Object isFirstDay(Context context) {
-        String nowTime = getDay();
-        String firstDay = SharedUtil.getString(context, Constants.DEV_IS_FIRST_DAY, null);
-        if (isEmpty(firstDay)) {
-            SharedUtil.setString(context, Constants.DEV_IS_FIRST_DAY, nowTime);
-            return true;
+        String firstTimeSP = SharedUtil.getString(context, Constants.SP_FIRST_START_TIME, Constants.EMPTY);
+        if (!isEmpty(firstTimeSP)) {
+            String firstDay = getDay();
+            String firstDaySP = firstTimeSP.substring(0, firstTimeSP.indexOf(" "));
+            return firstDay.equals(firstDaySP);
         } else {
-            return firstDay.equals(nowTime);
+            return true;
         }
     }
 
@@ -952,41 +1047,98 @@ public class CommonUtils {
         return 0;
     }
 
+    private static String sIMEICache = null;
 
     /**
      * 获取 IMEI
      */
     public static String getIMEI(Context context) {
+
+        String imeiCache = SharedUtil.getString(AnalysysUtil.getContext(), Constants.SP_IMEI, null);
+        if (!TextUtils.isEmpty(imeiCache)) {
+            ANSLog.d("get imei cache");
+            return imeiCache;
+        }
+        imeiCache = "";
         try {
             if (checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
                 TelephonyManager telephonyMgr =
                         (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
                 if (telephonyMgr != null) {
-                    return telephonyMgr.getDeviceId();
+                    imeiCache = telephonyMgr.getDeviceId();
+                    SharedUtil.setString(context,Constants.SP_IMEI,imeiCache);
                 }
+                ANSLog.d("get imei");
             }
         } catch (Throwable ignore) {
-            ExceptionUtil.exceptionThrow(ignore);
+            ExceptionUtil.exceptionPrint(ignore);
         }
-        return Constants.EMPTY;
+        return imeiCache;
+
+//        if (sIMEICache != null) {
+//            return sIMEICache;
+//        }
+//        sIMEICache = "";
+//        try {
+//            if (checkPermission(context, Manifest.permission.READ_PHONE_STATE)) {
+//                TelephonyManager telephonyMgr =
+//                        (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//                if (telephonyMgr != null) {
+//                    sIMEICache = telephonyMgr.getDeviceId();
+//                }
+//            }
+//        } catch (Throwable ignore) {
+//            ExceptionUtil.exceptionPrint(ignore);
+//        }
+//        return sIMEICache;
     }
+
+    private static String sMacCache = null;
 
     /**
      * 获取mac地址
      */
     public static Object getMac(Context context) {
+        String macCache = SharedUtil.getString(AnalysysUtil.getContext(), Constants.SP_MAC, null);
+        if (!TextUtils.isEmpty(macCache)) {
+            ANSLog.d("get mac address cache");
+            return macCache;
+        }
+        macCache = "";
         try {
             if (Build.VERSION.SDK_INT < 23) {
-                return getMacBySystemInterface(context);
+                macCache = getMacBySystemInterface(context);
             } else if (Build.VERSION.SDK_INT == 23) {
-                return getMacByFileAndJavaAPI(context);
+                macCache = getMacByFileAndJavaAPI(context);
             } else {
-                return getMacByJavaAPI();
+                macCache = getMacByJavaAPI();
             }
+            ANSLog.d("get mac address");
+            SharedUtil.setString(context,Constants.SP_MAC,macCache);
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
         }
-        return Constants.EMPTY;
+        return macCache;
+
+
+//        if (sMacCache != null) {
+//            return sMacCache;
+//        }
+//        sMacCache = "";
+//        try {
+//            if (Build.VERSION.SDK_INT < 23) {
+//                sMacCache = getMacBySystemInterface(context);
+//            } else if (Build.VERSION.SDK_INT == 23) {
+//                sMacCache = getMacByFileAndJavaAPI(context);
+//            } else {
+//                sMacCache = getMacByJavaAPI();
+//            }
+//
+//            SharedUtil.setString(context,Constants.SP_ANDID,sMacCache);
+//        } catch (Throwable ignore) {
+//            ExceptionUtil.exceptionThrow(ignore);
+//        }
+        //return sMacCache;
     }
 
     private static String getMacBySystemInterface(Context context) {
@@ -1185,7 +1337,6 @@ public class CommonUtils {
             certName = getManifestData(context, Constants.DEV_KEYSTONE);
         }
         if (TextUtils.isEmpty(certName)) {
-//            return getDefaultSSLSocketFactory();
             return null;
         } else {
             return getUserSSLSocketFactory(context, certName);
@@ -1296,28 +1447,244 @@ public class CommonUtils {
         }
     }
 
-    public static String getProcessName() {
+    public static String[] getViewTypeAndText(View view, boolean isClickable) {
+        String viewType = "";
+        CharSequence viewText = "";
+        if (view instanceof CheckBox) {
+            // CheckBox
+//            viewType = "CheckBox";
+            CheckBox checkBox = (CheckBox) view;
+            viewText = checkBox.getText();
+        } else if (view instanceof RadioButton) {
+            // RadioButton
+//            viewType = "RadioButton";
+            RadioButton radioButton = (RadioButton) view;
+            viewText = radioButton.getText();
+        } else if (view instanceof ToggleButton) {
+            // ToggleButton
+//            viewType = "ToggleButton";
+            viewText = getCompoundButtonText(view);
+        } else if (view instanceof CompoundButton) {
+//            viewType = getViewTypeByReflect(view);
+            viewText = getCompoundButtonText(view);
+        } else if (view instanceof Button) {
+            // Button
+//            viewType = "Button";
+            Button button = (Button) view;
+            viewText = button.getText();
+        } else if (view instanceof CheckedTextView) {
+            // CheckedTextView
+//            viewType = "CheckedTextView";
+            CheckedTextView textView = (CheckedTextView) view;
+            viewText = textView.getText();
+        } else if (view instanceof TextView) {
+            // TextView
+//            viewType = "TextView";
+            TextView textView = (TextView) view;
+            viewText = textView.getText();
+        } else if (view instanceof ImageView) {
+            // ImageView
+//            viewType = "ImageView";
+            ImageView imageView = (ImageView) view;
+            if (!TextUtils.isEmpty(imageView.getContentDescription())) {
+                viewText = imageView.getContentDescription().toString();
+            }
+        } else if (view instanceof RatingBar) {
+//            viewType = "RatingBar";
+            RatingBar ratingBar = (RatingBar) view;
+            viewText = String.valueOf(ratingBar.getRating());
+        } else if (view instanceof SeekBar) {
+//            viewType = "SeekBar";
+            SeekBar seekBar = (SeekBar) view;
+            viewText = String.valueOf(seekBar.getProgress());
+        } else if (view instanceof ExpandableListView) {
+//            viewType = "ExpandableListView";
+            viewText = "";
+        } else if (view instanceof ListView) {
+//            viewType = "ListView";
+            viewText = "";
+        } else if (view instanceof GridView) {
+//            viewType = "GridView";
+            viewText = "";
+        } else if (view instanceof Spinner) {
+//            viewType = "Spinner";
+            StringBuilder stringBuilder = new StringBuilder();
+            viewText = traverseView(stringBuilder, (ViewGroup) view);
+            if (!TextUtils.isEmpty(viewText)) {
+                viewText = viewText.toString().substring(0, viewText.length() - 1);
+            }
+        } else if (view instanceof ViewGroup) {
+//            viewType = getViewGroupTypeByReflect(view);
+            viewText = view.getContentDescription();
+            if (TextUtils.isEmpty(viewText) && isClickable) {
+                try {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    viewText = traverseView(stringBuilder, (ViewGroup) view);
+                    if (!TextUtils.isEmpty(viewText)) {
+                        viewText = viewText.toString().substring(0, viewText.length() - 1);
+                    }
+                } catch (Throwable ignore) {
+                    ExceptionUtil.exceptionThrow(ignore);
+                }
+            }
+        }
+
+//        if (TextUtils.isEmpty(viewType)) {
+        viewType = view.getClass().getName();
+//        }
+
+        if (TextUtils.isEmpty(viewText)) {
+            viewText = "";
+            if (!TextUtils.isEmpty(view.getContentDescription())) {
+                viewText = view.getContentDescription().toString();
+            }
+        }
+        return new String[]{viewType, viewText.toString()};
+    }
+
+    /**
+     * 获取 CompoundButton text
+     *
+     * @param view view
+     * @return CompoundButton 显示的内容
+     */
+    private static String getCompoundButtonText(View view) {
         try {
-            ActivityManager activityManager = (ActivityManager) AnalysysUtil.getContext().getSystemService(Context.ACTIVITY_SERVICE);
-            List<ActivityManager.RunningAppProcessInfo> runningApps = null;
-            if (activityManager != null) {
-                runningApps = activityManager.getRunningAppProcesses();
+            CompoundButton switchButton = (CompoundButton) view;
+            Method method;
+            if (switchButton.isChecked()) {
+                method = view.getClass().getMethod("getTextOn");
+            } else {
+                method = view.getClass().getMethod("getTextOff");
             }
-            if (runningApps == null) {
-                return "";
+            return (String) method.invoke(view);
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+            return "UNKNOWN";
+        }
+    }
+
+    private static String traverseView(StringBuilder stringBuilder, ViewGroup root) {
+        try {
+            if (stringBuilder == null) {
+                stringBuilder = new StringBuilder();
             }
-            String process = "";
-            for (ActivityManager.RunningAppProcessInfo proInfo : runningApps) {
-                if (proInfo.pid == android.os.Process.myPid()) {
-                    if (proInfo.processName != null) {
-                        process = proInfo.processName;
+
+            if (root == null) {
+                return stringBuilder.toString();
+            }
+
+            final int childCount = root.getChildCount();
+            for (int i = 0; i < childCount; ++i) {
+                final View child = root.getChildAt(i);
+
+                if (child != null) {
+                    if (child.getVisibility() != View.VISIBLE) {
+                        continue;
+                    }
+
+                    if (child instanceof ViewGroup) {
+                        traverseView(stringBuilder, (ViewGroup) child);
+                    } else {
+                        String viewText = getViewText(child);
+                        if (!TextUtils.isEmpty(viewText)) {
+                            stringBuilder.append(viewText);
+                            stringBuilder.append("-");
+                        }
                     }
                 }
             }
-            return process;
+            return stringBuilder.toString();
         } catch (Throwable ignore) {
             ExceptionUtil.exceptionThrow(ignore);
+            return stringBuilder != null ? stringBuilder.toString() : "";
+        }
+    }
+
+    private static String getViewText(View child) {
+        if (child == null) {
             return "";
         }
+        if (child instanceof EditText) {
+            return "";
+        }
+        try {
+            Class<?> switchCompatClass = null;
+            switchCompatClass = AnsReflectUtils.getClassByName("android.support.v7.widget.SwitchCompat");
+
+            if (switchCompatClass == null) {
+                switchCompatClass = AnsReflectUtils.getClassByName("androidx.appcompat.widget.SwitchCompat");
+            }
+
+            CharSequence viewText = null;
+
+            if (child instanceof CheckBox) {
+                CheckBox checkBox = (CheckBox) child;
+                viewText = checkBox.getText();
+            } else if (switchCompatClass != null && switchCompatClass.isInstance(child)) {
+                CompoundButton switchCompat = (CompoundButton) child;
+                Method method;
+                if (switchCompat.isChecked()) {
+                    method = child.getClass().getMethod("getTextOn");
+                } else {
+                    method = child.getClass().getMethod("getTextOff");
+                }
+                viewText = (String) method.invoke(child);
+            } else if (child instanceof RadioButton) {
+                RadioButton radioButton = (RadioButton) child;
+                viewText = radioButton.getText();
+            } else if (child instanceof ToggleButton) {
+                ToggleButton toggleButton = (ToggleButton) child;
+                boolean isChecked = toggleButton.isChecked();
+                if (isChecked) {
+                    viewText = toggleButton.getTextOn();
+                } else {
+                    viewText = toggleButton.getTextOff();
+                }
+            } else if (child instanceof Button) {
+                Button button = (Button) child;
+                viewText = button.getText();
+            } else if (child instanceof CheckedTextView) {
+                CheckedTextView textView = (CheckedTextView) child;
+                viewText = textView.getText();
+            } else if (child instanceof TextView) {
+                TextView textView = (TextView) child;
+                viewText = textView.getText();
+            } else if (child instanceof ImageView) {
+                ImageView imageView = (ImageView) child;
+                if (!TextUtils.isEmpty(imageView.getContentDescription())) {
+                    viewText = imageView.getContentDescription().toString();
+                }
+            } else {
+                viewText = child.getContentDescription();
+            }
+            if (TextUtils.isEmpty(viewText) && child instanceof TextView) {
+                viewText = ((TextView) child).getHint();
+            }
+            if (!TextUtils.isEmpty(viewText)) {
+                return viewText.toString();
+            }
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionThrow(ignore);
+        }
+        return "";
+    }
+
+    public static boolean verifyHost(String hostname, String url) {
+        String uploadHost = null;
+        try {
+            if (TextUtils.isEmpty(hostname)) {
+                return false;
+            }
+            if(TextUtils.isEmpty(url)) {
+                url = CommonUtils.getUrl(AnalysysUtil.getContext());
+            }
+            ANSLog.i("verify url: " + url);
+            uploadHost = URI.create(url).getHost();
+        } catch (Throwable ignore) {
+            ExceptionUtil.exceptionPrint(ignore);
+        }
+        ANSLog.i("verify " + hostname + ", " + uploadHost);
+        return TextUtils.equals(hostname, uploadHost);
     }
 }
